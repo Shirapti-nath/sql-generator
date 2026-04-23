@@ -50,4 +50,18 @@ export const templateAPI = {
   save: (templateId) => api.post('/templates/save', { templateId }),
 };
 
+export const linkedinAPI = {
+  optimize: (data) => api.post('/linkedin/optimize', data),
+  getHistory: () => api.get('/linkedin/history'),
+  getOne: (id) => api.get(`/linkedin/${id}`),
+  delete: (id) => api.delete(`/linkedin/${id}`),
+};
+
+export const coverLetterAPI = {
+  generate: (data) => api.post('/cover-letters/generate', data),
+  getHistory: () => api.get('/cover-letters/history'),
+  getOne: (id) => api.get(`/cover-letters/${id}`),
+  delete: (id) => api.delete(`/cover-letters/${id}`),
+};
+
 export default api;

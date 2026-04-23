@@ -11,6 +11,8 @@ import Analyzer from './pages/Analyzer';
 import Builder from './pages/Builder';
 import Templates from './pages/Templates';
 import AnalysisReport from './pages/AnalysisReport';
+import LinkedIn from './pages/LinkedIn';
+import CoverLetter from './pages/CoverLetter';
 
 const ProtectedRoute = ({ children }) => {
   const { token, initialized } = useAuthStore();
@@ -46,6 +48,8 @@ export default function App() {
           <Route path="/builder" element={<ProtectedRoute><Builder /></ProtectedRoute>} />
           <Route path="/builder/:id" element={<ProtectedRoute><Builder /></ProtectedRoute>} />
           <Route path="/report/:id" element={<ProtectedRoute><AnalysisReport /></ProtectedRoute>} />
+          <Route path="/linkedin" element={<ProtectedRoute><LinkedIn /></ProtectedRoute>} />
+          <Route path="/cover-letter" element={<ProtectedRoute><CoverLetter /></ProtectedRoute>} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </AnimatePresence>

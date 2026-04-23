@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import useAuthStore from '../store/authStore';
@@ -14,16 +14,107 @@ const Logo = () => (
   </Link>
 );
 
+const AI_TOOLS = [
+  {
+    to: '/analyze',
+    label: 'Resume Analyzer',
+    desc: 'ATS score & AI feedback',
+    icon: '📊',
+  },
+  {
+    to: '/linkedin',
+    label: 'LinkedIn Optimizer',
+    desc: 'Profile score & rewrite',
+    icon: '💼',
+  },
+  {
+    to: '/cover-letter',
+    label: 'Cover Letter Generator',
+    desc: 'AI-written, tailored letters',
+    icon: '✉️',
+  },
+];
+
+function AIToolsDropdown({ location }) {
+  const [open, setOpen] = useState(false);
+  const ref = useRef(null);
+
+  const isActive = ['/analyze', '/linkedin', '/cover-letter'].includes(location.pathname);
+
+  useEffect(() => {
+    const handler = (e) => { if (ref.current && !ref.current.contains(e.target)) setOpen(false); };
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, []);
+
+  return (
+    <div className="relative" ref={ref}>
+      <button
+        onClick={() => setOpen(!open)}
+        className={`flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
+          isActive ? 'bg-indigo-600/20 text-indigo-400' : 'text-slate-400 hover:text-white hover:bg-white/5'
+        }`}
+      >
+        AI Tools
+        <svg className={`w-3.5 h-3.5 transition-transform duration-200 ${open ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+        </svg>
+      </button>
+
+      <AnimatePresence>
+        {open && (
+          <motion.div
+            initial={{ opacity: 0, y: -8, scale: 0.96 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -8, scale: 0.96 }}
+            transition={{ duration: 0.15 }}
+            className="absolute top-full left-0 mt-2 w-60 glass rounded-xl border border-white/10 shadow-2xl shadow-black/40 overflow-hidden z-50"
+          >
+            {AI_TOOLS.map((tool) => (
+              <Link
+                key={tool.to}
+                to={tool.to}
+                onClick={() => setOpen(false)}
+                className={`flex items-start gap-3 px-4 py-3 hover:bg-white/5 transition-colors ${
+                  location.pathname === tool.to ? 'bg-indigo-600/10' : ''
+                }`}
+              >
+                <span className="text-lg mt-0.5 flex-shrink-0">{tool.icon}</span>
+                <div>
+                  <div className={`text-sm font-medium ${location.pathname === tool.to ? 'text-indigo-400' : 'text-white'}`}>
+                    {tool.label}
+                  </div>
+                  <div className="text-xs text-slate-500">{tool.desc}</div>
+                </div>
+              </Link>
+            ))}
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+}
+
 export default function Navbar() {
   const { user, logout } = useAuthStore();
   const location = useLocation();
   const navigate = useNavigate();
   const [menuOpen, setMenuOpen] = useState(false);
 
-  const navLinks = user
+  const primaryLinks = user
     ? [
         { to: '/dashboard', label: 'Dashboard' },
-        { to: '/analyze', label: 'Analyze' },
+        { to: '/builder', label: 'Builder' },
+        { to: '/templates', label: 'Templates' },
+      ]
+    : [{ to: '/templates', label: 'Templates' }];
+
+  const mobileLinks = user
+    ? [
+        { to: '/dashboard', label: 'Dashboard' },
+        { to: '/analyze', label: '📊 Resume Analyzer' },
+        { to: '/linkedin', label: '💼 LinkedIn Optimizer' },
+        { to: '/cover-letter', label: '✉️ Cover Letter Generator' },
         { to: '/builder', label: 'Builder' },
         { to: '/templates', label: 'Templates' },
       ]
@@ -42,7 +133,37 @@ export default function Navbar() {
 
           {/* Desktop nav */}
           <div className="hidden md:flex items-center gap-1">
-            {navLinks.map((link) => (
+            {primaryLinks.slice(0, 1).map((link) => (
+              <Link
+                key={link.to}
+                to={link.to}
+                className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
+                  location.pathname === link.to
+                    ? 'bg-indigo-600/20 text-indigo-400'
+                    : 'text-slate-400 hover:text-white hover:bg-white/5'
+                }`}
+              >
+                {link.label}
+              </Link>
+            ))}
+
+            {user && <AIToolsDropdown location={location} />}
+
+            {primaryLinks.slice(1).map((link) => (
+              <Link
+                key={link.to}
+                to={link.to}
+                className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
+                  location.pathname === link.to
+                    ? 'bg-indigo-600/20 text-indigo-400'
+                    : 'text-slate-400 hover:text-white hover:bg-white/5'
+                }`}
+              >
+                {link.label}
+              </Link>
+            ))}
+
+            {!user && primaryLinks.map((link) => (
               <Link
                 key={link.to}
                 to={link.to}
@@ -100,21 +221,25 @@ export default function Navbar() {
             exit={{ opacity: 0, height: 0 }}
             className="md:hidden border-t border-white/10 bg-slate-950/95 backdrop-blur-md"
           >
-            <div className="px-4 py-4 space-y-2">
-              {navLinks.map((link) => (
+            <div className="px-4 py-4 space-y-1">
+              {mobileLinks.map((link) => (
                 <Link key={link.to} to={link.to} onClick={() => setMenuOpen(false)}
-                  className="block px-4 py-2 rounded-lg text-slate-300 hover:text-white hover:bg-white/5 transition-all">
+                  className={`block px-4 py-2.5 rounded-lg text-sm transition-all ${
+                    location.pathname === link.to
+                      ? 'bg-indigo-600/20 text-indigo-400 font-medium'
+                      : 'text-slate-300 hover:text-white hover:bg-white/5'
+                  }`}>
                   {link.label}
                 </Link>
               ))}
               {user ? (
-                <button onClick={handleLogout} className="w-full text-left px-4 py-2 rounded-lg text-red-400 hover:bg-white/5">
+                <button onClick={handleLogout} className="w-full text-left px-4 py-2 rounded-lg text-red-400 hover:bg-white/5 text-sm mt-2">
                   Sign out
                 </button>
               ) : (
                 <>
-                  <Link to="/login" onClick={() => setMenuOpen(false)} className="block px-4 py-2 rounded-lg text-slate-300 hover:text-white hover:bg-white/5">Sign in</Link>
-                  <Link to="/register" onClick={() => setMenuOpen(false)} className="block text-center btn-primary mt-2">Get Started</Link>
+                  <Link to="/login" onClick={() => setMenuOpen(false)} className="block px-4 py-2 rounded-lg text-slate-300 hover:text-white hover:bg-white/5 text-sm">Sign in</Link>
+                  <Link to="/register" onClick={() => setMenuOpen(false)} className="block text-center btn-primary mt-2 text-sm">Get Started</Link>
                 </>
               )}
             </div>

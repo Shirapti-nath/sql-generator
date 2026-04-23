@@ -12,6 +12,8 @@ const authRoutes = require('./src/routes/auth.routes');
 const resumeRoutes = require('./src/routes/resume.routes');
 const analysisRoutes = require('./src/routes/analysis.routes');
 const templateRoutes = require('./src/routes/template.routes');
+const linkedinRoutes = require('./src/routes/linkedin.routes');
+const coverLetterRoutes = require('./src/routes/coverletter.routes');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -43,12 +45,16 @@ const aiLimiter = rateLimit({
   message: 'AI analysis rate limit exceeded. Please wait a minute.',
 });
 app.use('/api/analysis', aiLimiter);
+app.use('/api/linkedin', aiLimiter);
+app.use('/api/cover-letters', aiLimiter);
 
 app.use('/uploads', express.static(uploadsDir));
 app.use('/api/auth', authRoutes);
 app.use('/api/resumes', resumeRoutes);
 app.use('/api/analysis', analysisRoutes);
 app.use('/api/templates', templateRoutes);
+app.use('/api/linkedin', linkedinRoutes);
+app.use('/api/cover-letters', coverLetterRoutes);
 
 app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });

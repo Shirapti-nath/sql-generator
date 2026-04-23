@@ -6,9 +6,14 @@ import useAuthStore from '../store/authStore';
 
 const DOMAINS = [
   { value: 'software-engineering', label: 'Software Engineering' },
+  { value: 'fullstack', label: 'Full Stack Development' },
   { value: 'ai-ml', label: 'AI / Machine Learning' },
-  { value: 'data-science', label: 'Data Science' },
-  { value: 'other', label: 'Other' },
+  { value: 'data-science', label: 'Data Science & Analytics' },
+  { value: 'devops-cloud', label: 'DevOps & Cloud' },
+  { value: 'mobile', label: 'Mobile Development' },
+  { value: 'cybersecurity', label: 'Cybersecurity' },
+  { value: 'product-management', label: 'Product Management' },
+  { value: 'other', label: 'Other Tech Role' },
 ];
 
 export default function Register() {
@@ -36,7 +41,7 @@ export default function Register() {
         className="w-full max-w-md">
         <div className="text-center mb-8">
           <h1 className="text-3xl font-black text-white">Create your account</h1>
-          <p className="text-slate-400 mt-2">Start optimizing your resume with AI</p>
+          <p className="text-slate-400 mt-2">Start optimizing your career with AI</p>
         </div>
 
         <div className="card">
@@ -57,7 +62,7 @@ export default function Register() {
                 className="input-field" placeholder="Min. 6 characters" required />
             </div>
             <div>
-              <label className="block text-sm font-medium text-slate-300 mb-2">Your Domain</label>
+              <label className="block text-sm font-medium text-slate-300 mb-2">Your Tech Role</label>
               <select value={form.domain} onChange={set('domain')} className="input-field">
                 {DOMAINS.map((d) => (
                   <option key={d.value} value={d.value}>{d.label}</option>

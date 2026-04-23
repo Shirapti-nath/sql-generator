@@ -1,0 +1,625 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ResumeAI — AI-Powered Resume Analyzer</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <style>
+    * { font-family: 'Inter', sans-serif; box-sizing: border-box; }
+    body { background: #020617; color: #f1f5f9; margin: 0; }
+    .gradient-text { background: linear-gradient(135deg, #818cf8, #a78bfa, #f472b6); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+    .glass { background: rgba(255,255,255,0.04); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.08); }
+    .card { background: rgba(255,255,255,0.04); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.08); border-radius: 16px; padding: 24px; }
+    .btn-primary { background: linear-gradient(135deg, #4f46e5, #7c3aed); color: white; font-weight: 600; padding: 12px 24px; border-radius: 12px; border: none; cursor: pointer; transition: all 0.2s; box-shadow: 0 4px 20px rgba(99,102,241,0.3); }
+    .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 8px 28px rgba(99,102,241,0.4); }
+    .btn-sec { background: rgba(255,255,255,0.08); color: white; font-weight: 500; padding: 12px 24px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.15); cursor: pointer; transition: all 0.2s; }
+    .btn-sec:hover { background: rgba(255,255,255,0.14); }
+    .tag-indigo { background: rgba(99,102,241,0.2); color: #a5b4fc; font-size: 12px; font-weight: 500; padding: 3px 10px; border-radius: 999px; }
+    .tag-green { background: rgba(16,185,129,0.2); color: #6ee7b7; font-size: 12px; font-weight: 500; padding: 3px 10px; border-radius: 999px; }
+    .tag-red { background: rgba(239,68,68,0.2); color: #fca5a5; font-size: 12px; font-weight: 500; padding: 3px 10px; border-radius: 999px; }
+    .tag-amber { background: rgba(245,158,11,0.2); color: #fcd34d; font-size: 12px; font-weight: 500; padding: 3px 10px; border-radius: 999px; }
+    .progress-bar { height: 8px; border-radius: 999px; background: #1e293b; overflow: hidden; }
+    .progress-fill { height: 100%; border-radius: 999px; transition: width 1.5s ease; }
+    .nav-link { color: #94a3b8; text-decoration: none; padding: 8px 16px; border-radius: 8px; font-size: 14px; font-weight: 500; transition: all 0.2s; }
+    .nav-link:hover, .nav-link.active { background: rgba(99,102,241,0.15); color: #a5b4fc; }
+    .page { display: none; }
+    .page.active { display: block; }
+    @keyframes float { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-12px); } }
+    @keyframes fadeInUp { from { opacity:0; transform:translateY(24px); } to { opacity:1; transform:translateY(0); } }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    @keyframes countUp { from { opacity:0; transform:scale(0.5); } to { opacity:1; transform:scale(1); } }
+    .animate-float { animation: float 6s ease-in-out infinite; }
+    .animate-fade { animation: fadeInUp 0.6s ease forwards; }
+    .orb1 { position:absolute; width:600px; height:600px; border-radius:50%; background:radial-gradient(circle, rgba(99,102,241,0.15), transparent 70%); top:-200px; right:-200px; pointer-events:none; }
+    .orb2 { position:absolute; width:500px; height:500px; border-radius:50%; background:radial-gradient(circle, rgba(168,85,247,0.12), transparent 70%); bottom:-200px; left:-200px; pointer-events:none; }
+    .input { width:100%; background:rgba(30,41,59,0.8); border:1px solid #334155; border-radius:12px; padding:12px 16px; color:#f1f5f9; font-size:14px; outline:none; transition:border-color 0.2s; }
+    .input:focus { border-color:#6366f1; }
+    .score-text { animation: countUp 0.8s ease 0.5s forwards; opacity:0; }
+    .tab-btn { padding:8px 20px; border-radius:10px; font-size:14px; font-weight:500; border:none; cursor:pointer; transition:all 0.2s; }
+    .tab-btn.active { background:#4f46e5; color:white; }
+    .tab-btn:not(.active) { background:rgba(255,255,255,0.05); color:#94a3b8; }
+    .tab-btn:not(.active):hover { background:rgba(255,255,255,0.1); color:white; }
+    .template-card { border-radius:16px; overflow:hidden; border:1px solid rgba(255,255,255,0.08); transition:all 0.25s; cursor:pointer; background:rgba(255,255,255,0.03); }
+    .template-card:hover { border-color:rgba(99,102,241,0.4); transform:translateY(-3px); box-shadow:0 12px 32px rgba(99,102,241,0.15); }
+    .radar-placeholder { background:rgba(99,102,241,0.05); border:1px solid rgba(99,102,241,0.15); border-radius:12px; height:200px; display:flex; align-items:center; justify-content:center; position:relative; overflow:hidden; }
+    .step-dot { width:32px; height:32px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:13px; font-weight:700; transition:all 0.3s; }
+    .step-dot.done { background:#4f46e5; color:white; }
+    .step-dot.active { background:linear-gradient(135deg,#4f46e5,#7c3aed); color:white; box-shadow:0 0 0 4px rgba(99,102,241,0.2); }
+    .step-dot.todo { background:#1e293b; color:#64748b; border:2px solid #334155; }
+    .builder-input { width:100%; background:rgba(15,23,42,0.8); border:1px solid #334155; border-radius:10px; padding:10px 14px; color:#e2e8f0; font-size:13px; outline:none; }
+    .builder-input:focus { border-color:#6366f1; }
+    .resume-preview { background:white; color:#111; padding:32px; font-size:11px; line-height:1.5; font-family:'Inter',sans-serif; min-height:600px; border-radius:8px; box-shadow:0 20px 60px rgba(0,0,0,0.5); }
+    .resume-section-title { font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:0.1em; color:#4f46e5; border-bottom:2px solid #4f46e5; padding-bottom:3px; margin-bottom:8px; margin-top:16px; }
+    .bullet::before { content:'•'; margin-right:6px; color:#4f46e5; }
+    .metric-card { background:rgba(99,102,241,0.08); border:1px solid rgba(99,102,241,0.2); border-radius:12px; padding:16px; text-align:center; }
+    .notification { position:fixed; top:80px; right:20px; z-index:100; background:linear-gradient(135deg,#1e1b4b,#2e1065); border:1px solid #4338ca; border-radius:12px; padding:14px 20px; color:#e0e7ff; font-size:14px; box-shadow:0 8px 32px rgba(0,0,0,0.4); display:none; animation:fadeInUp 0.3s ease; }
+    .notification.show { display:flex; align-items:center; gap:10px; }
+    .upload-zone { border:2px dashed #334155; border-radius:16px; padding:40px; text-align:center; cursor:pointer; transition:all 0.2s; }
+    .upload-zone:hover { border-color:#6366f1; background:rgba(99,102,241,0.05); }
+    .upload-zone.drag { border-color:#6366f1; background:rgba(99,102,241,0.1); }
+  </style>
+</head>
+<body>
+
+<!-- Notification -->
+<div class="notification" id="notif">
+  <span id="notif-icon">✅</span>
+  <span id="notif-text">Action completed!</span>
+</div>
+
+<!-- Navbar -->
+<nav class="glass fixed top-0 left-0 right-0 z-50" style="border-bottom:1px solid rgba(255,255,255,0.08);">
+  <div style="max-width:1280px;margin:0 auto;padding:0 24px;display:flex;align-items:center;justify-content:space-between;height:64px;">
+    <div style="display:flex;align-items:center;gap:10px;cursor:pointer;" onclick="showPage('home')">
+      <div style="width:36px;height:36px;background:linear-gradient(135deg,#6366f1,#a855f7);border-radius:10px;display:flex;align-items:center;justify-content:center;">
+        <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="white"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+      </div>
+      <span style="font-size:18px;font-weight:800;" class="gradient-text">ResumeAI</span>
+    </div>
+    <div style="display:flex;gap:4px;">
+      <a class="nav-link active" onclick="showPage('dashboard')" href="#">Dashboard</a>
+      <a class="nav-link" onclick="showPage('analyzer')" href="#">Analyze</a>
+      <a class="nav-link" onclick="showPage('builder')" href="#">Builder</a>
+      <a class="nav-link" onclick="showPage('templates')" href="#">Templates</a>
+    </div>
+    <div style="display:flex;align-items:center;gap:12px;">
+      <div style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#6366f1,#a855f7);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:15px;">J</div>
+      <button class="btn-sec" style="padding:8px 16px;font-size:13px;">Sign out</button>
+    </div>
+  </div>
+</nav>
+
+<!-- ===== HOME PAGE ===== -->
+<div id="page-home" class="page active" style="padding-top:64px;min-height:100vh;overflow:hidden;position:relative;">
+  <div class="orb1"></div><div class="orb2"></div>
+  <div style="max-width:900px;margin:0 auto;padding:80px 24px;text-align:center;position:relative;">
+    <div style="display:inline-flex;align-items:center;gap:8px;padding:8px 20px;border-radius:999px;background:rgba(99,102,241,0.1);border:1px solid rgba(99,102,241,0.25);color:#a5b4fc;font-size:13px;font-weight:500;margin-bottom:32px;" class="animate-fade">
+      <span style="width:8px;height:8px;background:#34d399;border-radius:50%;animation:spin 2s linear infinite;box-shadow:0 0 8px #34d399;"></span>
+      Powered by Claude AI — Built for CS, AI & Data Science
+    </div>
+    <h1 style="font-size:clamp(42px,7vw,80px);font-weight:900;line-height:1.1;margin-bottom:24px;" class="animate-fade">
+      Land Your Dream Job<br/>
+      <span class="gradient-text">with AI-Powered</span><br/>
+      Resume Analysis
+    </h1>
+    <p style="font-size:18px;color:#94a3b8;max-width:600px;margin:0 auto 40px;line-height:1.7;" class="animate-fade">
+      Upload your resume and get an instant ATS score, actionable AI feedback, and rewritten bullet points — tailored for tech roles.
+    </p>
+    <div style="display:flex;gap:16px;justify-content:center;flex-wrap:wrap;" class="animate-fade">
+      <button class="btn-primary" style="font-size:16px;padding:16px 36px;" onclick="showPage('analyzer')">🚀 Analyze My Resume — Free</button>
+      <button class="btn-sec" style="font-size:16px;padding:16px 36px;" onclick="showPage('templates')">Browse Templates</button>
+    </div>
+    <div style="display:flex;justify-content:center;gap:48px;margin-top:64px;padding-top:40px;border-top:1px solid rgba(255,255,255,0.08);">
+      <div style="text-align:center;"><div style="font-size:32px;font-weight:900;" class="gradient-text">95%</div><div style="color:#64748b;font-size:13px;margin-top:4px;">ATS Pass Rate</div></div>
+      <div style="text-align:center;"><div style="font-size:32px;font-weight:900;" class="gradient-text">10k+</div><div style="color:#64748b;font-size:13px;margin-top:4px;">Resumes Analyzed</div></div>
+      <div style="text-align:center;"><div style="font-size:32px;font-weight:900;" class="gradient-text">3</div><div style="color:#64748b;font-size:13px;margin-top:4px;">CS Domains</div></div>
+      <div style="text-align:center;"><div style="font-size:32px;font-weight:900;" class="gradient-text">10</div><div style="color:#64748b;font-size:13px;margin-top:4px;">ATS Templates</div></div>
+    </div>
+  </div>
+
+  <!-- Features -->
+  <div style="max-width:1200px;margin:0 auto;padding:40px 24px 80px;">
+    <h2 style="text-align:center;font-size:36px;font-weight:900;margin-bottom:48px;">Everything to <span class="gradient-text">get hired</span></h2>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:20px;">
+      ${[
+        ['📊','ATS Score Engine','0–100 score across keywords, formatting, completeness, and experience clarity.','linear-gradient(135deg,#6366f1,#a855f7)'],
+        ['⚡','AI Suggestions','Claude AI rewrites bullet points with strong action verbs and quantifiable metrics.','linear-gradient(135deg,#f59e0b,#ef4444)'],
+        ['🎨','10 ATS Templates','5 student + 5 professional templates — visually stunning and ATS-friendly.','linear-gradient(135deg,#10b981,#0ea5e9)'],
+        ['✏️','Resume Builder','Build from scratch with live preview, section-by-section, download as PDF.','linear-gradient(135deg,#ec4899,#f43f5e)'],
+        ['🔍','Keyword Optimizer','Discover missing keywords for CS, AI/ML, Data Science domains.','linear-gradient(135deg,#06b6d4,#3b82f6)'],
+        ['🎯','Domain Analysis','Tailored feedback for Software Engineering, AI/ML, and Data Science.','linear-gradient(135deg,#8b5cf6,#6366f1)'],
+      ].map(([icon,title,desc,grad]) => `
+      <div class="card" style="transition:all 0.25s;" onmouseenter="this.style.borderColor='rgba(99,102,241,0.35)'" onmouseleave="this.style.borderColor='rgba(255,255,255,0.08)'">
+        <div style="width:48px;height:48px;border-radius:12px;background:${grad};display:flex;align-items:center;justify-content:center;font-size:22px;margin-bottom:16px;box-shadow:0 4px 16px rgba(0,0,0,0.3);">${icon}</div>
+        <h3 style="font-size:17px;font-weight:700;color:white;margin-bottom:8px;">${title}</h3>
+        <p style="color:#64748b;font-size:14px;line-height:1.6;">${desc}</p>
+      </div>`).join('')}
+    </div>
+  </div>
+</div>
+
+<!-- ===== DASHBOARD ===== -->
+<div id="page-dashboard" class="page" style="padding-top:88px;padding-bottom:48px;">
+  <div style="max-width:1200px;margin:0 auto;padding:0 24px;">
+    <div style="margin-bottom:36px;">
+      <h1 style="font-size:30px;font-weight:900;color:white;">Hey, Jane 👋</h1>
+      <p style="color:#64748b;margin-top:6px;">Here's your resume command center.</p>
+    </div>
+
+    <!-- Quick actions -->
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:36px;">
+      <div class="card" style="background:linear-gradient(135deg,rgba(99,102,241,0.15),rgba(168,85,247,0.1));border-color:rgba(99,102,241,0.2);cursor:pointer;transition:all 0.2s;" onclick="showPage('analyzer')" onmouseenter="this.style.transform='translateY(-2px)'" onmouseleave="this.style.transform=''">
+        <div style="font-size:28px;margin-bottom:8px;">📊</div>
+        <div style="font-weight:700;color:white;margin-bottom:4px;">Analyze Resume</div>
+        <div style="color:#64748b;font-size:13px;">Upload & get ATS score</div>
+      </div>
+      <div class="card" style="background:linear-gradient(135deg,rgba(16,185,129,0.12),rgba(6,182,212,0.08));border-color:rgba(16,185,129,0.2);cursor:pointer;transition:all 0.2s;" onclick="showPage('builder')" onmouseenter="this.style.transform='translateY(-2px)'" onmouseleave="this.style.transform=''">
+        <div style="font-size:28px;margin-bottom:8px;">✏️</div>
+        <div style="font-weight:700;color:white;margin-bottom:4px;">Build Resume</div>
+        <div style="color:#64748b;font-size:13px;">Create from scratch</div>
+      </div>
+      <div class="card" style="background:linear-gradient(135deg,rgba(245,158,11,0.12),rgba(239,68,68,0.08));border-color:rgba(245,158,11,0.2);cursor:pointer;transition:all 0.2s;" onclick="showPage('templates')" onmouseenter="this.style.transform='translateY(-2px)'" onmouseleave="this.style.transform=''">
+        <div style="font-size:28px;margin-bottom:8px;">🎨</div>
+        <div style="font-weight:700;color:white;margin-bottom:4px;">Templates</div>
+        <div style="color:#64748b;font-size:13px;">Browse 10 ATS templates</div>
+      </div>
+    </div>
+
+    <!-- Resumes -->
+    <h2 style="font-size:20px;font-weight:700;color:white;margin-bottom:16px;">Your Resumes</h2>
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px;margin-bottom:36px;">
+      ${[
+        ['Software Engineer Resume','uploaded','82','Dec 20, 2024'],
+        ['ML Engineer Resume','built','91','Jan 5, 2025'],
+        ['Data Science CV','uploaded','67','Jan 12, 2025'],
+      ].map(([title,type,score,date]) => `
+      <div class="card" style="transition:all 0.2s;" onmouseenter="this.style.borderColor='rgba(99,102,241,0.3)'" onmouseleave="this.style.borderColor='rgba(255,255,255,0.08)'">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px;">
+          <div>
+            <div style="font-weight:600;color:white;margin-bottom:4px;">${title}</div>
+            <span style="font-size:11px;color:#64748b;text-transform:capitalize;">${type}</span>
+          </div>
+          <div style="text-align:right;">
+            <div style="font-size:26px;font-weight:900;color:#818cf8;">${score}</div>
+            <div style="font-size:10px;color:#64748b;">ATS Score</div>
+          </div>
+        </div>
+        <div style="font-size:12px;color:#475569;margin-bottom:16px;">${date}</div>
+        <div style="display:flex;gap:8px;">
+          <button class="btn-primary" style="flex:1;font-size:12px;padding:8px;" onclick="showPage('report')">Analyze</button>
+          <button class="btn-sec" style="flex:1;font-size:12px;padding:8px;">Edit</button>
+          <button style="padding:8px 12px;border-radius:8px;background:rgba(239,68,68,0.1);color:#f87171;border:none;cursor:pointer;font-size:13px;">🗑</button>
+        </div>
+      </div>`).join('')}
+    </div>
+
+    <!-- Analysis History -->
+    <h2 style="font-size:20px;font-weight:700;color:white;margin-bottom:16px;">Analysis History</h2>
+    <div style="display:flex;flex-direction:column;gap:12px;">
+      ${[
+        ['Software Engineer Resume','82','Jan 12, 2025 at 3:42 PM'],
+        ['ML Engineer Resume','91','Jan 5, 2025 at 11:20 AM'],
+        ['Data Science CV','67','Dec 20, 2024 at 9:05 AM'],
+        ['Backend Dev Resume','74','Dec 15, 2024 at 2:30 PM'],
+      ].map(([title,score,date]) => `
+      <div class="card" style="display:flex;align-items:center;justify-content:space-between;cursor:pointer;transition:all 0.2s;" onclick="showPage('report')" onmouseenter="this.style.borderColor='rgba(99,102,241,0.3)'" onmouseleave="this.style.borderColor='rgba(255,255,255,0.08)'">
+        <div>
+          <div style="font-weight:600;color:white;">${title}</div>
+          <div style="font-size:12px;color:#64748b;margin-top:2px;">${date}</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:16px;">
+          <div style="text-align:right;">
+            <div style="font-size:22px;font-weight:900;color:#818cf8;">${score}</div>
+            <div style="font-size:10px;color:#64748b;">ATS</div>
+          </div>
+          <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="#64748b"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+        </div>
+      </div>`).join('')}
+    </div>
+  </div>
+</div>
+
+<!-- ===== ANALYZER ===== -->
+<div id="page-analyzer" class="page" style="padding-top:88px;padding-bottom:48px;">
+  <div style="max-width:700px;margin:0 auto;padding:0 24px;">
+    <h1 style="font-size:30px;font-weight:900;color:white;margin-bottom:8px;">Resume Analyzer</h1>
+    <p style="color:#64748b;margin-bottom:32px;">Upload your resume and get an instant AI-powered ATS score with actionable feedback.</p>
+    <div class="card" style="display:flex;flex-direction:column;gap:24px;">
+      <!-- Drop zone -->
+      <div>
+        <label style="display:block;font-size:13px;font-weight:500;color:#94a3b8;margin-bottom:10px;">Upload Resume (PDF or DOCX)</label>
+        <div class="upload-zone" id="dropzone" onclick="simulateUpload()" ondragover="this.classList.add('drag');event.preventDefault()" ondragleave="this.classList.remove('drag')">
+          <div id="drop-content">
+            <div style="font-size:48px;margin-bottom:12px;">📄</div>
+            <p style="color:#e2e8f0;font-weight:500;margin:0 0 6px;">Drag & drop your resume</p>
+            <p style="color:#475569;font-size:13px;margin:0;">or click to browse — PDF, DOCX up to 10MB</p>
+          </div>
+          <div id="drop-success" style="display:none;">
+            <div style="font-size:40px;margin-bottom:10px;">✅</div>
+            <p style="color:#34d399;font-weight:600;margin:0 0 4px;">Jane_Doe_Resume.pdf</p>
+            <p style="color:#475569;font-size:13px;margin:0;">142 KB — Ready to analyze</p>
+          </div>
+        </div>
+      </div>
+      <!-- Domain selection -->
+      <div>
+        <label style="display:block;font-size:13px;font-weight:500;color:#94a3b8;margin-bottom:10px;">Your Domain</label>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;" id="domain-btns">
+          <button class="tab-btn active" onclick="selectDomain(this)">Software Engineering</button>
+          <button class="tab-btn" onclick="selectDomain(this)">AI / ML</button>
+          <button class="tab-btn" onclick="selectDomain(this)">Data Science</button>
+        </div>
+      </div>
+      <!-- JD optional -->
+      <div>
+        <label style="display:block;font-size:13px;font-weight:500;color:#94a3b8;margin-bottom:6px;">Job Description <span style="color:#475569;font-weight:400;">(optional — for match score)</span></label>
+        <textarea class="input" rows="4" placeholder="Paste the job description here to get a match score..." style="resize:none;"></textarea>
+      </div>
+      <!-- Analyze button -->
+      <div id="analyze-btn-area">
+        <button class="btn-primary" style="width:100%;font-size:16px;padding:16px;" onclick="startAnalysis()">🚀 Analyze with AI</button>
+      </div>
+      <!-- Progress (hidden) -->
+      <div id="progress-area" style="display:none;">
+        <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:8px;">
+          <span id="progress-label" style="color:#94a3b8;">Uploading resume...</span>
+          <span id="progress-pct" style="color:#818cf8;font-weight:600;">0%</span>
+        </div>
+        <div class="progress-bar"><div class="progress-fill" id="progress-fill" style="width:0%;background:linear-gradient(90deg,#6366f1,#a855f7);"></div></div>
+        <p style="text-align:center;color:#475569;font-size:13px;margin-top:12px;">This usually takes 15–30 seconds...</p>
+      </div>
+    </div>
+    <p style="text-align:center;color:#475569;font-size:12px;margin-top:16px;">Your resume is processed securely and never shared with third parties.</p>
+  </div>
+</div>
+
+<!-- ===== ANALYSIS REPORT ===== -->
+<div id="page-report" class="page" style="padding-top:88px;padding-bottom:48px;">
+  <div style="max-width:1100px;margin:0 auto;padding:0 24px;">
+    <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:32px;flex-wrap:wrap;gap:16px;">
+      <div>
+        <a href="#" style="color:#818cf8;font-size:13px;text-decoration:none;display:inline-flex;align-items:center;gap:4px;margin-bottom:8px;" onclick="showPage('dashboard');return false;">← Back to Dashboard</a>
+        <h1 style="font-size:26px;font-weight:900;color:white;">Software Engineer Resume — Analysis Report</h1>
+        <p style="color:#64748b;font-size:13px;margin-top:4px;">January 12, 2025 at 3:42 PM</p>
+      </div>
+      <button class="btn-sec" style="font-size:13px;padding:10px 18px;" onclick="showPage('analyzer')">Re-analyze</button>
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:20px;">
+      <!-- Score + Breakdown row -->
+      <div style="display:grid;grid-template-columns:200px 1fr;gap:20px;">
+        <div class="card" style="display:flex;flex-direction:column;align-items:center;justify-content:center;">
+          <svg width="160" height="160" style="transform:rotate(-90deg);">
+            <circle cx="80" cy="80" r="65" fill="none" stroke="#1e293b" stroke-width="12"/>
+            <circle cx="80" cy="80" r="65" fill="none" stroke="#6366f1" stroke-width="12" stroke-linecap="round"
+              stroke-dasharray="408" stroke-dashoffset="${Math.round(408 - 0.82 * 408)}"
+              style="transition:stroke-dashoffset 2s ease;" id="score-circle"/>
+          </svg>
+          <div style="margin-top:-80px;text-align:center;position:relative;">
+            <div style="font-size:42px;font-weight:900;color:#818cf8;" class="score-text">82</div>
+            <div style="font-size:11px;color:#475569;">/ 100</div>
+          </div>
+          <div style="margin-top:48px;font-size:14px;font-weight:700;color:#34d399;">Good</div>
+        </div>
+        <div class="card">
+          <h3 style="font-size:16px;font-weight:700;color:white;margin-bottom:20px;">Score Breakdown</h3>
+          <div style="display:flex;flex-direction:column;gap:14px;">
+            ${[
+              ['Keywords Match','21','25','84'],
+              ['Formatting','17','20','85'],
+              ['Section Completeness','15','20','75'],
+              ['Experience Clarity','16','20','80'],
+              ['Skills Relevance','13','15','87'],
+            ].map(([label,score,max,pct]) => `
+            <div>
+              <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:6px;">
+                <span style="color:#cbd5e1;">${label}</span>
+                <span style="color:#64748b;">${score}/${max}</span>
+              </div>
+              <div class="progress-bar"><div class="progress-fill" style="width:${pct}%;background:${parseInt(pct)>=80?'#10b981':parseInt(pct)>=60?'#f59e0b':'#ef4444'};"></div></div>
+            </div>`).join('')}
+          </div>
+        </div>
+      </div>
+
+      <!-- Strengths + Weaknesses -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;">
+        <div class="card">
+          <h3 style="font-size:16px;font-weight:700;color:white;margin-bottom:16px;">✅ Strengths</h3>
+          <ul style="list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:10px;">
+            ${['Strong technical skill set with React, Node.js, and AWS','Quantified achievements with clear metrics (40% improvement)','Well-structured project descriptions with tech stack','LinkedIn and GitHub profiles included','Consistent date formatting throughout'].map(s=>`
+            <li style="display:flex;align-items:flex-start;gap:8px;font-size:13px;color:#cbd5e1;">
+              <span style="color:#34d399;flex-shrink:0;margin-top:1px;">✓</span>${s}
+            </li>`).join('')}
+          </ul>
+        </div>
+        <div class="card">
+          <h3 style="font-size:16px;font-weight:700;color:white;margin-bottom:16px;">⚠️ Weaknesses</h3>
+          <ul style="list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:10px;">
+            ${['No professional summary / objective statement','Missing system design keywords (microservices, CI/CD)','Project descriptions lack quantifiable impact metrics','Resume exceeds 1 page for 2 years of experience'].map(w=>`
+            <li style="display:flex;align-items:flex-start;gap:8px;font-size:13px;color:#cbd5e1;">
+              <span style="color:#f59e0b;flex-shrink:0;margin-top:1px;">!</span>${w}
+            </li>`).join('')}
+          </ul>
+        </div>
+      </div>
+
+      <!-- Missing Keywords -->
+      <div class="card">
+        <h3 style="font-size:16px;font-weight:700;color:white;margin-bottom:8px;">🔑 Missing Keywords</h3>
+        <p style="color:#64748b;font-size:13px;margin-bottom:14px;">Add these to improve your ATS pass rate:</p>
+        <div style="display:flex;flex-wrap:wrap;gap:8px;">
+          ${['microservices','CI/CD','Kubernetes','Docker','system design','unit testing','TDD','Redis','GraphQL','TypeScript','Agile','Scrum','REST API'].map(k=>`<span class="tag-red">${k}</span>`).join('')}
+        </div>
+      </div>
+
+      <!-- AI Suggestions -->
+      <div class="card">
+        <h3 style="font-size:16px;font-weight:700;color:white;margin-bottom:16px;">💡 AI Suggestions</h3>
+        <div style="display:flex;flex-direction:column;gap:14px;">
+          ${[
+            ['summary','Add a professional summary that highlights your specialization in full-stack development and key achievements.','Results-driven Software Engineer with 3+ years building scalable web applications using React and Node.js, delivering features used by 50K+ users.'],
+            ['keywords','Resume lacks CI/CD and microservices terminology.','Add: "Implemented CI/CD pipelines using GitHub Actions, reducing deployment time by 60%" and "Architected microservices backend serving 100K+ daily requests."'],
+            ['experience','Bullet points are task-based, not impact-based.','Replace "Worked on frontend features" with "Engineered 12 React components that improved user engagement by 34%, measured via Google Analytics."'],
+          ].map(([cat,orig,improved])=>`
+          <div style="background:rgba(15,23,42,0.6);border:1px solid rgba(255,255,255,0.06);border-radius:12px;padding:16px;">
+            <span class="tag-indigo" style="margin-bottom:12px;display:inline-block;">${cat}</span>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+              <div>
+                <p style="font-size:11px;color:#475569;margin-bottom:6px;">Original</p>
+                <p style="font-size:13px;color:#94a3b8;background:rgba(239,68,68,0.05);border:1px solid rgba(239,68,68,0.1);border-radius:8px;padding:10px;">${orig}</p>
+              </div>
+              <div>
+                <p style="font-size:11px;color:#475569;margin-bottom:6px;">Improved</p>
+                <p style="font-size:13px;color:#6ee7b7;background:rgba(16,185,129,0.05);border:1px solid rgba(16,185,129,0.1);border-radius:8px;padding:10px;">${improved}</p>
+              </div>
+            </div>
+          </div>`).join('')}
+        </div>
+      </div>
+
+      <!-- Rewritten Bullets -->
+      <div class="card">
+        <h3 style="font-size:16px;font-weight:700;color:white;margin-bottom:16px;">🚀 Rewritten Bullet Points</h3>
+        <div style="display:flex;flex-direction:column;gap:12px;">
+          ${[
+            ['Experience','Built REST APIs for user authentication','Architected RESTful authentication API handling 50K+ requests/day, reducing login latency by 42% via Redis caching'],
+            ['Experience','Worked on performance improvements','Optimized React rendering pipeline using memo and code-splitting, cutting initial load time by 2.3s and improving Lighthouse score from 61 → 94'],
+            ['Projects','Made a chat application','Engineered real-time chat application using Socket.io serving 500+ concurrent users with < 100ms message delivery latency'],
+          ].map(([section,before,after])=>`
+          <div style="background:rgba(15,23,42,0.6);border:1px solid rgba(255,255,255,0.06);border-radius:12px;padding:14px;">
+            <span style="font-size:11px;color:#818cf8;font-weight:600;">${section}</span>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:8px;">
+              <div><p style="font-size:11px;color:#475569;margin-bottom:4px;">Before</p><p style="font-size:13px;color:#64748b;">• ${before}</p></div>
+              <div><p style="font-size:11px;color:#475569;margin-bottom:4px;">After</p><p style="font-size:13px;color:#6ee7b7;">• ${after}</p></div>
+            </div>
+          </div>`).join('')}
+        </div>
+      </div>
+
+      <!-- AI Summary -->
+      <div class="card">
+        <h3 style="font-size:16px;font-weight:700;color:white;margin-bottom:12px;">✨ AI-Generated Professional Summary</h3>
+        <div style="background:rgba(99,102,241,0.06);border:1px solid rgba(99,102,241,0.2);border-radius:12px;padding:16px;">
+          <p style="color:#c7d2fe;line-height:1.7;font-size:14px;">Results-driven Software Engineer with 3+ years of experience building scalable full-stack applications using React, Node.js, and AWS. Proven track record of delivering high-impact features — including a recommendation engine that boosted user retention by 40% — while maintaining 99.9% uptime. Passionate about distributed systems, performance optimization, and collaborating cross-functionally in Agile environments.</p>
+        </div>
+        <p style="font-size:12px;color:#475569;margin-top:10px;">You can copy this and use it as your resume summary.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== BUILDER ===== -->
+<div id="page-builder" class="page" style="padding-top:88px;padding-bottom:48px;">
+  <div style="max-width:1280px;margin:0 auto;padding:0 24px;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:28px;flex-wrap:wrap;gap:12px;">
+      <div>
+        <input value="Software Engineer Resume" style="font-size:24px;font-weight:900;background:transparent;border:none;border-bottom:2px solid transparent;color:white;outline:none;transition:border-color 0.2s;" onfocus="this.style.borderColor='#6366f1'" onblur="this.style.borderColor='transparent'"/>
+        <p style="color:#64748b;font-size:13px;margin-top:6px;">Build your resume step by step</p>
+      </div>
+      <div style="display:flex;gap:10px;">
+        <button class="btn-sec" style="font-size:13px;padding:10px 18px;" onclick="notify('💾','Resume saved successfully!')">💾 Save</button>
+        <button class="btn-primary" style="font-size:13px;padding:10px 18px;" onclick="notify('📄','PDF downloaded!')">⬇ Download PDF</button>
+      </div>
+    </div>
+
+    <!-- Steps -->
+    <div style="display:flex;gap:8px;margin-bottom:28px;overflow-x:auto;padding-bottom:4px;">
+      ${['Personal','Education','Experience','Projects','Skills','Preview'].map((s,i)=>`
+      <button class="tab-btn ${i===0?'active':''}" onclick="selectBuilderStep(this,${i})">${i+1}. ${s}</button>`).join('')}
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 420px;gap:24px;">
+      <!-- Form -->
+      <div class="card" id="builder-form">
+        <h2 style="font-size:17px;font-weight:700;color:white;margin-bottom:20px;" id="form-title">Personal Information</h2>
+        <div style="display:flex;flex-direction:column;gap:14px;">
+          <div>
+            <label style="display:block;font-size:12px;font-weight:500;color:#64748b;margin-bottom:6px;">Full Name *</label>
+            <input class="builder-input" value="Jane Doe" placeholder="Jane Doe"/>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+            <div><label style="display:block;font-size:12px;font-weight:500;color:#64748b;margin-bottom:6px;">Email</label><input class="builder-input" value="jane@example.com"/></div>
+            <div><label style="display:block;font-size:12px;font-weight:500;color:#64748b;margin-bottom:6px;">Phone</label><input class="builder-input" value="+1 555-0100"/></div>
+          </div>
+          <div><label style="display:block;font-size:12px;font-weight:500;color:#64748b;margin-bottom:6px;">Location</label><input class="builder-input" value="San Francisco, CA"/></div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+            <div><label style="display:block;font-size:12px;font-weight:500;color:#64748b;margin-bottom:6px;">LinkedIn</label><input class="builder-input" value="linkedin.com/in/janedoe"/></div>
+            <div><label style="display:block;font-size:12px;font-weight:500;color:#64748b;margin-bottom:6px;">GitHub</label><input class="builder-input" value="github.com/janedoe"/></div>
+          </div>
+          <div>
+            <label style="display:block;font-size:12px;font-weight:500;color:#64748b;margin-bottom:6px;">Professional Summary</label>
+            <textarea class="builder-input" rows="4" style="resize:none;">Results-driven Software Engineer with 3+ years building scalable applications using React and Node.js...</textarea>
+          </div>
+        </div>
+      </div>
+
+      <!-- Live preview -->
+      <div>
+        <div class="card" style="position:sticky;top:88px;">
+          <h3 style="font-size:13px;font-weight:500;color:#64748b;margin-bottom:12px;">Live Preview</h3>
+          <div style="overflow:hidden;border-radius:8px;border:1px solid #1e293b;height:420px;">
+            <div style="transform:scale(0.44);transform-origin:top left;width:816px;">
+              <div class="resume-preview">
+                <div style="border-bottom:2px solid #4f46e5;padding-bottom:16px;margin-bottom:16px;">
+                  <div style="font-size:22px;font-weight:800;color:#111;">Jane Doe</div>
+                  <div style="color:#64748b;font-size:11px;margin-top:4px;display:flex;gap:12px;flex-wrap:wrap;">
+                    <span>✉ jane@example.com</span><span>📱 +1 555-0100</span><span>📍 San Francisco, CA</span><span>in linkedin.com/in/janedoe</span>
+                  </div>
+                </div>
+                <div class="resume-section-title">Professional Summary</div>
+                <p style="color:#374151;margin-bottom:12px;">Results-driven Software Engineer with 3+ years building scalable applications using React and Node.js, delivering features used by 50K+ users.</p>
+                <div class="resume-section-title">Education</div>
+                <div style="margin-bottom:12px;">
+                  <div style="display:flex;justify-content:space-between;font-weight:600;">B.S. Computer Science<span style="font-weight:400;color:#64748b;">Sep 2018 – May 2022</span></div>
+                  <div style="color:#64748b;">UC Berkeley • GPA: 3.8/4.0</div>
+                </div>
+                <div class="resume-section-title">Experience</div>
+                <div style="margin-bottom:12px;">
+                  <div style="display:flex;justify-content:space-between;font-weight:600;">Software Engineer<span style="font-weight:400;color:#64748b;">Jun 2022 – Present</span></div>
+                  <div style="color:#64748b;margin-bottom:6px;">Stripe • San Francisco, CA</div>
+                  <div class="bullet">Architected REST API handling 50K+ req/day, reducing latency 42% via Redis</div>
+                  <div class="bullet">Engineered 12 React components improving user engagement by 34%</div>
+                  <div class="bullet">Led migration from monolith to microservices reducing deployment time 60%</div>
+                </div>
+                <div class="resume-section-title">Skills</div>
+                <div><span style="font-weight:600;">Languages:</span> Python, JavaScript, TypeScript, Java</div>
+                <div><span style="font-weight:600;">Frameworks:</span> React, Node.js, FastAPI, Express</div>
+                <div><span style="font-weight:600;">Tools:</span> Docker, Kubernetes, GitHub Actions, AWS</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== TEMPLATES ===== -->
+<div id="page-templates" class="page" style="padding-top:88px;padding-bottom:48px;">
+  <div style="max-width:1200px;margin:0 auto;padding:0 24px;">
+    <div style="text-align:center;margin-bottom:48px;">
+      <h1 style="font-size:36px;font-weight:900;color:white;margin-bottom:12px;">Resume Templates</h1>
+      <p style="color:#64748b;font-size:17px;">10 ATS-friendly templates for students and professionals</p>
+    </div>
+    <!-- Filter -->
+    <div style="display:flex;gap:10px;justify-content:center;margin-bottom:36px;" id="template-filters">
+      <button class="tab-btn active" onclick="filterTemplates(this,'all')">All Templates</button>
+      <button class="tab-btn" onclick="filterTemplates(this,'student')">Student / Fresher</button>
+      <button class="tab-btn" onclick="filterTemplates(this,'professional')">Professional</button>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:20px;" id="templates-grid">
+      ${[
+        ['Clean Minimal','student','linear-gradient(135deg,#1e1b4b,#312e81)',95],
+        ['Modern Student','student','linear-gradient(135deg,#2e1065,#4c1d95)',90],
+        ['Tech Focused','student','linear-gradient(135deg,#0c4a6e,#164e63)',92],
+        ['Creative Graduate','student','linear-gradient(135deg,#500724,#831843)',85],
+        ['Academic Classic','student','linear-gradient(135deg,#1e3a5f,#1d4ed8)',98],
+        ['Executive Pro','professional','linear-gradient(135deg,#0f172a,#1e293b)',96],
+        ['Modern Professional','professional','linear-gradient(135deg,#0c4a6e,#0369a1)',93],
+        ['Senior Engineer','professional','linear-gradient(135deg,#064e3b,#065f46)',94],
+        ['Data Scientist','professional','linear-gradient(135deg,#451a03,#78350f)',91],
+        ['Minimal Pro','professional','linear-gradient(135deg,#111827,#1f2937)',97],
+      ].map(([name,cat,grad,score],i)=>`
+      <div class="template-card" data-cat="${cat}">
+        <div style="height:160px;background:${grad};position:relative;padding:16px;display:flex;flex-direction:column;gap:8px;">
+          <div style="position:absolute;top:10px;left:10px;"><span style="font-size:10px;font-weight:600;padding:3px 8px;border-radius:999px;background:${cat==='student'?'rgba(168,85,247,0.6)':'rgba(59,130,246,0.6)'};color:white;">${cat==='student'?'Student':'Pro'}</span></div>
+          <div style="flex:1;display:flex;flex-direction:column;justify-content:flex-end;gap:5px;opacity:0.5;">
+            <div style="height:8px;width:55%;background:rgba(255,255,255,0.6);border-radius:4px;"></div>
+            <div style="height:5px;width:35%;background:rgba(255,255,255,0.4);border-radius:4px;"></div>
+            <div style="height:1px;background:rgba(255,255,255,0.2);margin:3px 0;"></div>
+            <div style="height:4px;background:rgba(255,255,255,0.25);border-radius:3px;"></div>
+            <div style="height:4px;width:85%;background:rgba(255,255,255,0.2);border-radius:3px;"></div>
+            <div style="height:4px;width:70%;background:rgba(255,255,255,0.15);border-radius:3px;"></div>
+          </div>
+        </div>
+        <div style="padding:14px;">
+          <div style="font-weight:600;color:white;margin-bottom:4px;font-size:14px;">${name}</div>
+          <div style="display:flex;align-items:center;gap:6px;margin-bottom:12px;">
+            <span style="font-weight:700;color:${score>=95?'#34d399':score>=90?'#fbbf24':'#fb923c'};font-size:13px;">${score}%</span>
+            <span style="color:#475569;font-size:11px;">ATS compatible</span>
+          </div>
+          <div style="display:flex;gap:8px;">
+            <button class="btn-primary" style="flex:1;font-size:12px;padding:8px;" onclick="notify('🎨','Template applied! Opening builder...');setTimeout(()=>showPage('builder'),800)">Use Template</button>
+            <button style="padding:8px 12px;border-radius:8px;background:rgba(255,255,255,0.06);color:#94a3b8;border:1px solid rgba(255,255,255,0.08);cursor:pointer;font-size:13px;" onclick="notify('🔖','Template saved!')">🔖</button>
+          </div>
+        </div>
+      </div>`).join('')}
+    </div>
+  </div>
+</div>
+
+<script>
+  function showPage(name) {
+    document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+    document.getElementById('page-'+name).classList.add('active');
+    document.querySelectorAll('.nav-link').forEach(l=>l.classList.remove('active'));
+    window.scrollTo(0,0);
+  }
+
+  function notify(icon, text) {
+    const n = document.getElementById('notif');
+    document.getElementById('notif-icon').textContent = icon;
+    document.getElementById('notif-text').textContent = text;
+    n.classList.add('show');
+    setTimeout(()=>n.classList.remove('show'), 3000);
+  }
+
+  function simulateUpload() {
+    document.getElementById('drop-content').style.display='none';
+    document.getElementById('drop-success').style.display='block';
+    document.getElementById('dropzone').style.borderColor='#34d399';
+    document.getElementById('dropzone').style.background='rgba(16,185,129,0.05)';
+  }
+
+  function selectDomain(btn) {
+    document.querySelectorAll('#domain-btns .tab-btn').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+  }
+
+  function startAnalysis() {
+    const btn = document.getElementById('analyze-btn-area');
+    const prog = document.getElementById('progress-area');
+    btn.style.display='none'; prog.style.display='block';
+    let pct = 0;
+    const labels = ['Uploading resume...','Extracting text...','Claude AI analyzing...','Generating report...'];
+    const interval = setInterval(()=>{
+      pct = Math.min(pct + Math.random()*18, 95);
+      document.getElementById('progress-fill').style.width = pct+'%';
+      document.getElementById('progress-pct').textContent = Math.round(pct)+'%';
+      document.getElementById('progress-label').textContent = pct<30?labels[0]:pct<55?labels[1]:pct<80?labels[2]:labels[3];
+    }, 400);
+    setTimeout(()=>{
+      clearInterval(interval);
+      document.getElementById('progress-fill').style.width='100%';
+      document.getElementById('progress-pct').textContent='100%';
+      setTimeout(()=>showPage('report'), 600);
+    }, 4000);
+  }
+
+  function selectBuilderStep(btn, step) {
+    document.querySelectorAll('#page-builder .tab-btn').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    const titles = ['Personal Information','Education','Work Experience','Projects','Technical Skills','Preview'];
+    document.getElementById('form-title').textContent = titles[step];
+  }
+
+  function filterTemplates(btn, cat) {
+    document.querySelectorAll('#template-filters .tab-btn').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    document.querySelectorAll('#templates-grid .template-card').forEach(card=>{
+      card.style.display = (cat==='all'||card.dataset.cat===cat)?'block':'none';
+    });
+  }
+
+  // Auto-animate progress bars on report load
+  document.querySelectorAll('.progress-fill').forEach((el,i)=>{
+    const w = el.style.width; el.style.width='0%';
+    setTimeout(()=>el.style.width=w, 300+i*100);
+  });
+</script>
+</body>
+</html>

@@ -1,0 +1,36 @@
+{
+  "name": "SkyCheck — Your Daily Weather",
+  "short_name": "SkyCheck",
+  "description": "Plan your day with confidence. Real-time weather, forecasts, daily tips and motivational quotes.",
+  "start_url": "./weather-app.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0f2027",
+  "theme_color": "#a8d8ea",
+  "categories": ["weather", "lifestyle"],
+  "icons": [
+    {
+      "src": "https://openweathermap.org/img/wn/02d@2x.png",
+      "sizes": "100x100",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "https://openweathermap.org/img/wn/02d@2x.png",
+      "sizes": "100x100",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "screenshots": [],
+  "shortcuts": [
+    {
+      "name": "My Location Weather",
+      "short_name": "My Location",
+      "description": "Get weather for your current location",
+      "url": "./weather-app.html?action=locate",
+      "icons": [{ "src": "https://openweathermap.org/img/wn/01d@2x.png", "sizes": "100x100" }]
+    }
+  ]
+}

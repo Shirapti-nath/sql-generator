@@ -32,6 +32,14 @@
       color:var(--text);
       background:var(--bg);
     }
+    body.day-clear   {background:linear-gradient(175deg,#020c1b 0%,#0a1628 45%,#0d1a30 100%)}
+    body.day-clouds  {background:linear-gradient(175deg,#080810,#0e0f18,#14151f)}
+    body.day-rain    {background:linear-gradient(175deg,#02040a,#060c14,#080f18)}
+    body.day-snow    {background:linear-gradient(175deg,#060a14,#0c1220,#121a28)}
+    body.day-storm   {background:linear-gradient(175deg,#02020a,#06060e,#08081a)}
+    body.night-clear {background:linear-gradient(175deg,#010106,#030410,#050718)}
+    body.night-clouds{background:linear-gradient(175deg,#030305,#060610,#090910)}
+    body.night-rain  {background:linear-gradient(175deg,#020204,#04060e,#060810)}
 
     /* Canvas */
     #sky{position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:0;opacity:1;transition:opacity 1.8s ease}
@@ -548,14 +556,17 @@ function drawMoon(t) {
 }
 
 const SCENE_BG={
-  'idle':'#040409','sunny':'#020c1b','partly-cloudy':'#080810','cloudy':'#080810',
-  'rain':'#02040a','night-rain':'#020204','storm':'#02020a','snow':'#060a14',
-  'fog':'#080810','night-clear':'#010106','night-cloudy':'#030305'
+  'idle':['#040409','#040409'],'sunny':['#020c1b','#0d1a30'],'partly-cloudy':['#080810','#14151f'],
+  'cloudy':['#080810','#14151f'],'rain':['#02040a','#080f18'],'night-rain':['#020204','#060810'],
+  'storm':['#02020a','#08081a'],'snow':['#060a14','#121a28'],'fog':['#080810','#14151f'],
+  'night-clear':['#010106','#050718'],'night-cloudy':['#030305','#090910']
 };
 function renderLoop(t) {
-  // Fill solid background first — prevents transparent edges at top/bottom
-  ctx.fillStyle = SCENE_BG[sceneMode] || '#040409';
-  ctx.fillRect(0,0,W,H);
+  // Draw gradient background matching the scene — prevents transparent edges at top/bottom
+  const bg = ctx.createLinearGradient(0,0,0,H);
+  const [c0,c1] = SCENE_BG[sceneMode] || ['#040409','#040409'];
+  bg.addColorStop(0,c0); bg.addColorStop(1,c1);
+  ctx.fillStyle=bg; ctx.fillRect(0,0,W,H);
   if(sceneMode==='sunny'||sceneMode==='partly-cloudy') drawSun(t);
   if(sceneMode==='night-clear'||sceneMode==='night-cloudy') { stars.forEach(s=>s.draw(t)); drawMoon(t); }
   clouds.forEach(c=>{c.update();c.draw()});

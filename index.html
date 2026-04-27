@@ -9,16 +9,12 @@
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-      background: linear-gradient(135deg, #f8e8f0 0%, #fdf3e7 50%, #e8f4f8 100%);
-      min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 16px;
-    }
-    body[dir="rtl"] { font-family: 'Segoe UI', Tahoma, Arial, sans-serif; }
-    .widget-wrapper { width: 100%; max-width: 700px; display: flex; flex-direction: column; gap: 12px; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: linear-gradient(135deg,#f8e8f0 0%,#fdf3e7 50%,#e8f4f8 100%); min-height:100vh; display:flex; align-items:center; justify-content:center; padding:16px; }
+    body[dir="rtl"] { font-family:'Segoe UI',Tahoma,Arial,sans-serif; }
+    .widget-wrapper { width:100%; max-width:700px; display:flex; flex-direction:column; gap:12px; }
 
-    .header { text-align: center; position: relative; }
-    .header-logo { display: inline-flex; align-items: center; gap: 10px; margin-bottom: 4px; }
+    .header { text-align:center; position:relative; }
+    .header-logo { display:inline-flex; align-items:center; gap:10px; margin-bottom:4px; }
     .logo-icon { width:40px;height:40px;background:linear-gradient(135deg,#e91e8c,#ff6b35);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px; }
     .logo-text { font-size:22px;font-weight:700;color:#1a1a2e; }
     .logo-text span { color:#e91e8c; }
@@ -53,11 +49,11 @@
     .budget-header { display:flex;justify-content:space-between;align-items:center;margin-bottom:10px; }
     .budget-label { font-size:12px;font-weight:600;color:#333; }
     .budget-value { font-size:14px;font-weight:700;color:#e91e8c; }
-    .budget-slider { width:100%;-webkit-appearance:none;appearance:none;height:4px;border-radius:4px;background:#f0dde8;outline:none; }
+    .budget-slider { width:100%;-webkit-appearance:none;height:4px;border-radius:4px;background:#f0dde8;outline:none; }
     .budget-slider::-webkit-slider-thumb { -webkit-appearance:none;width:20px;height:20px;border-radius:50%;background:linear-gradient(135deg,#e91e8c,#ff6b35);cursor:pointer;box-shadow:0 2px 6px rgba(233,30,140,0.4); }
     .budget-presets { display:flex;gap:6px;margin-top:8px; }
     .budget-preset { background:#fdf0f7;border:1px solid #f0c0dc;color:#c2185b;font-size:11px;padding:3px 10px;border-radius:20px;cursor:pointer; }
-    .budget-preset.active, .budget-preset:hover { background:#fce4ec; }
+    .budget-preset.active,.budget-preset:hover { background:#fce4ec; }
 
     .safety-alert { background:linear-gradient(135deg,#fff3f3,#fff8f8);border:2px solid #ef5350;border-radius:14px;padding:14px 16px;display:flex;gap:12px;align-items:flex-start;animation:shake 0.4s ease; }
     @keyframes shake { 0%,100%{transform:translateX(0)} 20%{transform:translateX(-6px)} 60%{transform:translateX(6px)} }
@@ -74,6 +70,9 @@
     .toolbar-status { color:rgba(255,255,255,0.8);font-size:11px;display:flex;align-items:center;gap:4px; }
     .status-dot { width:6px;height:6px;background:#6dff6d;border-radius:50%;display:inline-block; }
     .toolbar-badge { background:rgba(255,255,255,0.2);color:white;font-size:10px;padding:3px 8px;border-radius:20px;font-weight:500; }
+    .toolbar-tools { display:flex;gap:6px; }
+    .tool-btn { background:rgba(255,255,255,0.15);border:1.5px solid rgba(255,255,255,0.3);color:white;border-radius:8px;padding:4px 10px;font-size:11px;font-weight:600;cursor:pointer;white-space:nowrap;transition:background 0.15s; }
+    .tool-btn:hover { background:rgba(255,255,255,0.25); }
 
     .messages { flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:12px; }
     .messages::-webkit-scrollbar { width:4px; }
@@ -88,12 +87,12 @@
     .msg-bubble { max-width:78%;padding:10px 14px;border-radius:16px;font-size:13.5px;line-height:1.55; }
     .msg-bubble.bot { background:#f7f7f8;color:#1a1a2e;border-bottom-left-radius:4px; }
     .msg-bubble.user { background:linear-gradient(135deg,#e91e8c,#ff6b35);color:white;border-bottom-right-radius:4px; }
-    .msg-bubble.bot strong { font-weight:600; }
     .msg-meta { font-size:10px;color:#ccc;margin-top:3px; }
 
     .product-card { background:white;border:1.5px solid #f0e0ea;border-radius:14px;padding:14px;margin-top:8px;transition:box-shadow 0.2s; }
     .product-card:hover { box-shadow:0 4px 16px rgba(233,30,140,0.1); }
     .product-card.over-budget { opacity:0.55;border-style:dashed; }
+    .product-card.gift-pick { border-color:#ff9800;border-width:2px;background:linear-gradient(135deg,#fff8f0,#fff); }
     .product-card-header { display:flex;justify-content:space-between;align-items:flex-start;gap:8px; }
     .product-name { font-weight:700;color:#1a1a2e;font-size:14px;flex:1; }
     .product-actions { display:flex;gap:6px;flex-shrink:0;align-items:center; }
@@ -105,6 +104,7 @@
     .product-meta { font-size:12px;color:#555;margin-bottom:4px;line-height:1.5; }
     .product-meta span { font-weight:600;color:#333; }
     .safety-badge { display:inline-flex;align-items:center;gap:4px;background:#fff3f3;color:#c0392b;font-size:11px;padding:3px 8px;border-radius:20px;margin:6px 0; }
+    .gift-why { background:linear-gradient(135deg,#fff8e1,#fff3e0);border-left:3px solid #ff9800;padding:8px 10px;border-radius:0 8px 8px 0;font-size:12px;color:#e65100;margin:6px 0;line-height:1.5; }
     .card-actions { display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:8px; }
     .shop-btn { display:inline-block;background:linear-gradient(135deg,#e91e8c,#ff6b35);color:white;text-decoration:none;font-size:12px;font-weight:600;padding:7px 16px;border-radius:20px;transition:opacity 0.2s; }
     .shop-btn:hover { opacity:0.85; }
@@ -137,21 +137,61 @@
     @keyframes pulse { 0%,100%{box-shadow:0 0 0 0 rgba(233,30,140,0.3)} 50%{box-shadow:0 0 0 8px rgba(233,30,140,0)} }
 
     .modal-overlay { position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:1000;display:flex;align-items:center;justify-content:center;padding:20px; }
-    .modal { background:white;border-radius:20px;padding:28px;width:100%;max-width:440px;box-shadow:0 20px 60px rgba(0,0,0,0.2); }
+    .modal { background:white;border-radius:20px;padding:28px;width:100%;max-width:440px;box-shadow:0 20px 60px rgba(0,0,0,0.2);max-height:90vh;overflow-y:auto; }
     .modal-title { font-size:18px;font-weight:700;color:#1a1a2e;margin-bottom:6px; }
     .modal-sub { font-size:13px;color:#888;margin-bottom:20px; }
     .form-group { margin-bottom:16px; }
     .form-label { font-size:12px;font-weight:600;color:#555;margin-bottom:6px;display:block; }
     .form-input { width:100%;border:1.5px solid #e8e8e8;border-radius:10px;padding:10px 14px;font-size:14px;font-family:inherit;outline:none; }
     .form-input:focus { border-color:#e91e8c; }
+    .form-select { width:100%;border:1.5px solid #e8e8e8;border-radius:10px;padding:10px 14px;font-size:14px;font-family:inherit;outline:none;background:white; }
     .modal-actions { display:flex;gap:10px;margin-top:20px; }
     .btn-primary { flex:1;background:linear-gradient(135deg,#e91e8c,#ff6b35);color:white;border:none;border-radius:12px;padding:12px;font-size:14px;font-weight:700;cursor:pointer; }
     .btn-secondary { background:#f5f5f5;color:#555;border:none;border-radius:12px;padding:12px 16px;font-size:14px;cursor:pointer; }
 
+    /* GIFT FINDER */
+    .gift-result-header { display:flex;align-items:center;gap:8px;margin-bottom:16px; }
+    .gift-result-title { font-size:15px;font-weight:700;color:#e65100; }
+    .occasion-badge { background:#fff3e0;color:#e65100;border:1px solid #ffcc02;font-size:11px;padding:3px 10px;border-radius:20px;font-weight:600; }
+
+    /* SYMPTOM TRIAGE */
+    .triage-result { border-radius:16px;padding:16px;margin-top:4px; }
+    .triage-result.red { background:linear-gradient(135deg,#ffebee,#fff);border:2px solid #ef5350; }
+    .triage-result.orange { background:linear-gradient(135deg,#fff3e0,#fff);border:2px solid #ff9800; }
+    .triage-result.yellow { background:linear-gradient(135deg,#fffde7,#fff);border:2px solid #ffc107; }
+    .triage-result.green { background:linear-gradient(135deg,#e8f5e9,#fff);border:2px solid #4caf50; }
+    .triage-level { font-size:18px;font-weight:800;margin-bottom:6px; }
+    .triage-level.red { color:#c62828; }
+    .triage-level.orange { color:#e65100; }
+    .triage-level.yellow { color:#f57f17; }
+    .triage-level.green { color:#2e7d32; }
+    .triage-advice { font-size:13px;line-height:1.6;color:#333;margin-bottom:12px; }
+    .triage-dos { list-style:none;padding:0; }
+    .triage-dos li { font-size:12px;color:#555;padding:4px 0;display:flex;gap:8px;align-items:flex-start; }
+    .triage-dos li::before { content:"✓";color:#4caf50;font-weight:700;flex-shrink:0; }
+    .triage-disclaimer { font-size:11px;color:#999;margin-top:12px;font-style:italic;border-top:1px solid #f0f0f0;padding-top:8px; }
+    .symptom-input-area { display:flex;flex-direction:column;gap:12px; }
+    .symptom-textarea { width:100%;border:1.5px solid #e8e8e8;border-radius:12px;padding:12px;font-size:13px;font-family:inherit;resize:none;height:80px;outline:none;line-height:1.5; }
+    .symptom-textarea:focus { border-color:#e91e8c; }
+    .quick-symptoms { display:flex;flex-wrap:wrap;gap:6px;margin-top:4px; }
+    .symptom-chip { background:#f5f5f5;border:1px solid #e0e0e0;color:#555;font-size:11px;padding:4px 10px;border-radius:20px;cursor:pointer; }
+    .symptom-chip:hover { background:#fdf0f7;border-color:#f0c0dc;color:#c2185b; }
+
+    /* SHOPPING LIST */
+    .sl-section { margin-bottom:16px; }
+    .sl-section-title { font-size:12px;font-weight:700;color:#e91e8c;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px;display:flex;align-items:center;gap:6px; }
+    .sl-item { display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid #f5f5f5; }
+    .sl-item:last-child { border-bottom:none; }
+    .sl-cb { width:18px;height:18px;cursor:pointer;accent-color:#e91e8c;flex-shrink:0; }
+    .sl-item-name { font-size:13px;color:#1a1a2e;flex:1; }
+    .sl-item-name.done { text-decoration:line-through;color:#bbb; }
+    .sl-item-note { font-size:11px;color:#999; }
+    .sl-share-btn { background:linear-gradient(135deg,#e91e8c,#ff6b35);color:white;border:none;border-radius:20px;padding:10px 20px;font-size:13px;font-weight:700;cursor:pointer;width:100%;margin-top:12px; }
+
     .drawer { position:fixed;inset:0;z-index:900; }
     .drawer-backdrop { position:absolute;inset:0;background:rgba(0,0,0,0.4); }
     .drawer-panel { position:absolute;right:0;top:0;bottom:0;width:340px;background:white;box-shadow:-8px 0 40px rgba(0,0,0,0.15);display:flex;flex-direction:column;overflow:hidden; }
-    body[dir="rtl"] .drawer-panel { right:auto;left:0;box-shadow:8px 0 40px rgba(0,0,0,0.15); }
+    body[dir="rtl"] .drawer-panel { right:auto;left:0; }
     .drawer-header { background:linear-gradient(135deg,#e91e8c,#ff6b35);padding:20px;color:white;display:flex;justify-content:space-between;align-items:center; }
     .drawer-title { font-size:16px;font-weight:700; }
     .drawer-close { background:rgba(255,255,255,0.2);border:none;color:white;width:30px;height:30px;border-radius:50%;cursor:pointer;font-size:16px; }
@@ -161,7 +201,6 @@
     .compare-table { width:100%;border-collapse:collapse;font-size:13px; }
     .compare-table th { background:#fdf0f7;color:#c2185b;padding:10px;text-align:left;font-weight:700; }
     .compare-table td { padding:10px;border-bottom:1px solid #f5f5f5;vertical-align:top; }
-    .compare-table tr:last-child td { border-bottom:none; }
 
     .compare-float { position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:linear-gradient(135deg,#1a1a2e,#2d2d5e);color:white;border-radius:30px;padding:12px 24px;display:flex;align-items:center;gap:12px;box-shadow:0 8px 30px rgba(0,0,0,0.3);z-index:800;font-size:14px;font-weight:600; }
     .compare-float .cmp-btn { background:linear-gradient(135deg,#e91e8c,#ff6b35);color:white;border:none;border-radius:20px;padding:8px 16px;cursor:pointer;font-weight:700;font-size:13px; }
@@ -175,125 +214,157 @@
 <script type="text/babel">
 const { useState, useRef, useEffect } = React;
 
+/* ── PRODUCTS ── */
 const PRODUCTS = [
-  { id:"MW-001", name:"Fisher-Price Glow & Grow Kick And Play Piano Gym", price:189, cat:"Activity Mat", age_min:0, age_max:36, tags:["tummy time","play gym","newborn"], why:"Kick-activated piano keys and high-contrast hanging toys make tummy time engaging and fun.", safety:"No loose parts. Machine washable mat. Meets safety standards.", link:"https://www.mumzworld.com/en/fisher-price-glow-grow-kick-and-play-piano-gym-multicolor-520-hwy61" },
-  { id:"MW-002", name:"Infantino Giant Sensory Discovery Mat", price:129, cat:"Activity Mat", age_min:0, age_max:18, tags:["tummy time","play mat","newborn","sensory"], why:"Giant soft mat with sensory textures, crinkle elements, and mirror stimulates all senses during tummy time.", safety:"All attachments securely fastened. BPA-free materials.", link:"https://www.mumzworld.com/en/infantino-giant-sensory-discovery-mat-106559" },
-  { id:"MW-003", name:"Infantino Mirror Me Activity Roller", price:79, cat:"Tummy Time", age_min:0, age_max:6, tags:["tummy time","mirror","newborn","sensory"], why:"The baby-safe mirror attracts baby's gaze, motivating them to lift their head during tummy time.", safety:"Supervised tummy time only. Not for sleeping.", link:"https://www.mumzworld.com/en/infantino-mirror-me-activity-roller-690155" },
-  { id:"MW-004", name:"BABYBJÖRN Bouncer Balance Soft", price:849, cat:"Bouncers", age_min:0, age_max:24, tags:["bouncer","newborn","fussy baby","calming"], why:"Self-bouncing motion powered by baby's own movement soothes fussy babies and gives parents hands-free moments.", safety:"5-point harness. Do NOT use as a sleeping device. Always place on floor.", link:"https://www.mumzworld.com/en/babybjorn-bouncer-balance-soft-grey" },
-  { id:"MW-005", name:"BABYBJÖRN Bouncer Bliss 3D Jersey", price:699, cat:"Bouncers", age_min:0, age_max:24, tags:["bouncer","fussy baby","newborn","soft"], why:"Ultra-soft 3D jersey creates a cosy cocoon; self-bouncing motion calms colicky and fussy newborns.", safety:"5-point harness. Not for sleeping. Always use on floor level.", link:"https://www.mumzworld.com/en/babybjorn-bouncer-bliss-3d-jersey-light-grey" },
-  { id:"MW-006", name:"Philips Avent Natural Response Bottle 260ml (Pack of 2)", price:189, cat:"Feeding", age_min:0, age_max:12, tags:["bottle","feeding","newborn","breastfeeding"], why:"Wide breast-shaped teat allows a natural latch, making breast-to-bottle transitions easier.", safety:"BPA-free. Replace teats every 3 months or when damaged.", link:"https://www.mumzworld.com/en/philips-avent-natural-3-0-feeding-bottle-260-ml-pack-of-2" },
-  { id:"MW-009", name:"Stokke Tripp Trapp Wooden High Chair", price:1199, cat:"Feeding", age_min:6, age_max:216, tags:["high chair","feeding","solids","6 months"], why:"Adjustable seat keeps baby at table height with the family, supporting self-feeding from the very first spoon.", safety:"Baby Set required for children under 3. Tighten all bolts before each use.", link:"https://www.mumzworld.com/en/stokke-tripp-trapp-wooden-feeding-high-chair-45808368-100139-config-p-36588-785357" },
-  { id:"MW-010", name:"Vulli Sophie La Girafe Teething Ring Very Soft", price:89, cat:"Teething", age_min:3, age_max:18, tags:["teether","ring","sensory","3 months","natural rubber"], why:"Soft ring is easy for small hands to grip and gently soothes tender front gums.", safety:"Natural rubber — wipe with damp cloth only. Never submerge in water.", link:"https://www.mumzworld.com/en/vulli-sophie-la-girafe-so-pure-teething-ring-qcom" },
-  { id:"MW-011", name:"Sophie La Girafe Original Teether Toy", price:99, cat:"Teething", age_min:3, age_max:12, tags:["teether","natural rubber","classic","sensory"], why:"Different body parts reach different areas of baby's mouth — nose for front gums, legs for molars.", safety:"Natural rubber — wipe exterior only. Never submerge in water.", link:"https://www.mumzworld.com/en/sophie-the-giraffe-gift-box" },
-  { id:"MW-013", name:"Melissa & Doug Ms. Rachel Blocks with Activity Cards", price:176, cat:"Toys", age_min:12, age_max:48, tags:["blocks","wooden","toddler","fine motor","educational"], why:"Building and stacking develops fine motor control, colour recognition, and spatial thinking at 12–18 months.", safety:"Non-toxic paints. Large blocks — safe for toddlers.", link:"https://www.mumzworld.com/en/melissa-doug-ms-rachel-blocks-with-activity-cards-622-sm_6073034" },
-  { id:"MW-014", name:"VTech First Steps Baby Walker", price:229, cat:"Toys", age_min:9, age_max:36, tags:["walker","standing","walking","first steps"], why:"Sturdy push walker provides just the right support for confident first steps while building leg strength.", safety:"Use on flat, non-slippery surfaces only. Always supervise walking babies.", link:"https://www.mumzworld.com/en/vtech-first-steps-baby-walker-pink-241205" },
-  { id:"MW-015", name:"LEGO DUPLO Deluxe Brick Box (85 pcs)", price:279, cat:"Toys", age_min:18, age_max:60, tags:["DUPLO","building","toddler","creative"], why:"Builds vocabulary (colours, shapes), fine motor pinch grip, and early engineering thinking.", safety:"Oversized DUPLO bricks — specifically designed to be non-choking-hazard safe for toddlers.", link:"https://www.mumzworld.com/en/lego-deluxe-brick-box-building-set-85-pcs-25618549-10914" },
-  { id:"MW-016", name:"Ergobaby Omni Classic Baby Carrier - Pure Black", price:699, cat:"Carriers", age_min:0, age_max:48, tags:["carrier","newborn","babywearing","hands-free","fussy baby"], why:"Being close to your heartbeat and warmth deeply calms fussy and colicky babies while keeping your hands free.", safety:"Follow the TICKS rule for safe babywearing. Face-out carry suitable from 5 months only.", link:"https://www.mumzworld.com/en/ergobaby-omni-360-pure-black" },
-  { id:"MW-018", name:"Munchkin Miracle 360 Colour Changing Sippy Cup", price:49, cat:"Feeding", age_min:12, age_max:24, tags:["sippy cup","trainer","weaning","spill-proof"], why:"Drink from any edge — the 360° rim supports natural swallowing and is better for tooth development than spout cups.", safety:"BPA-free. Not suitable for hot liquids.", link:"https://www.mumzworld.com/en/munchkin-miracle-360-degree-color-changing-cup-266ml-pink-19468963-051892-pink" },
-  { id:"MW-019", name:"Summer Infant 3-in-1 Dream Retreat Portable Sleep System", price:956, cat:"Sleep", age_min:0, age_max:6, tags:["sleep","newborn","portable","bassinet","safe sleep"], why:"Creates a safe, familiar sleep environment that soothes newborns and helps them settle independently.", safety:"Always place baby on their back on a firm, flat surface. No loose bedding.", link:"https://www.mumzworld.com/en/summer-infant-3-in-1-dream-retreat-portable-sleep-system-19468963-25134" },
-  { id:"MW-025", name:"Melissa & Doug Farm Animals Sound Puzzle (8 pcs)", price:115, cat:"Toys", age_min:12, age_max:36, tags:["puzzle","wooden","toddler","cognitive","fine motor"], why:"Peg puzzles are a key 12–18m milestone for hand-eye coordination, problem-solving, and animal recognition.", safety:"Non-toxic paint. Large wooden pegs — safe for toddlers.", link:"https://www.mumzworld.com/en/melissa-doug-farm-animals-sound-puzzle-8pcs" },
+  { id:"MW-001", name:"Fisher-Price Glow & Grow Kick And Play Piano Gym", price:189, cat:"Activity Mat", age_min:0, age_max:36, tags:["tummy time","play gym","newborn"], why:"Kick-activated piano keys and high-contrast hanging toys make tummy time engaging and fun.", safety:"No loose parts. Machine washable mat.", link:"https://www.mumzworld.com/en/fisher-price-glow-grow-kick-and-play-piano-gym-multicolor-520-hwy61" },
+  { id:"MW-002", name:"Infantino Giant Sensory Discovery Mat", price:129, cat:"Activity Mat", age_min:0, age_max:18, tags:["tummy time","play mat","newborn","sensory"], why:"Giant soft mat with sensory textures, crinkle elements and mirror stimulates all senses during tummy time.", safety:"All attachments securely fastened. BPA-free.", link:"https://www.mumzworld.com/en/infantino-giant-sensory-discovery-mat-106559" },
+  { id:"MW-003", name:"Infantino Mirror Me Activity Roller", price:79, cat:"Tummy Time", age_min:0, age_max:6, tags:["tummy time","mirror","newborn","sensory"], why:"The baby-safe mirror attracts baby's gaze, motivating head lifting during tummy time.", safety:"Supervised tummy time only. Not for sleeping.", link:"https://www.mumzworld.com/en/infantino-mirror-me-activity-roller-690155" },
+  { id:"MW-004", name:"BABYBJÖRN Bouncer Balance Soft", price:849, cat:"Bouncers", age_min:0, age_max:24, tags:["bouncer","newborn","fussy baby","calming"], why:"Self-bouncing motion powered by baby's own movement soothes fussy babies and gives parents hands-free moments.", safety:"5-point harness. Do NOT use as sleeping device. Always on floor.", link:"https://www.mumzworld.com/en/babybjorn-bouncer-balance-soft-grey" },
+  { id:"MW-005", name:"BABYBJÖRN Bouncer Bliss 3D Jersey", price:699, cat:"Bouncers", age_min:0, age_max:24, tags:["bouncer","fussy baby","newborn","soft"], why:"Ultra-soft 3D jersey cocoon and self-bouncing motion calms fussy newborns.", safety:"5-point harness. Not for sleeping. Floor only.", link:"https://www.mumzworld.com/en/babybjorn-bouncer-bliss-3d-jersey-light-grey" },
+  { id:"MW-006", name:"Philips Avent Natural Response Bottle 260ml (x2)", price:189, cat:"Feeding", age_min:0, age_max:12, tags:["bottle","feeding","newborn","breastfeeding"], why:"Wide breast-shaped teat allows natural latch for easy breast-to-bottle transitions.", safety:"BPA-free. Replace teats every 3 months.", link:"https://www.mumzworld.com/en/philips-avent-natural-3-0-feeding-bottle-260-ml-pack-of-2" },
+  { id:"MW-009", name:"Stokke Tripp Trapp Wooden High Chair", price:1199, cat:"Feeding", age_min:6, age_max:216, tags:["high chair","feeding","solids","6 months"], why:"Keeps baby at table height with family, supporting self-feeding from the very first spoon.", safety:"Baby Set required under 3 years. Tighten all bolts before each use.", link:"https://www.mumzworld.com/en/stokke-tripp-trapp-wooden-feeding-high-chair-45808368-100139-config-p-36588-785357" },
+  { id:"MW-010", name:"Vulli Sophie La Girafe Teething Ring", price:89, cat:"Teething", age_min:3, age_max:18, tags:["teether","ring","sensory","3 months","natural rubber"], why:"Soft ring is easy for small hands to grip and gently soothes tender front gums.", safety:"Natural rubber — wipe with damp cloth only. Never submerge.", link:"https://www.mumzworld.com/en/vulli-sophie-la-girafe-so-pure-teething-ring-qcom" },
+  { id:"MW-011", name:"Sophie La Girafe Original Teether Toy", price:99, cat:"Teething", age_min:3, age_max:12, tags:["teether","natural rubber","classic","sensory"], why:"Different body parts soothe different gum areas — nose for front, legs for molars.", safety:"Natural rubber — wipe exterior only. Never submerge.", link:"https://www.mumzworld.com/en/sophie-the-giraffe-gift-box" },
+  { id:"MW-013", name:"Melissa & Doug Ms. Rachel Blocks with Activity Cards", price:176, cat:"Toys", age_min:12, age_max:48, tags:["blocks","wooden","toddler","fine motor","educational"], why:"Building and stacking develops fine motor control, colour recognition, and spatial thinking.", safety:"Non-toxic paints. Large blocks safe for toddlers.", link:"https://www.mumzworld.com/en/melissa-doug-ms-rachel-blocks-with-activity-cards-622-sm_6073034" },
+  { id:"MW-014", name:"VTech First Steps Baby Walker", price:229, cat:"Toys", age_min:9, age_max:36, tags:["walker","standing","walking","first steps"], why:"Sturdy push walker provides just the right support for confident first steps.", safety:"Flat surfaces only. Always supervise walking babies.", link:"https://www.mumzworld.com/en/vtech-first-steps-baby-walker-pink-241205" },
+  { id:"MW-015", name:"LEGO DUPLO Deluxe Brick Box (85 pcs)", price:279, cat:"Toys", age_min:18, age_max:60, tags:["DUPLO","building","toddler","creative"], why:"Builds vocabulary, fine motor grip, and early engineering thinking from 18 months.", safety:"Oversized DUPLO bricks — non-choking-hazard safe for toddlers.", link:"https://www.mumzworld.com/en/lego-deluxe-brick-box-building-set-85-pcs-25618549-10914" },
+  { id:"MW-016", name:"Ergobaby Omni Classic Baby Carrier", price:699, cat:"Carriers", age_min:0, age_max:48, tags:["carrier","newborn","babywearing","hands-free","fussy baby"], why:"Heartbeat and warmth close to parent deeply calms fussy and colicky babies.", safety:"Follow TICKS rule. Face-out carry from 5 months only.", link:"https://www.mumzworld.com/en/ergobaby-omni-360-pure-black" },
+  { id:"MW-018", name:"Munchkin Miracle 360 Sippy Cup", price:49, cat:"Feeding", age_min:12, age_max:24, tags:["sippy cup","trainer","weaning","spill-proof"], why:"360° rim supports natural swallowing, better for tooth development than spout cups.", safety:"BPA-free. Not for hot liquids.", link:"https://www.mumzworld.com/en/munchkin-miracle-360-degree-color-changing-cup-266ml-pink-19468963-051892-pink" },
+  { id:"MW-019", name:"Summer Infant Dream Retreat Sleep System", price:956, cat:"Sleep", age_min:0, age_max:6, tags:["sleep","newborn","portable","bassinet"], why:"Creates a safe, familiar sleep environment that soothes newborns and aids independent settling.", safety:"Always place baby on back on a firm, flat surface. No loose bedding.", link:"https://www.mumzworld.com/en/summer-infant-3-in-1-dream-retreat-portable-sleep-system-19468963-25134" },
+  { id:"MW-025", name:"Melissa & Doug Farm Animals Sound Puzzle", price:115, cat:"Toys", age_min:12, age_max:36, tags:["puzzle","wooden","toddler","cognitive","fine motor"], why:"Peg puzzles are a key 12–18m milestone for hand-eye coordination and problem-solving.", safety:"Non-toxic paint. Large pegs safe for toddlers.", link:"https://www.mumzworld.com/en/melissa-doug-farm-animals-sound-puzzle-8pcs" },
 ];
 
+/* ── MILESTONES ── */
 const MILESTONES = [
-  { id:"newborn", emoji:"🍼", label:"Newborn",    age:0,  query:"best products for a newborn baby" },
-  { id:"tummy",   emoji:"🤸", label:"Tummy Time", age:2,  query:"tummy time products for my 2-month-old" },
-  { id:"teething",emoji:"🦷", label:"Teething",   age:4,  query:"my 4-month-old is starting to teethe and drool" },
-  { id:"sitting", emoji:"🪑", label:"Sitting",    age:6,  query:"my 6-month-old is starting solids and learning to sit" },
-  { id:"crawling",emoji:"🐛", label:"Crawling",   age:8,  query:"my 8-month-old is starting to crawl" },
-  { id:"standing",emoji:"🏃", label:"First Steps",age:10, query:"my 10-month-old is pulling to stand and taking first steps" },
-  { id:"toddler", emoji:"🎨", label:"Toddler",    age:12, query:"best toys for my 12-month-old toddler" },
-  { id:"active",  emoji:"🧩", label:"Active Play", age:18, query:"educational toys for my 18-month-old toddler" },
-  { id:"creative",emoji:"🏗️", label:"Imaginative",age:24, query:"creative and imaginative play toys for my 2-year-old" },
+  { id:"newborn",emoji:"🍼",label:"Newborn",age:0,query:"best products for a newborn baby" },
+  { id:"tummy",emoji:"🤸",label:"Tummy Time",age:2,query:"tummy time products for my 2-month-old" },
+  { id:"teething",emoji:"🦷",label:"Teething",age:4,query:"my 4-month-old is starting to teethe and drool" },
+  { id:"sitting",emoji:"🪑",label:"Sitting",age:6,query:"my 6-month-old is starting solids and learning to sit" },
+  { id:"crawling",emoji:"🐛",label:"Crawling",age:8,query:"my 8-month-old is starting to crawl" },
+  { id:"standing",emoji:"🏃",label:"First Steps",age:10,query:"my 10-month-old is pulling to stand and taking first steps" },
+  { id:"toddler",emoji:"🎨",label:"Toddler",age:12,query:"best toys for my 12-month-old toddler" },
+  { id:"active",emoji:"🧩",label:"Active Play",age:18,query:"educational toys for my 18-month-old toddler" },
+  { id:"creative",emoji:"🏗️",label:"Imaginative",age:24,query:"creative play toys for my 2-year-old" },
 ];
 
+/* ── TRANSLATIONS ── */
 const T = {
-  en: { subheader:"AI Parenting Advisor", placeholder:"Ask about your baby's age and what you need…", online:"Online · Specialised in 0–8 years", aiPowered:"AI-powered", wishlistEmpty:"No saved products yet. Tap ❤️ on any product card to save it here.", budgetLabel:"Budget Filter", milestonesLabel:"Baby Milestones", quickPrompts:["My 4-month-old hates tummy time 😩","Teethers for my 5-month-old","High chair for 6-month solids?","Newborn won't sleep unless held","Educational toys for 18-month-old"] },
+  en: { subheader:"AI Parenting Advisor", placeholder:"Ask about your baby's age and what you need…", online:"Online · Specialised in 0–8 years", aiPowered:"AI-powered", wishlistEmpty:"No saved products yet. Tap ❤️ on any product to save it.", budgetLabel:"Budget Filter", milestonesLabel:"Baby Milestones", quickPrompts:["My 4-month-old hates tummy time 😩","Teethers for my 5-month-old","High chair for 6-month solids?","Newborn won't sleep unless held","Educational toys for 18-month-old"] },
   ar: { subheader:"مستشار التربية الذكي", placeholder:"اسألي عن عمر طفلك واحتياجاتك…", online:"متصل · متخصص في ٠–٨ سنوات", aiPowered:"مدعوم بالذكاء الاصطناعي", wishlistEmpty:"لا توجد منتجات محفوظة بعد. اضغطي ❤️ على أي منتج.", budgetLabel:"تصفية الميزانية", milestonesLabel:"مراحل نمو الطفل", quickPrompts:["طفلي ٤ أشهر ويكره وقت البطن 😩","مضغوطات لطفلي ٥ أشهر","كرسي طعام لبدء التغذية؟","المولود لا ينام إلا بأحضاني","ألعاب تعليمية لطفلي ١٨ شهر"] },
 };
 
+/* ── SAFETY TRIGGERS ── */
 const SAFETY_TRIGGERS = [
-  { keys:["bouncer overnight","swing overnight","sleep in bouncer","sleep in swing","car seat overnight","overnight in bouncer"], title:"⚠️ Safe Sleep Warning", body:"Bouncers, swings, and car seats are NOT safe for unsupervised or overnight sleep. Always place baby on a firm, flat surface on their back. This is critical for SIDS prevention." },
-  { keys:["give honey","honey for baby","baby honey"], title:"⚠️ Honey is Unsafe for Babies Under 12 Months", body:"Never give honey to babies under 12 months — it can cause infant botulism, which is life-threatening." },
-  { keys:["cereal bottle","rice bottle","thicken bottle"], title:"⚠️ Feeding Safety Alert", body:"Adding cereal to a bottle is not recommended by paediatricians — it poses a choking risk and provides no nutritional benefit." },
-  { keys:["baby pillow sleep","sleep pillow infant","pillow crib"], title:"⚠️ No Pillows for Babies Under 12 Months", body:"Pillows pose a suffocation risk for babies under 12 months. Keep the sleep surface firm and completely bare." },
+  { keys:["bouncer overnight","swing overnight","sleep in bouncer","sleep in swing","car seat overnight"], title:"⚠️ Safe Sleep Warning", body:"Bouncers, swings, and car seats are NOT safe for overnight sleep. Always place baby on a firm, flat surface on their back." },
+  { keys:["give honey","honey for baby","baby honey"], title:"⚠️ Honey Unsafe Under 12 Months", body:"Never give honey to babies under 12 months — it can cause infant botulism, which is life-threatening." },
+  { keys:["cereal bottle","rice bottle","thicken bottle"], title:"⚠️ Feeding Safety Alert", body:"Adding cereal to a bottle is not recommended — it poses a choking risk and provides no nutritional benefit." },
+];
+
+/* ── SYMPTOM TRIAGE RULES ── */
+const SYMPTOM_RULES = [
+  { keys:["can't breathe","not breathing","stopped breathing","blue lips","turning blue","choking","seizure","convuls"], level:"red", title:"🔴 Go to Emergency Now", advice:"Call 999 immediately or go to the nearest ER. This requires immediate medical attention.", dos:["Call emergency services now","Do not wait to see if it improves","Keep baby calm and still"] },
+  { keys:["fever newborn","fever under 3 months","3 month fever","38 degrees newborn","38°c newborn","38 newborn"], level:"red", title:"🔴 Urgent — Call Doctor Immediately", advice:"Any fever in a baby under 3 months is a medical emergency. Do not wait.", dos:["Call your paediatrician immediately","Go to ER if you can't reach a doctor within 30 minutes","Do not give paracetamol without guidance to babies under 3 months"] },
+  { keys:["rash fever","spotted rash","purple rash","doesn't fade","glass test","meningitis"], level:"red", title:"🔴 Go to Emergency Now", advice:"A non-fading rash with fever can indicate meningitis — a medical emergency.", dos:["Do the glass test: press glass against rash — if it doesn't fade, go to ER now","Call 999","Do not wait"] },
+  { keys:["39 degrees","39°c","very high fever","40 degrees","40°c"], level:"orange", title:"🟠 Call Your Paediatrician Today", advice:"A temperature of 39°C+ in a baby over 3 months needs medical evaluation today — do not wait until tomorrow.", dos:["Give age-appropriate paracetamol or ibuprofen","Keep baby hydrated with extra fluids","Call doctor now"] },
+  { keys:["not feeding","refusing feed","won't eat","not eating 24","not drinking"], level:"orange", title:"🟠 Call Your Paediatrician Today", advice:"A baby refusing feeds for 24+ hours needs medical evaluation — dehydration can develop quickly.", dos:["Try smaller, more frequent feeds","Check for wet nappies (fewer than 4 in 24h is concerning)","Call your doctor today"] },
+  { keys:["vomiting","throwing up","projectile vomit","can't keep down"], level:"orange", title:"🟠 Call Your Paediatrician Today", advice:"Persistent vomiting in a baby can lead to dehydration and needs medical review.", dos:["Offer small amounts of fluid frequently","Watch for signs of dehydration (dry mouth, no tears, fewer wet nappies)","Call your doctor if vomiting doesn't stop after 24 hours"] },
+  { keys:["38 degrees","38°c","mild fever","slight fever","temperature","fever"], level:"yellow", title:"🟡 Monitor & Call if No Improvement", advice:"A mild fever in a baby over 3 months can often be monitored at home for 24 hours.", dos:["Give age-appropriate paracetamol if over 3 months","Offer extra fluids","Check temperature every 4 hours","Seek advice if fever lasts more than 2 days"] },
+  { keys:["diarrhea","diarrhoea","loose stool","watery poo","runny poo"], level:"yellow", title:"🟡 Monitor & Call if No Improvement", advice:"Diarrhoea is common in babies and usually passes in 5–7 days. The main risk is dehydration.", dos:["Offer extra fluids or oral rehydration solution","Continue breastfeeding if applicable","See a doctor if blood in stool or it lasts more than 7 days"] },
+  { keys:["cough","coughing","barking cough","whooping"], level:"yellow", title:"🟡 Monitor & Call if No Improvement", advice:"A mild cough often accompanies a cold. A barking or whooping cough needs medical attention.", dos:["Keep baby upright where possible","Offer extra fluids","See a doctor if cough sounds barking, wheezy, or persists more than 2 weeks"] },
+  { keys:["ear pull","pulling ear","ear pain","earache"], level:"yellow", title:"🟡 Monitor & Call if No Improvement", advice:"Ear pulling with irritability and difficulty sleeping could indicate an ear infection.", dos:["See a doctor if accompanied by fever or discharge","Ear infections often need antibiotics","Keep baby upright during feeds"] },
+  { keys:["runny nose","congested","stuffy nose","cold","sneezing"], level:"green", title:"🟢 Monitor at Home", advice:"A runny nose and mild congestion is usually a common cold and will resolve on its own in 7–10 days.", dos:["Use saline nasal drops to clear congestion","Keep baby's head slightly elevated","Use a bulb syringe to clear mucus","See a doctor if baby is under 3 months or breathing becomes difficult"] },
+  { keys:["teething","gum pain","drooling","drool","chewing everything"], level:"green", title:"🟢 This is Normal — Try These Tips", advice:"Teething is uncomfortable but completely normal from 3 months. No medical attention needed unless there's a high fever.", dos:["Offer a chilled (not frozen) teething ring","Gently rub gums with a clean finger","Try a safe teething gel for baby's age","Note: teething does NOT cause high fever — see a doctor if temperature is high"] },
+];
+
+/* ── GIFT FINDER DATA ── */
+const GIFT_OCCASIONS = ["Baby shower 🎁","New baby 👶","Birthday 🎂","Eid 🌙","Just because 💛"];
+const GIFT_REASONS = {
+  "MW-001": { en:"A classic first gift — the piano gym grows with baby from newborn through to toddler. Parents absolutely love it.", ar:"هدية كلاسيكية رائعة — تنمو مع الطفل من المولود حتى مرحلة الطفولة." },
+  "MW-002": { en:"Perfect sensory mat for a new baby — parents will use it every single day for tummy time and play.", ar:"حصيرة حسية مثالية للمولود — يستخدمها الوالدان يومياً." },
+  "MW-003": { en:"A thoughtful practical gift — helps babies enjoy tummy time and parents love anything that makes the hard moments easier.", ar:"هدية عملية رائعة — تساعد الأطفال على الاستمتاع بوقت البطن." },
+  "MW-004": { en:"The gift every new parent wants — a break! The BABYBJÖRN bouncer gives hands-free moments parents treasure.", ar:"الهدية التي يريدها كل والد جديد — استراحة! المرجيحة تمنح الوالدين لحظات بلا أيدٍ." },
+  "MW-010": { en:"Sweet, classic, and universally loved — Sophie teethers are a beloved baby shower staple for great reason.", ar:"كلاسيكية ومحبوبة عالمياً — مضغوطات صوفي من أفضل هدايا استقبال المولود." },
+  "MW-011": { en:"Sophie la Girafe is arguably the most iconic baby gift in the world. It never goes out of style.", ar:"صوفي الزرافة هي الهدية الأكثر شهرة في العالم." },
+  "MW-013": { en:"A beautiful, high-quality wooden toy that develops fine motor skills — and parents love the Ms. Rachel branding.", ar:"لعبة خشبية جميلة عالية الجودة تطور المهارات الحركية الدقيقة." },
+  "MW-015": { en:"LEGO DUPLO is the gift that keeps on giving — toddlers play with it for years and it's always a crowd-pleaser.", ar:"ليغو دوبلو هدية لا تنتهي — يلعب بها الأطفال لسنوات." },
+  "MW-025": { en:"A classic wooden puzzle that supports development and looks beautiful — parents appreciate thoughtful, quality toys.", ar:"لغز خشبي كلاسيكي يدعم النمو ويبدو جميلاً." },
+  "MW-016": { en:"A baby carrier is one of the most useful gifts for any new parent — and the Ergobaby is the gold standard.", ar:"حمالة الأطفال من أكثر الهدايا فائدة لأي والد جديد." },
+};
+
+/* ── SHOPPING LIST PATTERNS ── */
+const SL_PATTERNS = [
+  { cat:"🍼 Feeding", emoji:"🍼", keywords:["bottle","feed","breast pump","formula","sippy","cup","high chair","bib","spoon","food"], items:[] },
+  { cat:"😴 Sleep", emoji:"😴", keywords:["swaddle","sleep","bassinet","crib","monitor","nightlight","white noise","sleeping bag"], items:[] },
+  { cat:"🧸 Play & Learning", emoji:"🧸", keywords:["toy","play gym","tummy time","teether","book","puzzle","blocks","walker"], items:[] },
+  { cat:"🛁 Bath & Care", emoji:"🛁", keywords:["bath","shampoo","lotion","nappy","diaper","wipes","cream","thermometer"], items:[] },
+  { cat:"👕 Clothing", emoji:"👕", keywords:["onesie","romper","clothes","outfit","socks","mittens","hat","vest"], items:[] },
+  { cat:"🚗 Travel & Gear", emoji:"🚗", keywords:["stroller","pram","car seat","carrier","bag","backpack"], items:[] },
 ];
 
 const FOLLOWUPS = {
-  tummy:   ["What play gyms work best for tummy time?","How many minutes of tummy time per day?","Best carriers to calm a fussy newborn?"],
+  tummy:["What play gyms work best for tummy time?","How many minutes of tummy time per day?","Best carriers to calm a fussy newborn?"],
   teething:["What helps sore gums at night?","Is drooling normal at 4 months?","Teething toys safe from 3 months?"],
-  sleep:   ["What swaddles work best for strong babies?","Is a bouncer safe for daytime naps?","How do I start a sleep routine?"],
-  solids:  ["What trainer cups are best for 6 months?","High chair vs booster seat — which is better?","Best first finger foods?"],
-  toddler: ["LEGO DUPLO vs wooden blocks — which is better?","Best outdoor toys for a 2-year-old?","How do shape sorters help development?"],
-  walker:  ["When should babies start using a push walker?","Best shoes for first steps?","Push toys vs door bouncers — what's safer?"],
-  general: ["What's age-appropriate for my baby?","Products for the 4-month sleep regression?","Best gifts for a newborn baby shower?"],
+  sleep:["What swaddles work best?","How do I start a sleep routine?","Is a bouncer safe for daytime naps?"],
+  solids:["Best trainer cups for 6 months?","High chair vs booster — which?","Best first finger foods?"],
+  toddler:["LEGO DUPLO vs wooden blocks?","Best outdoor toys for a 2-year-old?","How do shape sorters help development?"],
+  walker:["When should babies start a push walker?","Best shoes for first steps?"],
+  general:["What's age-appropriate for my baby?","Products for the 4-month sleep regression?","Best gifts for a baby shower?"],
 };
 
-function calcAgeMonths(dob) {
-  const now = new Date(), birth = new Date(dob);
-  return Math.max(0, (now.getFullYear()-birth.getFullYear())*12 + (now.getMonth()-birth.getMonth()));
+/* ── HELPERS ── */
+function calcAgeMonths(dob) { const now=new Date(),b=new Date(dob); return Math.max(0,(now.getFullYear()-b.getFullYear())*12+(now.getMonth()-b.getMonth())); }
+function formatAge(m) { if(m<1)return"Newborn"; if(m<12)return`${m} month${m>1?"s":""} old`; const y=Math.floor(m/12),r=m%12; return r?`${y}yr ${r}mo`:`${y} year${y>1?"s":""} old`; }
+function checkSafety(q) { const ql=q.toLowerCase(); for(const t of SAFETY_TRIGGERS) if(t.keys.some(k=>ql.includes(k))) return t; return null; }
+function waText(products,babyName) { const name=babyName||"my baby"; const lines=products.map((p,i)=>`${i+1}. ${p.name} — AED ${p.price}\n${p.link}`).join("\n\n"); return`https://wa.me/?text=${encodeURIComponent(`🛍️ Mumzworld picks for ${name}:\n\n${lines}\n\nShop at mumzworld.com`)}`; }
+function getFollowups(q) { const ql=q.toLowerCase(); if(ql.includes("tummy"))return FOLLOWUPS.tummy; if(ql.includes("teet")||ql.includes("drool"))return FOLLOWUPS.teething; if(ql.includes("sleep")||ql.includes("newborn")||ql.includes("hold"))return FOLLOWUPS.sleep; if(ql.includes("solid")||ql.includes("high chair")||ql.includes("wean"))return FOLLOWUPS.solids; if(ql.includes("toddler")||ql.includes("18")||ql.includes("educat"))return FOLLOWUPS.toddler; if(ql.includes("walk")||ql.includes("stand")||ql.includes("step"))return FOLLOWUPS.walker; return FOLLOWUPS.general; }
+function triageSymptom(q) { const ql=q.toLowerCase(); for(const r of SYMPTOM_RULES) if(r.keys.some(k=>ql.includes(k))) return r; return null; }
+
+function generateResponse(q,budget,babyName) {
+  const ql=q.toLowerCase(),nick=babyName||"your little one",ok=p=>budget>=2000||p.price<=budget;
+  let reply,products=[],fkey="general";
+  if(ql.includes("tummy")||(ql.includes("4 month")&&!ql.includes("solid"))) { reply=`That fussiness during tummy time is so common — you're not alone! 💛 ${nick} is building the neck and core strength needed to roll and sit.\n\nHere are my top picks:`; products=PRODUCTS.filter(p=>["MW-003","MW-001","MW-002"].includes(p.id)&&ok(p)); fkey="tummy"; }
+  else if(ql.includes("teet")||ql.includes("drool")||ql.includes("chew")||ql.includes("gum")) { reply=`Sounds like teething is starting — it can begin as early as 3 months! 🦷\n\nSafest options for ${nick}:`; products=PRODUCTS.filter(p=>["MW-010","MW-011"].includes(p.id)&&ok(p)); fkey="teething"; }
+  else if(ql.includes("sleep")||ql.includes("hold")||ql.includes("newborn")||ql.includes("swaddle")) { reply=`Oh, the 'only-sleep-when-held' stage is exhausting — but so understandable! 💗\n\nThese help safely:`; products=PRODUCTS.filter(p=>["MW-019","MW-004","MW-005"].includes(p.id)&&ok(p)); fkey="sleep"; }
+  else if(ql.includes("high chair")||ql.includes("solid")||ql.includes("wean")||ql.includes("6 month")) { reply=`How exciting — starting solids is such a big milestone! Best options for ${nick}:`; products=PRODUCTS.filter(p=>["MW-009","MW-018"].includes(p.id)&&ok(p)); fkey="solids"; }
+  else if(ql.includes("18 month")||ql.includes("toddler")||ql.includes("educat")||ql.includes("creative")||ql.includes("learn")) { reply=`18 months is such a fun age! 🧩 Top educational picks for ${nick}:`; products=PRODUCTS.filter(p=>["MW-015","MW-013","MW-025"].includes(p.id)&&ok(p)); fkey="toddler"; }
+  else if(ql.includes("walk")||ql.includes("stand")||ql.includes("step")||ql.includes("crawl")) { reply=`Those first steps are such a magical milestone! 🏃 Products to support ${nick}:`; products=PRODUCTS.filter(p=>["MW-014"].includes(p.id)&&ok(p)); fkey="walker"; }
+  else if(ql.includes("carrier")||ql.includes("fussy")||ql.includes("colic")||ql.includes("carry")) { reply=`Babywearing is wonderful for fussy babies — closeness and your rhythm are deeply calming. 💗`; products=PRODUCTS.filter(p=>["MW-016","MW-004"].includes(p.id)&&ok(p)); fkey="sleep"; }
+  else if(ql.includes("bottle")||ql.includes("breastfeed")||ql.includes("feed")) { reply=`Here are trusted feeding products for ${nick}:`; products=PRODUCTS.filter(p=>["MW-006","MW-018"].includes(p.id)&&ok(p)); fkey="solids"; }
+  else { reply=`I'd love to find the perfect products for ${nick}! Could you tell me:\n\n• **How old is your baby?**\n• **What challenge are you facing?**\n\nFor example: *"My 4-month-old hates tummy time"*`; fkey="general"; }
+  if(products.length===0&&ql.length>10&&!reply.includes("Could you tell me")) reply+="\n\n*(All matching products exceed your current budget — try raising the budget slider!)*";
+  return {reply,products,followups:FOLLOWUPS[fkey]};
 }
-function formatAge(m) {
-  if (m < 1) return "Newborn";
-  if (m < 12) return `${m} month${m>1?"s":""} old`;
-  const y=Math.floor(m/12), r=m%12;
-  return r ? `${y}yr ${r}mo` : `${y} year${y>1?"s":""} old`;
-}
-function checkSafety(q) {
-  const ql = q.toLowerCase();
-  for (const t of SAFETY_TRIGGERS) if (t.keys.some(k=>ql.includes(k))) return t;
-  return null;
-}
-function waText(products, babyName) {
-  const name = babyName || "my baby";
-  const lines = products.map((p,i)=>`${i+1}. ${p.name} — AED ${p.price}\n${p.link}`).join("\n\n");
-  return `https://wa.me/?text=${encodeURIComponent(`🛍️ Mumzworld picks for ${name}:\n\n${lines}\n\nShop at mumzworld.com`)}`;
-}
-function getFollowups(q) {
-  const ql = q.toLowerCase();
-  if (ql.includes("tummy")) return FOLLOWUPS.tummy;
-  if (ql.includes("teet")||ql.includes("drool")) return FOLLOWUPS.teething;
-  if (ql.includes("sleep")||ql.includes("newborn")||ql.includes("hold")) return FOLLOWUPS.sleep;
-  if (ql.includes("solid")||ql.includes("high chair")||ql.includes("wean")) return FOLLOWUPS.solids;
-  if (ql.includes("toddler")||ql.includes("18")||ql.includes("educat")) return FOLLOWUPS.toddler;
-  if (ql.includes("walk")||ql.includes("stand")||ql.includes("step")) return FOLLOWUPS.walker;
-  return FOLLOWUPS.general;
-}
-function generateResponse(q, budget, babyName) {
-  const ql = q.toLowerCase();
-  const nick = babyName || "your little one";
-  const ok = p => budget >= 2000 || p.price <= budget;
-  let reply, products=[], fkey="general";
-  if (ql.includes("tummy")||(ql.includes("4 month")&&!ql.includes("solid"))) {
-    reply=`That fussiness during tummy time is so common — you're not alone! 💛 ${nick} is building the neck and core strength needed to roll and sit.\n\nHere are my top picks:`;
-    products=PRODUCTS.filter(p=>["MW-003","MW-001","MW-002"].includes(p.id)&&ok(p)); fkey="tummy";
-  } else if (ql.includes("teet")||ql.includes("drool")||ql.includes("chew")||ql.includes("gum")) {
-    reply=`Sounds like teething is starting — it can begin as early as 3 months! The drooling and chewing are classic early signs. 🦷\n\nSafest options for ${nick}:`;
-    products=PRODUCTS.filter(p=>["MW-010","MW-011"].includes(p.id)&&ok(p)); fkey="teething";
-  } else if (ql.includes("sleep")||ql.includes("hold")||ql.includes("newborn")||ql.includes("swaddle")) {
-    reply=`Oh, the 'only-sleep-when-held' stage is exhausting — but so understandable! 💗 ${nick} just left the womb and your heartbeat is their favourite comfort.\n\nThese help safely:`;
-    products=PRODUCTS.filter(p=>["MW-019","MW-004","MW-005"].includes(p.id)&&ok(p)); fkey="sleep";
-  } else if (ql.includes("high chair")||ql.includes("solid")||ql.includes("wean")||ql.includes("6 month")) {
-    reply=`How exciting — starting solids is such a big milestone! At 6 months the goal is upright posture with support. Best options for ${nick}:`;
-    products=PRODUCTS.filter(p=>["MW-009","MW-008","MW-018"].includes(p.id)&&ok(p)); fkey="solids";
-  } else if (ql.includes("18 month")||ql.includes("toddler")||ql.includes("educat")||ql.includes("creative")||ql.includes("learn")) {
-    reply=`18 months is such a fun age — little sponges who learn through play! 🧩 Top educational picks for ${nick}:`;
-    products=PRODUCTS.filter(p=>["MW-015","MW-025","MW-013"].includes(p.id)&&ok(p)); fkey="toddler";
-  } else if (ql.includes("walk")||ql.includes("stand")||ql.includes("step")||ql.includes("crawl")) {
-    reply=`Those first steps are such a magical milestone! 🏃 Products to support ${nick} on that journey:`;
-    products=PRODUCTS.filter(p=>["MW-014"].includes(p.id)&&ok(p)); fkey="walker";
-  } else if (ql.includes("carrier")||ql.includes("carry")||ql.includes("babywear")||ql.includes("fussy")) {
-    reply=`Babywearing is wonderful for fussy babies — the closeness and rhythm of your movement is deeply calming. 💗 Recommendation for ${nick}:`;
-    products=PRODUCTS.filter(p=>["MW-016","MW-004"].includes(p.id)&&ok(p)); fkey="sleep";
-  } else if (ql.includes("bottle")||ql.includes("breastfeed")||ql.includes("feed")) {
-    reply=`Feeding questions are so important — here are trusted products for ${nick}:`;
-    products=PRODUCTS.filter(p=>["MW-006","MW-018"].includes(p.id)&&ok(p)); fkey="solids";
-  } else {
-    reply=`I'd love to find the perfect products for ${nick}! Could you tell me:\n\n• **How old is your baby?** (in weeks or months)\n• **What challenge are you facing?**\n\nFor example: *"My 4-month-old hates tummy time"* or *"Starting solids at 6 months."*`;
-    products=[]; fkey="general";
+
+function parseShoppingList(transcript) {
+  const words = transcript.toLowerCase();
+  const found = [];
+  const mapped = [
+    {item:"Baby bottles",cat:"🍼 Feeding",note:"Pack of 2, 260ml",keywords:["bottle","bottles"]},
+    {item:"Teether / teething ring",cat:"🧸 Play & Learning",note:"Natural rubber, 3m+",keywords:["teethe","teether","teething","chewing"]},
+    {item:"Tummy time mat",cat:"🧸 Play & Learning",note:"With sensory elements",keywords:["tummy time","play mat","activity mat"]},
+    {item:"Swaddle blankets",cat:"😴 Sleep",note:"Pack of 3",keywords:["swaddle","swaddling"]},
+    {item:"Baby monitor",cat:"😴 Sleep",note:"Audio or video",keywords:["monitor","baby monitor"]},
+    {item:"High chair",cat:"🍼 Feeding",note:"For 6 months+",keywords:["high chair","highchair"]},
+    {item:"Sippy / trainer cup",cat:"🍼 Feeding",note:"360° spout-free",keywords:["sippy","trainer cup","cup"]},
+    {item:"Baby carrier",cat:"🚗 Travel & Gear",note:"Ergonomic, newborn ready",keywords:["carrier","babywear","carry"]},
+    {item:"Nappies / diapers",cat:"🛁 Bath & Care",note:"Check size before buying",keywords:["nappy","nappies","diaper","diapers"]},
+    {item:"Baby wipes",cat:"🛁 Bath & Care",note:"Fragrance-free recommended",keywords:["wipe","wipes"]},
+    {item:"Baby bath wash",cat:"🛁 Bath & Care",note:"Gentle, tear-free",keywords:["bath","wash","shampoo"]},
+    {item:"Onesies / rompers",cat:"👕 Clothing",note:"Buy one size up",keywords:["onesie","romper","clothes","clothing","outfit"]},
+    {item:"Play gym",cat:"🧸 Play & Learning",note:"With piano or music",keywords:["play gym","activity gym","gym"]},
+    {item:"Nursing pads",cat:"🍼 Feeding",note:"Disposable or washable",keywords:["nursing","breast pad","nursing pad"]},
+    {item:"Stroller / pram",cat:"🚗 Travel & Gear",note:"Check weight limit",keywords:["stroller","pram","buggy"]},
+    {item:"Bouncer / rocker",cat:"😴 Sleep",note:"For soothing and hands-free moments",keywords:["bouncer","rocker","swing"]},
+    {item:"Books for baby",cat:"🧸 Play & Learning",note:"High-contrast for newborns",keywords:["book","books","read","reading"]},
+  ];
+  for(const m of mapped) if(m.keywords.some(k=>words.includes(k))) found.push(m);
+  if(found.length===0) {
+    const generic = transcript.split(/,|and|then|also|plus|\n/).map(s=>s.trim()).filter(s=>s.length>3).slice(0,8);
+    generic.forEach(g=>found.push({item:g.charAt(0).toUpperCase()+g.slice(1),cat:"🛍️ General",note:""}));
   }
-  if (products.length===0&&ql.length>10&&!reply.includes("Could you tell me"))
-    reply+="\n\n*(All matching products are over your current budget — try raising the budget slider!)*";
-  return { reply, products, followups: FOLLOWUPS[fkey] };
+  const grouped = {};
+  found.forEach(f=>{ if(!grouped[f.cat])grouped[f.cat]=[]; grouped[f.cat].push(f); });
+  return grouped;
 }
 
 /* ── COMPONENTS ── */
@@ -301,43 +372,34 @@ function TypingIndicator() {
   return <div className="msg-row"><div className="msg-avatar bot">👶</div><div className="typing-indicator"><div className="typing-dot"/><div className="typing-dot"/><div className="typing-dot"/></div></div>;
 }
 
-function ProductCard({ p, wishlist, toggleWishlist, compareList, toggleCompare, budget, babyName, lang }) {
-  const over = budget<2000 && p.price>budget;
-  const wishlisted = wishlist.includes(p.id);
-  const inCmp = compareList.some(c=>c.id===p.id);
+function ProductCard({p,wishlist,toggleWishlist,compareList,toggleCompare,budget,babyName,lang,giftReason}) {
+  const over=budget<2000&&p.price>budget,wishlisted=wishlist.includes(p.id),inCmp=compareList.some(c=>c.id===p.id);
   return (
-    <div className={`product-card${over?" over-budget":""}`}>
+    <div className={`product-card${over?" over-budget":""}${giftReason?" gift-pick":""}`}>
       <div className="product-card-header">
         <div className="product-name">{p.name}</div>
         <div className="product-actions">
-          <input type="checkbox" className="compare-cb" title="Add to compare" checked={inCmp} onChange={()=>toggleCompare(p)}/>
+          <input type="checkbox" className="compare-cb" checked={inCmp} onChange={()=>toggleCompare(p)}/>
           <button className="heart-btn" onClick={()=>toggleWishlist(p.id)}>{wishlisted?"❤️":"🤍"}</button>
         </div>
       </div>
-      <div className="product-price">
-        AED {p.price}
-        {over && <span className="over-budget-badge">Over budget</span>}
-      </div>
+      <div className="product-price">AED {p.price}{over&&<span className="over-budget-badge">Over budget</span>}</div>
       <div className="product-meta"><span>{lang==="ar"?"العمر:":"Age:"}</span> {p.age_min}–{p.age_max} months</div>
       <div className="product-meta"><span>{lang==="ar"?"لماذا رائع:":"Why great:"}</span> {p.why}</div>
+      {giftReason && <div className="gift-why">🎁 {lang==="ar"?giftReason.ar:giftReason.en}</div>}
       <div className="safety-badge">⚠️ {p.safety.length>80?p.safety.slice(0,80)+"…":p.safety}</div>
       <div className="card-actions">
         <a href={p.link} target="_blank" rel="noopener noreferrer" className="shop-btn">{lang==="ar"?"تسوق في مامزوورلد →":"Shop on Mumzworld →"}</a>
-        {babyName && <a href={waText([p],babyName)} target="_blank" rel="noopener noreferrer" className="wa-btn">📱 Share</a>}
+        {babyName&&<a href={waText([p],babyName)} target="_blank" rel="noopener noreferrer" className="wa-btn">📱 Share</a>}
       </div>
     </div>
   );
 }
 
-function MsgBubble({ msg, wishlist, toggleWishlist, compareList, toggleCompare, budget, babyName, lang, onFollowup }) {
-  const time = msg.time ? new Date(msg.time).toLocaleTimeString([],{hour:"2-digit",minute:"2-digit"}) : "";
-  if (msg.role==="user") return (
-    <div className="msg-row user">
-      <div className="msg-avatar user">🙋</div>
-      <div><div className="msg-bubble user">{msg.content}</div><div className="msg-meta" style={{textAlign:"right"}}>{time}</div></div>
-    </div>
-  );
-  const html = msg.content.replace(/\*\*(.*?)\*\*/g,"<strong>$1</strong>").replace(/\*(.*?)\*/g,"<em>$1</em>").replace(/\n/g,"<br/>");
+function MsgBubble({msg,wishlist,toggleWishlist,compareList,toggleCompare,budget,babyName,lang,onFollowup}) {
+  const time=msg.time?new Date(msg.time).toLocaleTimeString([],{hour:"2-digit",minute:"2-digit"}):"";
+  if(msg.role==="user") return <div className="msg-row user"><div className="msg-avatar user">🙋</div><div><div className="msg-bubble user">{msg.content}</div><div className="msg-meta" style={{textAlign:"right"}}>{time}</div></div></div>;
+  const html=msg.content.replace(/\*\*(.*?)\*\*/g,"<strong>$1</strong>").replace(/\*(.*?)\*/g,"<em>$1</em>").replace(/\n/g,"<br/>");
   return (
     <div>
       <div className="msg-row">
@@ -346,166 +408,250 @@ function MsgBubble({ msg, wishlist, toggleWishlist, compareList, toggleCompare, 
           <div className="msg-bubble bot" dangerouslySetInnerHTML={{__html:html}}/>
           {msg.products&&msg.products.length>0&&<>
             {msg.products.map(p=><ProductCard key={p.id} p={p} wishlist={wishlist} toggleWishlist={toggleWishlist} compareList={compareList} toggleCompare={toggleCompare} budget={budget} babyName={babyName} lang={lang}/>)}
-            {babyName&&msg.products.length>1&&<div style={{marginTop:10}}><a href={waText(msg.products,babyName)} target="_blank" rel="noopener noreferrer" className="wa-btn" style={{fontSize:12}}>📱 Share all {msg.products.length} picks on WhatsApp</a></div>}
+            {babyName&&msg.products.length>1&&<div style={{marginTop:10}}><a href={waText(msg.products,babyName)} target="_blank" rel="noopener noreferrer" className="wa-btn" style={{fontSize:12}}>📱 Share all {msg.products.length} picks</a></div>}
           </>}
           <div className="msg-meta">{time}</div>
         </div>
       </div>
-      {msg.followups&&msg.followups.length>0&&(
-        <div className="followup-row">
-          {msg.followups.map(f=><button key={f} className="followup-chip" onClick={()=>onFollowup(f)}>{f}</button>)}
-        </div>
-      )}
+      {msg.followups&&msg.followups.length>0&&<div className="followup-row">{msg.followups.map(f=><button key={f} className="followup-chip" onClick={()=>onFollowup(f)}>{f}</button>)}</div>}
     </div>
   );
 }
 
-function MilestoneBar({ ageMonths, onSelect, t }) {
-  return (
-    <div className="milestone-bar">
-      <div className="milestone-label">{t.milestonesLabel}</div>
-      <div className="milestone-track">
-        {MILESTONES.map((m,i)=>{
-          const cls = ageMonths===null ? "upcoming"
-            : m.age<=ageMonths&&ageMonths<(MILESTONES[i+1]?.age??999) ? "active"
-            : m.age<ageMonths ? "past" : "upcoming";
-          return <React.Fragment key={m.id}>
-            {i>0&&<div className="milestone-connector"/>}
-            <div className={`milestone-item ${cls}`} onClick={()=>onSelect(m.query)} title={`Ask about ${m.label}`}>
-              <div className="milestone-dot">{m.emoji}</div>
-              <div className="milestone-name">{m.label}</div>
-              <div className="milestone-age">{m.age}m</div>
-            </div>
-          </React.Fragment>;
-        })}
-      </div>
-    </div>
-  );
+function MilestoneBar({ageMonths,onSelect,t}) {
+  return <div className="milestone-bar"><div className="milestone-label">{t.milestonesLabel}</div><div className="milestone-track">{MILESTONES.map((m,i)=>{const cls=ageMonths===null?"upcoming":m.age<=ageMonths&&ageMonths<(MILESTONES[i+1]?.age??999)?"active":m.age<ageMonths?"past":"upcoming";return<React.Fragment key={m.id}>{i>0&&<div className="milestone-connector"/>}<div className={`milestone-item ${cls}`} onClick={()=>onSelect(m.query)}><div className="milestone-dot">{m.emoji}</div><div className="milestone-name">{m.label}</div><div className="milestone-age">{m.age}m</div></div></React.Fragment>;})}</div></div>;
 }
 
-function BudgetBar({ budget, setBudget, t }) {
+function BudgetBar({budget,setBudget,t}) {
   const presets=[200,500,1000,2000];
-  return (
-    <div className="budget-bar">
-      <div className="budget-header">
-        <div className="budget-label">💰 {t.budgetLabel}</div>
-        <div className="budget-value">{budget>=2000?"No limit":`AED ${budget}`}</div>
-      </div>
-      <input type="range" className="budget-slider" min={50} max={2000} step={50} value={budget} onChange={e=>setBudget(Number(e.target.value))}/>
-      <div className="budget-presets">{presets.map(p=><button key={p} className={`budget-preset${budget===p?" active":""}`} onClick={()=>setBudget(p)}>{p>=2000?"All":`AED ${p}`}</button>)}</div>
-    </div>
-  );
+  return <div className="budget-bar"><div className="budget-header"><div className="budget-label">💰 {t.budgetLabel}</div><div className="budget-value">{budget>=2000?"No limit":`AED ${budget}`}</div></div><input type="range" className="budget-slider" min={50} max={2000} step={50} value={budget} onChange={e=>setBudget(Number(e.target.value))}/><div className="budget-presets">{presets.map(p=><button key={p} className={`budget-preset${budget===p?" active":""}`} onClick={()=>setBudget(p)}>{p>=2000?"All":`AED ${p}`}</button>)}</div></div>;
 }
 
-function ProfileModal({ onSave, onSkip }) {
+function ProfileModal({onSave,onSkip}) {
   const [name,setName]=useState(""); const [dob,setDob]=useState("");
-  return (
-    <div className="modal-overlay">
-      <div className="modal">
-        <div className="modal-title">👶 Welcome! Tell us about your baby</div>
-        <div className="modal-sub">Personalise every recommendation with your baby's name and age.</div>
-        <div className="form-group"><label className="form-label">Baby's name</label><input className="form-input" placeholder="e.g. Layla, Omar…" value={name} onChange={e=>setName(e.target.value)}/></div>
-        <div className="form-group"><label className="form-label">Date of birth</label><input className="form-input" type="date" max={new Date().toISOString().split("T")[0]} value={dob} onChange={e=>setDob(e.target.value)}/></div>
-        <div className="modal-actions">
-          <button className="btn-secondary" onClick={onSkip}>Skip</button>
-          <button className="btn-primary" onClick={()=>{if(name||dob)onSave(name.trim(),dob);else onSkip();}}>Let's go! 🎉</button>
-        </div>
-      </div>
-    </div>
-  );
+  return <div className="modal-overlay"><div className="modal"><div className="modal-title">👶 Welcome! Tell us about your baby</div><div className="modal-sub">Personalise every recommendation with your baby's name and age.</div><div className="form-group"><label className="form-label">Baby's name</label><input className="form-input" placeholder="e.g. Layla, Omar…" value={name} onChange={e=>setName(e.target.value)}/></div><div className="form-group"><label className="form-label">Date of birth</label><input className="form-input" type="date" max={new Date().toISOString().split("T")[0]} value={dob} onChange={e=>setDob(e.target.value)}/></div><div className="modal-actions"><button className="btn-secondary" onClick={onSkip}>Skip</button><button className="btn-primary" onClick={()=>{if(name||dob)onSave(name.trim(),dob);else onSkip();}}>Let's go! 🎉</button></div></div></div>;
 }
 
-function WishlistDrawer({ wishlist, toggleWishlist, onClose, t, lang, compareList, toggleCompare, budget, babyName }) {
-  const items = PRODUCTS.filter(p=>wishlist.includes(p.id));
-  return (
-    <div className="drawer">
-      <div className="drawer-backdrop" onClick={onClose}/>
-      <div className="drawer-panel">
-        <div className="drawer-header"><div className="drawer-title">❤️ Saved ({items.length})</div><button className="drawer-close" onClick={onClose}>✕</button></div>
-        <div className="drawer-body">
-          {items.length===0?<div className="drawer-empty">{t.wishlistEmpty}</div>
-           :items.map(p=><ProductCard key={p.id} p={p} wishlist={wishlist} toggleWishlist={toggleWishlist} compareList={compareList} toggleCompare={toggleCompare} budget={budget} babyName={babyName} lang={lang}/>)}
-        </div>
-      </div>
-    </div>
-  );
-}
+/* ── FEATURE 1: GIFT FINDER ── */
+function GiftFinderModal({onClose,lang}) {
+  const [age,setAge]=useState("");
+  const [budgetG,setBudgetG]=useState(300);
+  const [occasion,setOccasion]=useState(GIFT_OCCASIONS[0]);
+  const [results,setResults]=useState(null);
+  const [loading,setLoading]=useState(false);
+  const t=lang==="ar";
 
-function CompareModal({ items, onClose }) {
-  const rows=[["Price",p=>`AED ${p.price}`],["Age range",p=>`${p.age_min}–${p.age_max} months`],["Category",p=>p.cat],["Why great",p=>p.why],["Safety",p=>p.safety]];
+  async function findGifts() {
+    setLoading(true);
+    await new Promise(r=>setTimeout(r,900));
+    const ageNum=parseInt(age)||0;
+    const picks=PRODUCTS
+      .filter(p=>p.price<=budgetG&&p.age_min<=ageNum&&p.age_max>=ageNum)
+      .sort(()=>Math.random()-0.5)
+      .slice(0,3);
+    setResults(picks);
+    setLoading(false);
+  }
+
   return (
     <div className="modal-overlay" onClick={onClose}>
-      <div className="modal" style={{maxWidth:580}} onClick={e=>e.stopPropagation()}>
-        <div className="modal-title">⚖️ Side-by-Side Comparison</div>
-        <div style={{overflowX:"auto",marginTop:12}}>
-          <table className="compare-table">
-            <thead><tr><th style={{width:90}}></th>{items.map(p=><th key={p.id}>{p.name}</th>)}</tr></thead>
-            <tbody>
-              {rows.map(([label,fn])=><tr key={label}><td style={{fontWeight:700,color:"#999",fontSize:11}}>{label}</td>{items.map(p=><td key={p.id}>{fn(p)}</td>)}</tr>)}
-              <tr><td></td>{items.map(p=><td key={p.id}><a href={p.link} target="_blank" rel="noopener noreferrer" className="shop-btn" style={{fontSize:11}}>Shop →</a></td>)}</tr>
-            </tbody>
-          </table>
-        </div>
-        <div className="modal-actions"><button className="btn-secondary" onClick={onClose}>Close</button></div>
+      <div className="modal" style={{maxWidth:500}} onClick={e=>e.stopPropagation()}>
+        <div className="modal-title">🎁 {t?"موجد الهدايا المثالية":"Gift Finder"}</div>
+        <div className="modal-sub">{t?"أدخل عمر الطفل والميزانية واحصلي على قائمة هدايا مختارة بعناية":"Enter the baby's age and your budget — we'll curate the perfect shortlist."}</div>
+
+        {!results ? <>
+          <div className="form-group"><label className="form-label">{t?"عمر الطفل (بالأشهر)":"Baby's age (in months)"}</label><input className="form-input" type="number" min={0} max={96} placeholder={t?"مثال: 4":"e.g. 4"} value={age} onChange={e=>setAge(e.target.value)}/></div>
+          <div className="form-group"><label className="form-label">{t?"الميزانية القصوى (درهم)":"Max budget (AED)"} — AED {budgetG}</label><input type="range" className="budget-slider" min={50} max={2000} step={50} value={budgetG} onChange={e=>setBudgetG(Number(e.target.value))} style={{marginTop:8}}/></div>
+          <div className="form-group"><label className="form-label">{t?"المناسبة":"Occasion"}</label><select className="form-select" value={occasion} onChange={e=>setOccasion(e.target.value)}>{GIFT_OCCASIONS.map(o=><option key={o}>{o}</option>)}</select></div>
+          <div className="modal-actions">
+            <button className="btn-secondary" onClick={onClose}>{t?"إغلاق":"Close"}</button>
+            <button className="btn-primary" onClick={findGifts} disabled={!age}>{t?"🎁 اعثري على هدايا":"🎁 Find Gifts"}</button>
+          </div>
+        </> : <>
+          {loading ? <div style={{textAlign:"center",padding:"30px 0",color:"#999"}}>{t?"جاري البحث…":"Finding perfect gifts…"}</div> : <>
+            <div className="gift-result-header">
+              <div className="gift-result-title">{t?"أفضل هدايا لطفل عمره":"Top picks for a"} {age}{t?"أشهر":"m"} baby</div>
+              <span className="occasion-badge">{occasion}</span>
+            </div>
+            {results.length===0 ? <p style={{color:"#999",fontSize:13}}>{t?"لا توجد منتجات ضمن هذه الميزانية. جربي ميزانية أعلى.":"No products found in this budget. Try a higher amount."}</p>
+              : results.map(p=><div key={p.id} className="product-card gift-pick" style={{marginBottom:12}}>
+                  <div className="product-name">{p.name}</div>
+                  <div className="product-price">AED {p.price}</div>
+                  <div className="product-meta"><span>{t?"العمر:":"Age:"}</span> {p.age_min}–{p.age_max}m</div>
+                  {GIFT_REASONS[p.id]&&<div className="gift-why">🎁 {t?GIFT_REASONS[p.id].ar:GIFT_REASONS[p.id].en}</div>}
+                  <div className="card-actions"><a href={p.link} target="_blank" rel="noopener noreferrer" className="shop-btn">{t?"تسوق في مامزوورلد →":"Shop on Mumzworld →"}</a><a href={waText([p],"the baby")} target="_blank" rel="noopener noreferrer" className="wa-btn">📱 Share</a></div>
+                </div>)}
+            <div className="modal-actions">
+              <button className="btn-secondary" onClick={()=>setResults(null)}>{t?"العودة":"← Back"}</button>
+              {results.length>0&&<a href={waText(results,"the baby")} target="_blank" rel="noopener noreferrer" className="wa-btn" style={{flex:1,justifyContent:"center"}}>📱 {t?"شاركي القائمة كاملة":"Share full list"}</a>}
+            </div>
+          </>}
+        </>}
       </div>
     </div>
   );
+}
+
+/* ── FEATURE 2: SYMPTOM TRIAGE ── */
+const QUICK_SYMPTOMS_LIST=["Fever","Not feeding","Vomiting","Rash","Cough","Runny nose","Ear pulling","Teething pain","Diarrhoea","Crying constantly"];
+
+function SymptomTriageModal({onClose,lang}) {
+  const [symptom,setSymptom]=useState("");
+  const [result,setResult]=useState(null);
+  const t=lang==="ar";
+
+  function check() {
+    if(!symptom.trim()) return;
+    const found=triageSymptom(symptom)||{level:"yellow",title:"🟡 Monitor & Ask Your Paediatrician",advice:"Based on what you've described, we recommend monitoring your baby and calling your paediatrician if symptoms persist or worsen.",dos:["Note when symptoms started and any changes","Ensure baby stays hydrated","Seek medical advice if you're unsure"]};
+    setResult(found);
+  }
+
+  return (
+    <div className="modal-overlay" onClick={onClose}>
+      <div className="modal" style={{maxWidth:500}} onClick={e=>e.stopPropagation()}>
+        <div className="modal-title">🏥 {t?"فحص الأعراض":"Symptom Triage"}</div>
+        <div className="modal-sub">{t?"صفي أعراض طفلك وسنخبرك بما يجب فعله":"Describe your baby's symptoms and we'll guide you on what to do next."}</div>
+
+        {!result ? <>
+          <div className="symptom-input-area">
+            <textarea className="symptom-textarea" placeholder={t?"مثال: طفلي عمره 4 أشهر ولديه حرارة ويبكي كثيراً…":"e.g. My 4-month-old has a fever of 38.5°C and is very fussy…"} value={symptom} onChange={e=>setSymptom(e.target.value)}/>
+            <div><div style={{fontSize:11,color:"#999",marginBottom:6}}>{t?"أو اختاري من الأعراض الشائعة:":"Or tap a common symptom:"}</div>
+              <div className="quick-symptoms">{QUICK_SYMPTOMS_LIST.map(s=><button key={s} className="symptom-chip" onClick={()=>setSymptom(s)}>{s}</button>)}</div>
+            </div>
+          </div>
+          <div className="modal-actions">
+            <button className="btn-secondary" onClick={onClose}>{t?"إغلاق":"Close"}</button>
+            <button className="btn-primary" onClick={check} disabled={!symptom.trim()}>🏥 {t?"تحقق الآن":"Check Now"}</button>
+          </div>
+        </> : <>
+          <div className={`triage-result ${result.level}`}>
+            <div className={`triage-level ${result.level}`}>{result.title}</div>
+            <div className="triage-advice">{result.advice}</div>
+            <ul className="triage-dos">{result.dos.map((d,i)=><li key={i}>{d}</li>)}</ul>
+            <div className="triage-disclaimer">⚕️ {t?"هذه الأداة للتوجيه فقط وليست بديلاً عن الاستشارة الطبية المتخصصة.":"This tool provides guidance only and is not a substitute for professional medical advice. Always consult a qualified paediatrician."}</div>
+          </div>
+          <div className="modal-actions">
+            <button className="btn-secondary" onClick={()=>setResult(null)}>{t?"العودة":"← Check Again"}</button>
+            <button className="btn-primary" onClick={onClose}>{t?"إغلاق":"Done"}</button>
+          </div>
+        </>}
+      </div>
+    </div>
+  );
+}
+
+/* ── FEATURE 3: VOICE → SHOPPING LIST ── */
+function ShoppingListModal({grouped,onClose,babyName,lang}) {
+  const [checked,setChecked]=useState({});
+  const t=lang==="ar";
+  const sections=Object.entries(grouped);
+
+  function toggle(key) { setChecked(p=>({...p,[key]:!p[key]})); }
+
+  function shareList() {
+    const lines=sections.flatMap(([cat,items])=>[`\n${cat}`,,...items.map(i=>`• ${i.item}${i.note?` (${i.note})`:""}}`)]);
+    const text=`🛍️ Shopping list${babyName?" for "+babyName:""}:\n${lines.join("\n")}\n\nShop at mumzworld.com`;
+    window.open(`https://wa.me/?text=${encodeURIComponent(text)}`,"_blank");
+  }
+
+  return (
+    <div className="modal-overlay" onClick={onClose}>
+      <div className="modal" style={{maxWidth:480}} onClick={e=>e.stopPropagation()}>
+        <div className="modal-title">🗒️ {t?"قائمة التسوق":"Shopping List"}{babyName&&` for ${babyName}`}</div>
+        <div className="modal-sub">{t?"تم إنشاء قائمتك من مذكرتك الصوتية — ضعي علامة على ما تحتاجينه!":"Generated from your voice memo — tick what you need!"}</div>
+        {sections.map(([cat,items])=>(
+          <div className="sl-section" key={cat}>
+            <div className="sl-section-title">{cat}</div>
+            {items.map((item,i)=>{
+              const key=`${cat}-${i}`;
+              return <div className="sl-item" key={key}>
+                <input type="checkbox" className="sl-cb" checked={!!checked[key]} onChange={()=>toggle(key)}/>
+                <div><div className={`sl-item-name${checked[key]?" done":""}`}>{item.item}</div>{item.note&&<div className="sl-item-note">{item.note}</div>}</div>
+              </div>;
+            })}
+          </div>
+        ))}
+        <button className="sl-share-btn" onClick={shareList}>📱 {t?"شارك القائمة على واتساب":"Share on WhatsApp"}</button>
+        <div className="modal-actions" style={{marginTop:10}}><button className="btn-secondary" onClick={onClose}>{t?"إغلاق":"Close"}</button></div>
+      </div>
+    </div>
+  );
+}
+
+function WishlistDrawer({wishlist,toggleWishlist,onClose,t,lang,compareList,toggleCompare,budget,babyName}) {
+  const items=PRODUCTS.filter(p=>wishlist.includes(p.id));
+  return <div className="drawer"><div className="drawer-backdrop" onClick={onClose}/><div className="drawer-panel"><div className="drawer-header"><div className="drawer-title">❤️ Saved ({items.length})</div><button className="drawer-close" onClick={onClose}>✕</button></div><div className="drawer-body">{items.length===0?<div className="drawer-empty">{t.wishlistEmpty}</div>:items.map(p=><ProductCard key={p.id} p={p} wishlist={wishlist} toggleWishlist={toggleWishlist} compareList={compareList} toggleCompare={toggleCompare} budget={budget} babyName={babyName} lang={lang}/>)}</div></div></div>;
+}
+
+function CompareModal({items,onClose}) {
+  const rows=[["Price",p=>`AED ${p.price}`],["Age range",p=>`${p.age_min}–${p.age_max}m`],["Category",p=>p.cat],["Why great",p=>p.why],["Safety",p=>p.safety]];
+  return <div className="modal-overlay" onClick={onClose}><div className="modal" style={{maxWidth:580}} onClick={e=>e.stopPropagation()}><div className="modal-title">⚖️ Compare Products</div><div style={{overflowX:"auto",marginTop:12}}><table className="compare-table"><thead><tr><th style={{width:90}}></th>{items.map(p=><th key={p.id}>{p.name}</th>)}</tr></thead><tbody>{rows.map(([label,fn])=><tr key={label}><td style={{fontWeight:700,color:"#999",fontSize:11}}>{label}</td>{items.map(p=><td key={p.id}>{fn(p)}</td>)}</tr>)}<tr><td></td>{items.map(p=><td key={p.id}><a href={p.link} target="_blank" rel="noopener noreferrer" className="shop-btn" style={{fontSize:11}}>Shop →</a></td>)}</tr></tbody></table></div><div className="modal-actions"><button className="btn-secondary" onClick={onClose}>Close</button></div></div></div>;
 }
 
 /* ── APP ── */
-const mkWelcome = name => ({ role:"assistant", content: name ? `Hi ${name}'s mum/dad! 👋 I'm your Mumzworld advisor — I already know your little one's age and I'm ready to personalise every recommendation.\n\nWhat's on your mind today?` : `Hi there! 👋 I'm your Mumzworld parenting advisor.\n\nTell me your baby's age and what challenge you're facing — I'll recommend the right products from Mumzworld's catalogue.`, products:[], followups:[], time:Date.now() });
+const mkWelcome=name=>({role:"assistant",content:name?`Hi ${name}'s mum/dad! 👋 I'm your Mumzworld advisor — I already know your little one's age and I'm ready to personalise every recommendation.\n\nWhat's on your mind today?`:`Hi there! 👋 I'm your Mumzworld parenting advisor.\n\nTell me your baby's age and what challenge you're facing — I'll recommend the right products from Mumzworld's catalogue.`,products:[],followups:[],time:Date.now()});
 
 function App() {
-  const loadProfile = () => { try { return JSON.parse(localStorage.getItem("mw_profile")); } catch { return null; } };
-  const loadWishlist = () => { try { return JSON.parse(localStorage.getItem("mw_wishlist"))||[]; } catch { return []; } };
+  const loadP=()=>{try{return JSON.parse(localStorage.getItem("mw_profile"));}catch{return null;}};
+  const loadW=()=>{try{return JSON.parse(localStorage.getItem("mw_wishlist"))||[];}catch{return[];}};
 
-  const [profile, setProfile] = useState(loadProfile);
-  const [showProfileModal, setShowProfileModal] = useState(!loadProfile());
-  const [messages, setMessages] = useState(() => [mkWelcome(loadProfile()?.name)]);
-  const [input, setInput] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [wishlist, setWishlist] = useState(loadWishlist);
-  const [showWishlist, setShowWishlist] = useState(false);
-  const [compareList, setCompareList] = useState([]);
-  const [showCompare, setShowCompare] = useState(false);
-  const [lang, setLang] = useState("en");
-  const [budget, setBudget] = useState(2000);
-  const [showBudget, setShowBudget] = useState(false);
-  const [listening, setListening] = useState(false);
-  const [safetyAlert, setSafetyAlert] = useState(null);
-  const endRef = useRef(null);
-  const t = T[lang];
-  const ageMonths = profile?.dob ? calcAgeMonths(profile.dob) : null;
+  const [profile,setProfile]=useState(loadP);
+  const [showProfileModal,setShowProfileModal]=useState(!loadP());
+  const [messages,setMessages]=useState(()=>[mkWelcome(loadP()?.name)]);
+  const [input,setInput]=useState("");
+  const [loading,setLoading]=useState(false);
+  const [wishlist,setWishlist]=useState(loadW);
+  const [showWishlist,setShowWishlist]=useState(false);
+  const [compareList,setCompareList]=useState([]);
+  const [showCompare,setShowCompare]=useState(false);
+  const [lang,setLang]=useState("en");
+  const [budget,setBudget]=useState(2000);
+  const [showBudget,setShowBudget]=useState(false);
+  const [listening,setListening]=useState(false);
+  const [safetyAlert,setSafetyAlert]=useState(null);
+  // New feature states
+  const [showGiftFinder,setShowGiftFinder]=useState(false);
+  const [showSymptomTriage,setShowSymptomTriage]=useState(false);
+  const [shoppingList,setShoppingList]=useState(null);
+  const endRef=useRef(null);
+  const t=T[lang];
+  const ageMonths=profile?.dob?calcAgeMonths(profile.dob):null;
 
-  useEffect(()=>{ endRef.current?.scrollIntoView({behavior:"smooth"}); },[messages,loading]);
-  useEffect(()=>{ localStorage.setItem("mw_wishlist",JSON.stringify(wishlist)); },[wishlist]);
-  useEffect(()=>{ document.documentElement.lang=lang; document.documentElement.dir=lang==="ar"?"rtl":"ltr"; },[lang]);
+  useEffect(()=>{endRef.current?.scrollIntoView({behavior:"smooth"});},[messages,loading]);
+  useEffect(()=>{localStorage.setItem("mw_wishlist",JSON.stringify(wishlist));},[wishlist]);
+  useEffect(()=>{document.documentElement.lang=lang;document.documentElement.dir=lang==="ar"?"rtl":"ltr";},[lang]);
 
-  function saveProfile(name,dob) {
-    const p={name,dob}; localStorage.setItem("mw_profile",JSON.stringify(p));
-    setProfile(p); setShowProfileModal(false); setMessages([mkWelcome(name)]);
-  }
-  function toggleWishlist(id) { setWishlist(prev=>prev.includes(id)?prev.filter(x=>x!==id):[...prev,id]); }
-  function toggleCompare(product) {
-    setCompareList(prev=>{ if(prev.some(p=>p.id===product.id)) return prev.filter(p=>p.id!==product.id); if(prev.length>=3) return prev; return [...prev,product]; });
-  }
-  function startVoice() {
+  function saveProfile(name,dob){const p={name,dob};localStorage.setItem("mw_profile",JSON.stringify(p));setProfile(p);setShowProfileModal(false);setMessages([mkWelcome(name)]);}
+  function toggleWishlist(id){setWishlist(prev=>prev.includes(id)?prev.filter(x=>x!==id):[...prev,id]);}
+  function toggleCompare(product){setCompareList(prev=>{if(prev.some(p=>p.id===product.id))return prev.filter(p=>p.id!==product.id);if(prev.length>=3)return prev;return[...prev,product];});}
+
+  function startVoice(){
     const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
     if(!SR){alert("Voice input not supported in this browser. Try Chrome.");return;}
-    const r=new SR(); r.lang=lang==="ar"?"ar-AE":"en-US";
-    r.onresult=e=>{setInput(e.results[0][0].transcript);setListening(false);};
-    r.onerror=()=>setListening(false); r.onend=()=>setListening(false);
-    setListening(true); r.start();
+    const r=new SR();r.lang=lang==="ar"?"ar-AE":"en-US";
+    r.onresult=e=>{
+      const transcript=e.results[0][0].transcript;
+      // Feature 3: detect if this is a shopping list memo
+      const hasMultiple=transcript.split(/,|and\s|also\s|then\s|plus\s/).length>=3||transcript.toLowerCase().includes("list")||transcript.toLowerCase().includes("need to buy")||transcript.toLowerCase().includes("shopping");
+      if(hasMultiple){
+        const grouped=parseShoppingList(transcript);
+        if(Object.keys(grouped).length>0){setShoppingList(grouped);setListening(false);return;}
+      }
+      setInput(transcript);setListening(false);
+    };
+    r.onerror=()=>setListening(false);r.onend=()=>setListening(false);
+    setListening(true);r.start();
   }
-  async function sendMessage(text) {
-    const userText=(text||input).trim(); if(!userText||loading) return;
+
+  async function sendMessage(text){
+    const userText=(text||input).trim();if(!userText||loading)return;
     setInput("");
-    const alert=checkSafety(userText); if(alert) setSafetyAlert(alert);
+    const alert=checkSafety(userText);if(alert)setSafetyAlert(alert);
     const enriched=userText+(profile?.dob?` (baby age: ${formatAge(ageMonths)})`:"");
     setMessages(prev=>[...prev,{role:"user",content:userText,products:[],followups:[],time:Date.now()}]);
     setLoading(true);
     await new Promise(r=>setTimeout(r,1000));
-    const {reply,products,followups}=generateResponse(enriched,budget,profile?.name);
+    const{reply,products,followups}=generateResponse(enriched,budget,profile?.name);
     setMessages(prev=>[...prev,{role:"assistant",content:reply,products,followups,time:Date.now()}]);
     setLoading(false);
   }
@@ -515,38 +661,26 @@ function App() {
       {showProfileModal&&<ProfileModal onSave={saveProfile} onSkip={()=>setShowProfileModal(false)}/>}
       {showWishlist&&<WishlistDrawer wishlist={wishlist} toggleWishlist={toggleWishlist} onClose={()=>setShowWishlist(false)} t={t} lang={lang} compareList={compareList} toggleCompare={toggleCompare} budget={budget} babyName={profile?.name}/>}
       {showCompare&&compareList.length>=2&&<CompareModal items={compareList} onClose={()=>setShowCompare(false)}/>}
+      {showGiftFinder&&<GiftFinderModal onClose={()=>setShowGiftFinder(false)} lang={lang}/>}
+      {showSymptomTriage&&<SymptomTriageModal onClose={()=>setShowSymptomTriage(false)} lang={lang}/>}
+      {shoppingList&&<ShoppingListModal grouped={shoppingList} onClose={()=>setShoppingList(null)} babyName={profile?.name} lang={lang}/>}
 
       <div className="widget-wrapper">
         <div className="header">
           <div className="header-actions">
-            <button className="icon-btn lang-btn" onClick={()=>setLang(l=>l==="en"?"ar":"en")} title="Toggle language">{lang==="en"?"عربي":"EN"}</button>
-            <button className="icon-btn" onClick={()=>setShowBudget(s=>!s)} title="Budget filter">💰</button>
+            <button className="icon-btn lang-btn" onClick={()=>setLang(l=>l==="en"?"ar":"en")}>{lang==="en"?"عربي":"EN"}</button>
+            <button className="icon-btn" onClick={()=>setShowBudget(s=>!s)} title="Budget">💰</button>
             <button className="icon-btn" onClick={()=>setShowWishlist(true)} title="Wishlist">❤️{wishlist.length>0&&<span className="badge">{wishlist.length}</span>}</button>
             <button className="icon-btn" onClick={()=>setShowProfileModal(true)} title="Baby profile">👶</button>
           </div>
-          <div className="header-logo">
-            <div className="logo-icon">🌸</div>
-            <div className="logo-text">mumz<span>world</span></div>
-          </div>
-          {profile?.name&&(
-            <div className="baby-profile-pill" onClick={()=>setShowProfileModal(true)}>
-              <span>👶</span>
-              <div><div className="baby-name">{profile.name}</div>{ageMonths!==null&&<div className="baby-age">{formatAge(ageMonths)}</div>}</div>
-            </div>
-          )}
+          <div className="header-logo"><div className="logo-icon">🌸</div><div className="logo-text">mumz<span>world</span></div></div>
+          {profile?.name&&<div className="baby-profile-pill" onClick={()=>setShowProfileModal(true)}><span>👶</span><div><div className="baby-name">{profile.name}</div>{ageMonths!==null&&<div className="baby-age">{formatAge(ageMonths)}</div>}</div></div>}
           <div className="header-sub">{t.subheader}</div>
         </div>
 
         <MilestoneBar ageMonths={ageMonths} onSelect={q=>sendMessage(q)} t={t}/>
         {showBudget&&<BudgetBar budget={budget} setBudget={setBudget} t={t}/>}
-
-        {safetyAlert&&(
-          <div className="safety-alert">
-            <div className="safety-alert-icon">🚨</div>
-            <div><div className="safety-alert-title">{safetyAlert.title}</div><div className="safety-alert-body">{safetyAlert.body}</div></div>
-            <button className="safety-dismiss" onClick={()=>setSafetyAlert(null)}>✕</button>
-          </div>
-        )}
+        {safetyAlert&&<div className="safety-alert"><div className="safety-alert-icon">🚨</div><div><div className="safety-alert-title">{safetyAlert.title}</div><div className="safety-alert-body">{safetyAlert.body}</div></div><button className="safety-dismiss" onClick={()=>setSafetyAlert(null)}>✕</button></div>}
 
         <div className="chat-container">
           <div className="chat-toolbar">
@@ -555,37 +689,28 @@ function App() {
               <div className="toolbar-name">Mumzworld Parenting Advisor</div>
               <div className="toolbar-status"><span className="status-dot"/> {t.online}</div>
             </div>
-            <div className="toolbar-badge">{t.aiPowered}</div>
+            <div className="toolbar-tools">
+              <button className="tool-btn" onClick={()=>setShowGiftFinder(true)} title="Gift Finder">🎁 {lang==="ar"?"هدايا":"Gifts"}</button>
+              <button className="tool-btn" onClick={()=>setShowSymptomTriage(true)} title="Symptom Check">🏥 {lang==="ar"?"أعراض":"Symptoms"}</button>
+            </div>
           </div>
           <div className="messages">
             {messages.map((msg,i)=><MsgBubble key={i} msg={msg} wishlist={wishlist} toggleWishlist={toggleWishlist} compareList={compareList} toggleCompare={toggleCompare} budget={budget} babyName={profile?.name} lang={lang} onFollowup={q=>sendMessage(q)}/>)}
             {loading&&<TypingIndicator/>}
             <div ref={endRef}/>
           </div>
-          {messages.length===1&&(
-            <div className="quick-prompts">
-              {t.quickPrompts.map(p=><button key={p} className="quick-prompt-btn" onClick={()=>sendMessage(p)}>{p}</button>)}
-            </div>
-          )}
+          {messages.length===1&&<div className="quick-prompts">{t.quickPrompts.map(p=><button key={p} className="quick-prompt-btn" onClick={()=>sendMessage(p)}>{p}</button>)}</div>}
           <div className="input-area">
-            <button className={`voice-btn${listening?" listening":""}`} onClick={startVoice} title="Voice input">🎤</button>
-            <textarea className="input-box" rows={1} placeholder={t.placeholder} value={input}
-              onChange={e=>setInput(e.target.value)}
-              onKeyDown={e=>{if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();sendMessage();}}}/>
+            <button className={`voice-btn${listening?" listening":""}`} onClick={startVoice} title="Voice / Shopping List">🎤</button>
+            <textarea className="input-box" rows={1} placeholder={t.placeholder} value={input} onChange={e=>setInput(e.target.value)} onKeyDown={e=>{if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();sendMessage();}}}/>
             <button className="send-btn" onClick={()=>sendMessage()} disabled={loading||!input.trim()}>➤</button>
           </div>
         </div>
 
-        <div className="footer-note">Products from Mumzworld catalogue · Always follow safe sleep guidelines · Consult your paediatrician for medical advice</div>
+        <div className="footer-note">Products verified on Mumzworld · Always follow safe sleep guidelines · Consult your paediatrician for medical advice</div>
       </div>
 
-      {compareList.length>=2&&(
-        <div className="compare-float">
-          ⚖️ {compareList.length} products selected
-          <button className="cmp-btn" onClick={()=>setShowCompare(true)}>Compare →</button>
-          <button className="clr-btn" onClick={()=>setCompareList([])}>Clear</button>
-        </div>
-      )}
+      {compareList.length>=2&&<div className="compare-float">⚖️ {compareList.length} selected<button className="cmp-btn" onClick={()=>setShowCompare(true)}>Compare →</button><button className="clr-btn" onClick={()=>setCompareList([])}>Clear</button></div>}
     </>
   );
 }

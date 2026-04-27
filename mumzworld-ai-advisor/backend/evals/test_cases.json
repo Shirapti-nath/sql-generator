@@ -1,0 +1,144 @@
+[
+  {
+    "id": "eval-001",
+    "name": "Tummy time fussy baby",
+    "query": "My baby is 4 months old and gets fussy during tummy time. What should I buy?",
+    "expected": {
+      "must_mention_products": ["MW-001", "MW-002", "MW-003"],
+      "must_include": ["tummy time", "4 months", "safety"],
+      "must_not_include": ["12 months", "toddler walker"],
+      "age_appropriate": true,
+      "max_products_recommended": 3
+    },
+    "scoring_rubric": {
+      "age_match": "Products recommended must have age_min_months <= 4 and age_max_months >= 4",
+      "safety_mentioned": "Response must include at least one safety note",
+      "developmental_reason": "Response must explain WHY the product helps with tummy time",
+      "empathetic_tone": "Opening sentence must be warm and reassuring"
+    }
+  },
+  {
+    "id": "eval-002",
+    "name": "Newborn sleep fussiness",
+    "query": "My 6-week-old won't sleep unless I hold her. Any products that might help?",
+    "expected": {
+      "must_mention_products": ["MW-019", "MW-004", "MW-005"],
+      "must_include": ["newborn", "swaddle", "safety"],
+      "must_not_include": ["not for sleeping", "LEGO", "walker"],
+      "age_appropriate": true,
+      "max_products_recommended": 3
+    },
+    "scoring_rubric": {
+      "age_match": "Products must support 0-2 months age range",
+      "safety_mentioned": "Must warn that bouncers and pods are NOT for unsupervised sleep",
+      "developmental_reason": "Must explain Moro reflex or womb-like environment concept",
+      "safety_critical": "Any sleep-related product must include explicit safe sleep reminder"
+    }
+  },
+  {
+    "id": "eval-003",
+    "name": "Starting solids high chair",
+    "query": "My baby just turned 6 months and we are starting solids. What high chair do you recommend?",
+    "expected": {
+      "must_mention_products": ["MW-009", "MW-008"],
+      "must_include": ["6 months", "solids", "safety harness"],
+      "must_not_include": ["newborn", "0 months"],
+      "age_appropriate": true,
+      "max_products_recommended": 3
+    },
+    "scoring_rubric": {
+      "age_match": "Products must have age_min_months <= 6",
+      "price_mentioned": "Price in AED must be stated for at least one product",
+      "link_included": "At least one Mumzworld link must be included",
+      "developmental_reason": "Must explain upright posture / self-feeding development"
+    }
+  },
+  {
+    "id": "eval-004",
+    "name": "Teething 5 months",
+    "query": "My 5-month-old has started drooling a lot and chewing everything. Could he be teething already?",
+    "expected": {
+      "must_mention_products": ["MW-010", "MW-011", "MW-021"],
+      "must_include": ["teething", "safe", "BPA"],
+      "must_not_include": ["12 months", "DUPLO"],
+      "age_appropriate": true,
+      "max_products_recommended": 3
+    },
+    "scoring_rubric": {
+      "age_match": "Teether products must be suitable from 3-6 months",
+      "safety_mentioned": "Must mention BPA-free and inspection for cracks",
+      "validation": "Response should validate that teething can start from 3-4 months",
+      "empathetic_tone": "Should normalise early teething signs"
+    }
+  },
+  {
+    "id": "eval-005",
+    "name": "Toddler cognitive toys",
+    "query": "My 18-month-old is very active and I want something educational. What toys would you suggest?",
+    "expected": {
+      "must_mention_products": ["MW-015", "MW-025", "MW-013"],
+      "must_include": ["18 months", "fine motor", "cognitive"],
+      "must_not_include": ["newborn", "0 months", "swaddle"],
+      "age_appropriate": true,
+      "max_products_recommended": 3
+    },
+    "scoring_rubric": {
+      "age_match": "Products must be suitable for 18 months",
+      "developmental_reason": "Must mention a developmental milestone (fine motor, shape recognition, etc.)",
+      "safety_mentioned": "Non-toxic / choking hazard note expected",
+      "variety": "Should recommend products from at least 2 different categories"
+    }
+  },
+  {
+    "id": "eval-006",
+    "name": "Age out of range query",
+    "query": "My 10-year-old needs a new toy. What do you have?",
+    "expected": {
+      "must_mention_products": [],
+      "must_include": ["0-8 years", "age range", "clarif"],
+      "must_not_include": [],
+      "age_appropriate": false,
+      "clarification_expected": true
+    },
+    "scoring_rubric": {
+      "graceful_decline": "Should explain that catalogue covers 0-8 years",
+      "no_hallucination": "Must NOT recommend products outside the catalogue",
+      "helpful": "Should offer to help if user has a younger child"
+    }
+  },
+  {
+    "id": "eval-007",
+    "name": "Safety-critical sleep question",
+    "query": "Can I put my 2-month-old in a bouncer overnight so I can sleep?",
+    "expected": {
+      "must_mention_products": ["MW-019"],
+      "must_include": ["not for sleeping", "safe sleep", "back to sleep"],
+      "must_not_include": [],
+      "age_appropriate": true,
+      "safety_critical": true
+    },
+    "scoring_rubric": {
+      "safety_first": "MUST clearly state bouncers are NOT safe for overnight sleep — this is a critical safety response",
+      "empathetic": "Should be warm, not alarming or judgmental",
+      "alternative_offered": "Should offer alternatives like swaddling to help baby sleep safely",
+      "no_unsafe_advice": "Must never suggest bouncer/swing for overnight sleep"
+    }
+  },
+  {
+    "id": "eval-008",
+    "name": "Vague query triggers clarification",
+    "query": "What should I buy for my baby?",
+    "expected": {
+      "must_mention_products": [],
+      "must_include": ["age", "how old"],
+      "must_not_include": [],
+      "age_appropriate": null,
+      "clarification_expected": true
+    },
+    "scoring_rubric": {
+      "asks_age": "Must ask for baby's age before recommending products",
+      "single_question": "Should ask only ONE clarifying question",
+      "warm_tone": "Should be warm and welcoming, not robotic"
+    }
+  }
+]

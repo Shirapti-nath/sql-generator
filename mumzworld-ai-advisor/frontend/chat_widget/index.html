@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" dir="ltr">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -9,300 +9,165 @@
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
       background: linear-gradient(135deg, #f8e8f0 0%, #fdf3e7 50%, #e8f4f8 100%);
-      min-height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 16px;
+      min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 16px;
     }
+    body[dir="rtl"] { font-family: 'Segoe UI', Tahoma, Arial, sans-serif; }
+    .widget-wrapper { width: 100%; max-width: 700px; display: flex; flex-direction: column; gap: 12px; }
 
-    .widget-wrapper {
-      width: 100%;
-      max-width: 680px;
-      display: flex;
-      flex-direction: column;
-      gap: 16px;
-    }
+    .header { text-align: center; position: relative; }
+    .header-logo { display: inline-flex; align-items: center; gap: 10px; margin-bottom: 4px; }
+    .logo-icon { width:40px;height:40px;background:linear-gradient(135deg,#e91e8c,#ff6b35);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px; }
+    .logo-text { font-size:22px;font-weight:700;color:#1a1a2e; }
+    .logo-text span { color:#e91e8c; }
+    .header-sub { font-size:13px;color:#666; }
+    .header-actions { position:absolute;top:0;right:0;display:flex;gap:6px;align-items:center; }
+    body[dir="rtl"] .header-actions { right:auto;left:0; }
+    .icon-btn { background:white;border:1.5px solid #f0dde8;border-radius:10px;width:36px;height:36px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:15px;position:relative;transition:background 0.15s; }
+    .icon-btn:hover { background:#fdf0f7; }
+    .badge { position:absolute;top:-6px;right:-6px;background:#e91e8c;color:white;font-size:10px;font-weight:700;width:18px;height:18px;border-radius:50%;display:flex;align-items:center;justify-content:center; }
+    .lang-btn { font-size:11px;font-weight:700;color:#e91e8c;width:auto;padding:0 10px; }
 
-    /* Header */
-    .header {
-      text-align: center;
-    }
-    .header-logo {
-      display: inline-flex;
-      align-items: center;
-      gap: 10px;
-      margin-bottom: 6px;
-    }
-    .logo-icon {
-      width: 40px; height: 40px;
-      background: linear-gradient(135deg, #e91e8c, #ff6b35);
-      border-radius: 12px;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 20px;
-    }
-    .logo-text { font-size: 22px; font-weight: 700; color: #1a1a2e; }
-    .logo-text span { color: #e91e8c; }
-    .header-sub { font-size: 13px; color: #666; }
+    .baby-profile-pill { background:linear-gradient(135deg,#fdf0f7,#fff8f0);border:1.5px solid #f0c0dc;border-radius:20px;padding:5px 14px;display:flex;align-items:center;gap:8px;cursor:pointer;margin:4px auto;width:fit-content; }
+    .baby-name { font-size:13px;font-weight:700;color:#c2185b; }
+    .baby-age { font-size:11px;color:#999; }
 
-    /* Chat container */
-    .chat-container {
-      background: white;
-      border-radius: 20px;
-      box-shadow: 0 8px 40px rgba(0,0,0,0.10);
-      overflow: hidden;
-      display: flex;
-      flex-direction: column;
-      height: 560px;
-    }
+    .milestone-bar { background:white;border-radius:14px;padding:12px 16px;box-shadow:0 2px 12px rgba(0,0,0,0.06);overflow-x:auto; }
+    .milestone-bar::-webkit-scrollbar { height:3px; }
+    .milestone-bar::-webkit-scrollbar-thumb { background:#f0c0dc;border-radius:3px; }
+    .milestone-label { font-size:11px;color:#999;font-weight:600;margin-bottom:8px;text-transform:uppercase;letter-spacing:0.5px; }
+    .milestone-track { display:flex;gap:0;align-items:center;min-width:max-content; }
+    .milestone-item { display:flex;flex-direction:column;align-items:center;cursor:pointer;padding:0 6px; }
+    .milestone-dot { width:28px;height:28px;border-radius:50%;background:#f5e0ee;border:2px solid #e8c0d8;display:flex;align-items:center;justify-content:center;font-size:13px;transition:all 0.2s; }
+    .milestone-item.active .milestone-dot { background:linear-gradient(135deg,#e91e8c,#ff6b35);border-color:#e91e8c;box-shadow:0 0 0 4px rgba(233,30,140,0.15); }
+    .milestone-item.past .milestone-dot { background:#fce4ec;border-color:#f8bbd0; }
+    .milestone-item.upcoming .milestone-dot { background:#f5f5f5;border-color:#e0e0e0; }
+    .milestone-name { font-size:10px;color:#999;margin-top:4px;text-align:center;white-space:nowrap; }
+    .milestone-item.active .milestone-name { color:#e91e8c;font-weight:700; }
+    .milestone-age { font-size:9px;color:#ccc; }
+    .milestone-connector { width:20px;height:2px;background:#f0e0ea;flex-shrink:0; }
 
-    /* Chat toolbar */
-    .chat-toolbar {
-      background: linear-gradient(135deg, #e91e8c, #ff6b35);
-      padding: 14px 20px;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-    .toolbar-avatar {
-      width: 36px; height: 36px;
-      background: rgba(255,255,255,0.25);
-      border-radius: 50%;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 18px;
-    }
-    .toolbar-info { flex: 1; }
-    .toolbar-name { color: white; font-weight: 600; font-size: 14px; }
-    .toolbar-status { color: rgba(255,255,255,0.8); font-size: 11px; display: flex; align-items: center; gap: 4px; }
-    .status-dot {
-      width: 6px; height: 6px;
-      background: #6dff6d;
-      border-radius: 50%;
-      display: inline-block;
-    }
-    .toolbar-badge {
-      background: rgba(255,255,255,0.2);
-      color: white;
-      font-size: 10px;
-      padding: 3px 8px;
-      border-radius: 20px;
-      font-weight: 500;
-    }
+    .budget-bar { background:white;border-radius:14px;padding:12px 16px;box-shadow:0 2px 12px rgba(0,0,0,0.06); }
+    .budget-header { display:flex;justify-content:space-between;align-items:center;margin-bottom:10px; }
+    .budget-label { font-size:12px;font-weight:600;color:#333; }
+    .budget-value { font-size:14px;font-weight:700;color:#e91e8c; }
+    .budget-slider { width:100%;-webkit-appearance:none;appearance:none;height:4px;border-radius:4px;background:#f0dde8;outline:none; }
+    .budget-slider::-webkit-slider-thumb { -webkit-appearance:none;width:20px;height:20px;border-radius:50%;background:linear-gradient(135deg,#e91e8c,#ff6b35);cursor:pointer;box-shadow:0 2px 6px rgba(233,30,140,0.4); }
+    .budget-presets { display:flex;gap:6px;margin-top:8px; }
+    .budget-preset { background:#fdf0f7;border:1px solid #f0c0dc;color:#c2185b;font-size:11px;padding:3px 10px;border-radius:20px;cursor:pointer; }
+    .budget-preset.active, .budget-preset:hover { background:#fce4ec; }
 
-    /* Messages area */
-    .messages {
-      flex: 1;
-      overflow-y: auto;
-      padding: 20px;
-      display: flex;
-      flex-direction: column;
-      gap: 14px;
-    }
-    .messages::-webkit-scrollbar { width: 4px; }
-    .messages::-webkit-scrollbar-thumb { background: #e0e0e0; border-radius: 4px; }
+    .safety-alert { background:linear-gradient(135deg,#fff3f3,#fff8f8);border:2px solid #ef5350;border-radius:14px;padding:14px 16px;display:flex;gap:12px;align-items:flex-start;animation:shake 0.4s ease; }
+    @keyframes shake { 0%,100%{transform:translateX(0)} 20%{transform:translateX(-6px)} 60%{transform:translateX(6px)} }
+    .safety-alert-icon { font-size:24px;flex-shrink:0; }
+    .safety-alert-title { font-weight:700;color:#c62828;font-size:14px;margin-bottom:4px; }
+    .safety-alert-body { font-size:13px;color:#b71c1c;line-height:1.5; }
+    .safety-dismiss { margin-left:auto;cursor:pointer;color:#ef5350;font-size:18px;flex-shrink:0;background:none;border:none; }
 
-    /* Message bubbles */
-    .msg-row {
-      display: flex;
-      align-items: flex-end;
-      gap: 8px;
-    }
-    .msg-row.user { flex-direction: row-reverse; }
+    .chat-container { background:white;border-radius:20px;box-shadow:0 8px 40px rgba(0,0,0,0.10);overflow:hidden;display:flex;flex-direction:column;height:520px; }
+    .chat-toolbar { background:linear-gradient(135deg,#e91e8c,#ff6b35);padding:14px 20px;display:flex;align-items:center;gap:10px; }
+    .toolbar-avatar { width:36px;height:36px;background:rgba(255,255,255,0.25);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px; }
+    .toolbar-info { flex:1; }
+    .toolbar-name { color:white;font-weight:600;font-size:14px; }
+    .toolbar-status { color:rgba(255,255,255,0.8);font-size:11px;display:flex;align-items:center;gap:4px; }
+    .status-dot { width:6px;height:6px;background:#6dff6d;border-radius:50%;display:inline-block; }
+    .toolbar-badge { background:rgba(255,255,255,0.2);color:white;font-size:10px;padding:3px 8px;border-radius:20px;font-weight:500; }
 
-    .msg-avatar {
-      width: 28px; height: 28px;
-      border-radius: 50%;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 14px;
-      flex-shrink: 0;
-    }
-    .msg-avatar.bot { background: linear-gradient(135deg, #e91e8c, #ff6b35); }
-    .msg-avatar.user { background: #e8f4f8; }
+    .messages { flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:12px; }
+    .messages::-webkit-scrollbar { width:4px; }
+    .messages::-webkit-scrollbar-thumb { background:#e0e0e0;border-radius:4px; }
+    .msg-row { display:flex;align-items:flex-end;gap:8px; }
+    .msg-row.user { flex-direction:row-reverse; }
+    body[dir="rtl"] .msg-row { flex-direction:row-reverse; }
+    body[dir="rtl"] .msg-row.user { flex-direction:row; }
+    .msg-avatar { width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0; }
+    .msg-avatar.bot { background:linear-gradient(135deg,#e91e8c,#ff6b35); }
+    .msg-avatar.user { background:#e8f4f8; }
+    .msg-bubble { max-width:78%;padding:10px 14px;border-radius:16px;font-size:13.5px;line-height:1.55; }
+    .msg-bubble.bot { background:#f7f7f8;color:#1a1a2e;border-bottom-left-radius:4px; }
+    .msg-bubble.user { background:linear-gradient(135deg,#e91e8c,#ff6b35);color:white;border-bottom-right-radius:4px; }
+    .msg-bubble.bot strong { font-weight:600; }
+    .msg-meta { font-size:10px;color:#ccc;margin-top:3px; }
 
-    .msg-bubble {
-      max-width: 78%;
-      padding: 10px 14px;
-      border-radius: 16px;
-      font-size: 13.5px;
-      line-height: 1.55;
-    }
-    .msg-bubble.bot {
-      background: #f7f7f8;
-      color: #1a1a2e;
-      border-bottom-left-radius: 4px;
-    }
-    .msg-bubble.user {
-      background: linear-gradient(135deg, #e91e8c, #ff6b35);
-      color: white;
-      border-bottom-right-radius: 4px;
-    }
+    .product-card { background:white;border:1.5px solid #f0e0ea;border-radius:14px;padding:14px;margin-top:8px;transition:box-shadow 0.2s; }
+    .product-card:hover { box-shadow:0 4px 16px rgba(233,30,140,0.1); }
+    .product-card.over-budget { opacity:0.55;border-style:dashed; }
+    .product-card-header { display:flex;justify-content:space-between;align-items:flex-start;gap:8px; }
+    .product-name { font-weight:700;color:#1a1a2e;font-size:14px;flex:1; }
+    .product-actions { display:flex;gap:6px;flex-shrink:0;align-items:center; }
+    .heart-btn { background:none;border:none;cursor:pointer;font-size:18px;padding:0;transition:transform 0.15s; }
+    .heart-btn:hover { transform:scale(1.2); }
+    .compare-cb { width:16px;height:16px;cursor:pointer;accent-color:#e91e8c;margin-top:2px; }
+    .product-price { color:#e91e8c;font-weight:700;font-size:14px;margin:6px 0;display:flex;align-items:center;gap:6px; }
+    .over-budget-badge { background:#ffecec;color:#c62828;font-size:10px;padding:2px 6px;border-radius:10px; }
+    .product-meta { font-size:12px;color:#555;margin-bottom:4px;line-height:1.5; }
+    .product-meta span { font-weight:600;color:#333; }
+    .safety-badge { display:inline-flex;align-items:center;gap:4px;background:#fff3f3;color:#c0392b;font-size:11px;padding:3px 8px;border-radius:20px;margin:6px 0; }
+    .card-actions { display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:8px; }
+    .shop-btn { display:inline-block;background:linear-gradient(135deg,#e91e8c,#ff6b35);color:white;text-decoration:none;font-size:12px;font-weight:600;padding:7px 16px;border-radius:20px;transition:opacity 0.2s; }
+    .shop-btn:hover { opacity:0.85; }
+    .wa-btn { display:inline-flex;align-items:center;gap:4px;background:#25d366;color:white;text-decoration:none;font-size:12px;font-weight:600;padding:7px 12px;border-radius:20px;cursor:pointer;border:none; }
 
-    /* Markdown-ish formatting inside bot bubbles */
-    .msg-bubble.bot strong { font-weight: 600; color: #1a1a2e; }
-    .msg-bubble.bot a {
-      color: #e91e8c;
-      text-decoration: none;
-      font-weight: 500;
-    }
-    .msg-bubble.bot a:hover { text-decoration: underline; }
+    .followup-row { display:flex;flex-wrap:wrap;gap:6px;padding:4px 0 8px 36px; }
+    body[dir="rtl"] .followup-row { padding:4px 36px 8px 0; }
+    .followup-chip { background:#fdf0f7;border:1px solid #f0c0dc;color:#c2185b;font-size:12px;padding:5px 12px;border-radius:20px;cursor:pointer;transition:background 0.15s; }
+    .followup-chip:hover { background:#fce4ec; }
 
-    /* Product cards */
-    .product-card {
-      background: white;
-      border: 1px solid #f0e0ea;
-      border-radius: 12px;
-      padding: 12px;
-      margin-top: 8px;
-    }
-    .product-name {
-      font-weight: 700;
-      color: #1a1a2e;
-      font-size: 14px;
-      margin-bottom: 4px;
-    }
-    .product-price {
-      color: #e91e8c;
-      font-weight: 600;
-      font-size: 13px;
-      margin-bottom: 6px;
-    }
-    .product-meta {
-      font-size: 12px;
-      color: #555;
-      margin-bottom: 4px;
-      line-height: 1.5;
-    }
-    .product-meta span { font-weight: 600; color: #333; }
-    .safety-badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 4px;
-      background: #fff3f3;
-      color: #c0392b;
-      font-size: 11px;
-      padding: 3px 8px;
-      border-radius: 20px;
-      margin-top: 6px;
-      margin-bottom: 6px;
-    }
-    .shop-btn {
-      display: inline-block;
-      background: linear-gradient(135deg, #e91e8c, #ff6b35);
-      color: white !important;
-      text-decoration: none !important;
-      font-size: 12px;
-      font-weight: 600;
-      padding: 6px 14px;
-      border-radius: 20px;
-      margin-top: 6px;
-      transition: opacity 0.2s;
-    }
-    .shop-btn:hover { opacity: 0.85; }
+    .typing-indicator { display:flex;gap:4px;padding:10px 14px;background:#f7f7f8;border-radius:16px;border-bottom-left-radius:4px;width:fit-content; }
+    .typing-dot { width:7px;height:7px;background:#ccc;border-radius:50%;animation:bounce 1.2s infinite; }
+    .typing-dot:nth-child(2) { animation-delay:0.2s; }
+    .typing-dot:nth-child(3) { animation-delay:0.4s; }
+    @keyframes bounce { 0%,60%,100%{transform:translateY(0)} 30%{transform:translateY(-6px)} }
 
-    /* Typing indicator */
-    .typing-indicator {
-      display: flex;
-      gap: 4px;
-      padding: 10px 14px;
-      background: #f7f7f8;
-      border-radius: 16px;
-      border-bottom-left-radius: 4px;
-      width: fit-content;
-    }
-    .typing-dot {
-      width: 7px; height: 7px;
-      background: #ccc;
-      border-radius: 50%;
-      animation: bounce 1.2s infinite;
-    }
-    .typing-dot:nth-child(2) { animation-delay: 0.2s; }
-    .typing-dot:nth-child(3) { animation-delay: 0.4s; }
-    @keyframes bounce {
-      0%, 60%, 100% { transform: translateY(0); }
-      30% { transform: translateY(-6px); }
-    }
+    .quick-prompts { display:flex;flex-wrap:wrap;gap:6px;padding:0 16px 12px; }
+    .quick-prompt-btn { background:#fdf0f7;border:1px solid #f0c0dc;color:#c2185b;font-size:12px;padding:5px 12px;border-radius:20px;cursor:pointer;white-space:nowrap; }
+    .quick-prompt-btn:hover { background:#fce4ec; }
 
-    /* Quick prompts */
-    .quick-prompts {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 6px;
-      padding: 0 20px 12px;
-    }
-    .quick-prompt-btn {
-      background: #fdf0f7;
-      border: 1px solid #f0c0dc;
-      color: #c2185b;
-      font-size: 12px;
-      padding: 5px 12px;
-      border-radius: 20px;
-      cursor: pointer;
-      transition: background 0.15s;
-      white-space: nowrap;
-    }
-    .quick-prompt-btn:hover { background: #fce4ec; }
+    .input-area { border-top:1px solid #f0f0f0;padding:12px 14px;display:flex;gap:8px;align-items:flex-end;background:white; }
+    .input-box { flex:1;border:1.5px solid #e8e8e8;border-radius:22px;padding:10px 16px;font-size:13.5px;font-family:inherit;resize:none;outline:none;max-height:100px;line-height:1.4;transition:border-color 0.2s;color:#1a1a2e; }
+    .input-box:focus { border-color:#e91e8c; }
+    .input-box::placeholder { color:#bbb; }
+    .send-btn { width:40px;height:40px;border-radius:50%;border:none;background:linear-gradient(135deg,#e91e8c,#ff6b35);color:white;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:opacity 0.2s,transform 0.1s; }
+    .send-btn:hover:not(:disabled) { opacity:0.85;transform:scale(1.05); }
+    .send-btn:disabled { opacity:0.4;cursor:not-allowed; }
+    .voice-btn { width:36px;height:36px;border-radius:50%;border:1.5px solid #e8e8e8;background:white;color:#999;font-size:15px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all 0.2s; }
+    .voice-btn.listening { background:#fce4ec;border-color:#e91e8c;color:#e91e8c;animation:pulse 1s infinite; }
+    @keyframes pulse { 0%,100%{box-shadow:0 0 0 0 rgba(233,30,140,0.3)} 50%{box-shadow:0 0 0 8px rgba(233,30,140,0)} }
 
-    /* Input area */
-    .input-area {
-      border-top: 1px solid #f0f0f0;
-      padding: 14px 16px;
-      display: flex;
-      gap: 10px;
-      align-items: flex-end;
-      background: white;
-    }
-    .input-box {
-      flex: 1;
-      border: 1.5px solid #e8e8e8;
-      border-radius: 22px;
-      padding: 10px 16px;
-      font-size: 13.5px;
-      font-family: inherit;
-      resize: none;
-      outline: none;
-      max-height: 100px;
-      line-height: 1.4;
-      transition: border-color 0.2s;
-      color: #1a1a2e;
-    }
-    .input-box:focus { border-color: #e91e8c; }
-    .input-box::placeholder { color: #bbb; }
+    .modal-overlay { position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:1000;display:flex;align-items:center;justify-content:center;padding:20px; }
+    .modal { background:white;border-radius:20px;padding:28px;width:100%;max-width:440px;box-shadow:0 20px 60px rgba(0,0,0,0.2); }
+    .modal-title { font-size:18px;font-weight:700;color:#1a1a2e;margin-bottom:6px; }
+    .modal-sub { font-size:13px;color:#888;margin-bottom:20px; }
+    .form-group { margin-bottom:16px; }
+    .form-label { font-size:12px;font-weight:600;color:#555;margin-bottom:6px;display:block; }
+    .form-input { width:100%;border:1.5px solid #e8e8e8;border-radius:10px;padding:10px 14px;font-size:14px;font-family:inherit;outline:none; }
+    .form-input:focus { border-color:#e91e8c; }
+    .modal-actions { display:flex;gap:10px;margin-top:20px; }
+    .btn-primary { flex:1;background:linear-gradient(135deg,#e91e8c,#ff6b35);color:white;border:none;border-radius:12px;padding:12px;font-size:14px;font-weight:700;cursor:pointer; }
+    .btn-secondary { background:#f5f5f5;color:#555;border:none;border-radius:12px;padding:12px 16px;font-size:14px;cursor:pointer; }
 
-    .send-btn {
-      width: 40px; height: 40px;
-      border-radius: 50%;
-      border: none;
-      background: linear-gradient(135deg, #e91e8c, #ff6b35);
-      color: white;
-      font-size: 16px;
-      cursor: pointer;
-      display: flex; align-items: center; justify-content: center;
-      flex-shrink: 0;
-      transition: opacity 0.2s, transform 0.1s;
-    }
-    .send-btn:hover:not(:disabled) { opacity: 0.85; transform: scale(1.05); }
-    .send-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+    .drawer { position:fixed;inset:0;z-index:900; }
+    .drawer-backdrop { position:absolute;inset:0;background:rgba(0,0,0,0.4); }
+    .drawer-panel { position:absolute;right:0;top:0;bottom:0;width:340px;background:white;box-shadow:-8px 0 40px rgba(0,0,0,0.15);display:flex;flex-direction:column;overflow:hidden; }
+    body[dir="rtl"] .drawer-panel { right:auto;left:0;box-shadow:8px 0 40px rgba(0,0,0,0.15); }
+    .drawer-header { background:linear-gradient(135deg,#e91e8c,#ff6b35);padding:20px;color:white;display:flex;justify-content:space-between;align-items:center; }
+    .drawer-title { font-size:16px;font-weight:700; }
+    .drawer-close { background:rgba(255,255,255,0.2);border:none;color:white;width:30px;height:30px;border-radius:50%;cursor:pointer;font-size:16px; }
+    .drawer-body { flex:1;overflow-y:auto;padding:16px; }
+    .drawer-empty { text-align:center;color:#bbb;padding:40px 20px;font-size:13px; }
 
-    /* Error banner */
-    .error-banner {
-      background: #fff3f3;
-      border: 1px solid #ffcdd2;
-      color: #c0392b;
-      font-size: 12px;
-      padding: 8px 14px;
-      margin: 0 20px 10px;
-      border-radius: 8px;
-    }
+    .compare-table { width:100%;border-collapse:collapse;font-size:13px; }
+    .compare-table th { background:#fdf0f7;color:#c2185b;padding:10px;text-align:left;font-weight:700; }
+    .compare-table td { padding:10px;border-bottom:1px solid #f5f5f5;vertical-align:top; }
+    .compare-table tr:last-child td { border-bottom:none; }
 
-    .footer-note {
-      text-align: center;
-      font-size: 11px;
-      color: #aaa;
-    }
+    .compare-float { position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:linear-gradient(135deg,#1a1a2e,#2d2d5e);color:white;border-radius:30px;padding:12px 24px;display:flex;align-items:center;gap:12px;box-shadow:0 8px 30px rgba(0,0,0,0.3);z-index:800;font-size:14px;font-weight:600; }
+    .compare-float .cmp-btn { background:linear-gradient(135deg,#e91e8c,#ff6b35);color:white;border:none;border-radius:20px;padding:8px 16px;cursor:pointer;font-weight:700;font-size:13px; }
+    .compare-float .clr-btn { background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);color:white;border-radius:20px;padding:8px 12px;cursor:pointer;font-size:12px; }
+
+    .footer-note { text-align:center;font-size:11px;color:#aaa; }
   </style>
 </head>
 <body>
@@ -310,262 +175,423 @@
 <script type="text/babel">
 const { useState, useRef, useEffect } = React;
 
-const QUICK_PROMPTS = [
-  "My 4-month-old hates tummy time 😩",
-  "Looking for teethers for my 5-month-old",
-  "Best high chair for starting solids at 6 months?",
-  "My newborn won't sleep unless held",
-  "Educational toys for my 18-month-old",
+const PRODUCTS = [
+  { id:"MW-001", name:"Fisher-Price Kick & Play Piano Gym", price:189, cat:"Activity Mat", age_min:0, age_max:36, tags:["tummy time","play gym","newborn"], why:"High-contrast overhead toys make tummy time feel like play, building neck & core strength.", safety:"No loose parts. Machine washable. Meets ASTM safety standards.", link:"https://www.mumzworld.com/en/fisher-price-deluxe-kick-and-play-piano-gym" },
+  { id:"MW-002", name:"Infantino Twist & Fold Activity Gym", price:129, cat:"Activity Mat", age_min:0, age_max:18, tags:["tummy time","play gym","newborn"], why:"High-contrast black-and-white patterns stimulate newborn vision during tummy time.", safety:"All toys securely attached. BPA-free.", link:"https://www.mumzworld.com/en/infantino-twist-fold-activity-gym-play-mat" },
+  { id:"MW-003", name:"Infantino Tummy Time Support Pillow", price:79, cat:"Tummy Time", age_min:0, age_max:6, tags:["tummy time","pillow","newborn"], why:"Crescent shape lifts baby's chest, reducing strain so they enjoy tummy time longer.", safety:"Never leave unattended. Not for sleeping.", link:"https://www.mumzworld.com/en/infantino-tummy-time-pillow" },
+  { id:"MW-004", name:"BABYBJÖRN Bouncer Balance Soft", price:849, cat:"Bouncers", age_min:0, age_max:24, tags:["bouncer","newborn","fussy baby","calming"], why:"Self-bouncing motion soothes fussy babies and gives parents hands-free moments.", safety:"5-point harness. Do NOT use as sleeping device. Always on floor.", link:"https://www.mumzworld.com/en/babybjorn-bouncer-balance-soft" },
+  { id:"MW-005", name:"Graco Sense2Soothe Baby Swing", price:649, cat:"Bouncers", age_min:0, age_max:9, tags:["swing","fussy baby","newborn","cry detection"], why:"Detects cries and auto-adjusts speed — ideal for colicky newborns.", safety:"Max 13.6kg. Not for sleeping. Use 3-point harness.", link:"https://www.mumzworld.com/en/graco-sense2soothe-swing" },
+  { id:"MW-006", name:"Philips Avent Natural Starter Set", price:189, cat:"Feeding", age_min:0, age_max:12, tags:["bottle","feeding","newborn","breastfeeding"], why:"Wide breast-shaped teat allows natural latch for easy breast-to-bottle transition.", safety:"BPA-free. Replace teats every 3 months.", link:"https://www.mumzworld.com/en/philips-avent-natural-starter-set" },
+  { id:"MW-008", name:"Chicco Pocket Snack Booster Seat", price:179, cat:"Feeding", age_min:6, age_max:36, tags:["booster","feeding","solids","portable"], why:"Clips to any dining chair — perfect for first solids and doubles as travel seat.", safety:"Only on chairs without armrests. Always secure safety belt.", link:"https://www.mumzworld.com/en/chicco-pocket-snack-booster-seat" },
+  { id:"MW-009", name:"STOKKE Tripp Trapp High Chair", price:1199, cat:"Feeding", age_min:6, age_max:216, tags:["high chair","feeding","solids","6 months"], why:"Keeps baby at table height with family, supporting self-feeding from the first spoon.", safety:"Baby Set required under 3 years. Tighten bolts before each use.", link:"https://www.mumzworld.com/en/stokke-tripp-trapp-high-chair" },
+  { id:"MW-010", name:"Manhattan Toy Winkel Rattle & Teether", price:89, cat:"Teething", age_min:3, age_max:18, tags:["teether","rattle","sensory","3 months"], why:"Any angle is grippable; rattle teaches cause-and-effect while soothing gums.", safety:"BPA-free. Inspect regularly for cracks.", link:"https://www.mumzworld.com/en/manhattan-toy-winkel-teether" },
+  { id:"MW-011", name:"Sophie la Girafe Teether", price:99, cat:"Teething", age_min:3, age_max:12, tags:["teether","natural rubber","classic"], why:"Different body parts reach different gum areas for targeted teething relief.", safety:"Natural rubber — wipe exterior only, never submerge.", link:"https://www.mumzworld.com/en/sophie-la-girafe-teether" },
+  { id:"MW-013", name:"Melissa & Doug Wooden Stacking Blocks", price:119, cat:"Toys", age_min:12, age_max:48, tags:["stacking","wooden","toddler","fine motor"], why:"Builds spatial reasoning, fine motor control, and cause-and-effect at 12–18 months.", safety:"Non-toxic paints. Tested to ASTM & CE standards.", link:"https://www.mumzworld.com/en/melissa-doug-stacking-blocks" },
+  { id:"MW-014", name:"VTech Sit-to-Stand Learning Walker", price:229, cat:"Toys", age_min:9, age_max:36, tags:["walker","standing","walking","first steps"], why:"Adjustable wheel resistance supports confident first steps without toppling.", safety:"Set resistance high for new walkers. Flat surfaces only.", link:"https://www.mumzworld.com/en/vtech-sit-to-stand-walker" },
+  { id:"MW-015", name:"LEGO DUPLO Classic Brick Box (85 pcs)", price:279, cat:"Toys", age_min:18, age_max:60, tags:["DUPLO","building","toddler","creative"], why:"Builds vocabulary, fine motor grip, and early engineering thinking.", safety:"Oversized bricks — non-choking-hazard safe for toddlers.", link:"https://www.mumzworld.com/en/lego-duplo-classic-brick-box" },
+  { id:"MW-016", name:"Ergobaby Omni 360 Baby Carrier", price:699, cat:"Carriers", age_min:0, age_max:48, tags:["carrier","newborn","babywearing","hands-free","fussy baby"], why:"Heartbeat & warmth close to parent deeply calms fussy and colicky babies.", safety:"Follow TICKS rule. Face-out carry from 5 months only.", link:"https://www.mumzworld.com/en/ergobaby-omni-360-carrier" },
+  { id:"MW-018", name:"Munchkin 360 Trainer Cup", price:49, cat:"Feeding", age_min:6, age_max:24, tags:["sippy cup","trainer","weaning","spill-proof"], why:"360° rim supports natural swallowing, better for tooth development than spout cups.", safety:"BPA-free. Not for hot liquids.", link:"https://www.mumzworld.com/en/munchkin-360-miracle-cup" },
+  { id:"MW-019", name:"Summer Infant SwaddleMe 3-Pack", price:99, cat:"Sleep", age_min:0, age_max:3, tags:["swaddle","newborn","sleep","moro reflex"], why:"Suppresses the startle reflex so newborns sleep longer stretches.", safety:"Stop when baby shows rolling signs. Always place on back. Hips need room to flex.", link:"https://www.mumzworld.com/en/summer-infant-swaddleme-3-pack" },
+  { id:"MW-025", name:"Melissa & Doug Shape Sorting Cube", price:99, cat:"Toys", age_min:12, age_max:36, tags:["shape sorter","toddler","cognitive","fine motor"], why:"Key 12–18m milestone for hand-eye coordination and trial-and-error thinking.", safety:"Non-toxic paint. Splinter-free smooth wood.", link:"https://www.mumzworld.com/en/melissa-doug-shape-sorting-cube" },
 ];
 
-function TypingIndicator() {
-  return (
-    <div className="msg-row">
-      <div className="msg-avatar bot">👶</div>
-      <div className="typing-indicator">
-        <div className="typing-dot" />
-        <div className="typing-dot" />
-        <div className="typing-dot" />
-      </div>
-    </div>
-  );
-}
+const MILESTONES = [
+  { id:"newborn", emoji:"🍼", label:"Newborn",    age:0,  query:"best products for a newborn baby" },
+  { id:"tummy",   emoji:"🤸", label:"Tummy Time", age:2,  query:"tummy time products for my 2-month-old" },
+  { id:"teething",emoji:"🦷", label:"Teething",   age:4,  query:"my 4-month-old is starting to teethe and drool" },
+  { id:"sitting", emoji:"🪑", label:"Sitting",    age:6,  query:"my 6-month-old is starting solids and learning to sit" },
+  { id:"crawling",emoji:"🐛", label:"Crawling",   age:8,  query:"my 8-month-old is starting to crawl" },
+  { id:"standing",emoji:"🏃", label:"First Steps",age:10, query:"my 10-month-old is pulling to stand and taking first steps" },
+  { id:"toddler", emoji:"🎨", label:"Toddler",    age:12, query:"best toys for my 12-month-old toddler" },
+  { id:"active",  emoji:"🧩", label:"Active Play", age:18, query:"educational toys for my 18-month-old toddler" },
+  { id:"creative",emoji:"🏗️", label:"Imaginative",age:24, query:"creative and imaginative play toys for my 2-year-old" },
+];
 
-function ProductCard({ product }) {
-  return (
-    <div className="product-card">
-      <div className="product-name">{product.name}</div>
-      <div className="product-price">AED {product.price}</div>
-      <div className="product-meta">
-        <span>Age:</span> {product.age_min_months}–{product.age_max_months} months
-      </div>
-      <div className="product-meta">
-        <span>Why great:</span> {product.why_great}
-      </div>
-      <div className="safety-badge">
-        ⚠️ {product.safety_notes.length > 80
-          ? product.safety_notes.substring(0, 80) + "…"
-          : product.safety_notes}
-      </div>
-      <br />
-      <a href={product.link} target="_blank" rel="noopener noreferrer" className="shop-btn">
-        Shop on Mumzworld →
-      </a>
-    </div>
-  );
-}
-
-function MessageBubble({ msg }) {
-  if (msg.role === "user") {
-    return (
-      <div className="msg-row user">
-        <div className="msg-avatar user">🙋</div>
-        <div className="msg-bubble user">{msg.content}</div>
-      </div>
-    );
-  }
-
-  return (
-    <div className="msg-row">
-      <div className="msg-avatar bot">👶</div>
-      <div style={{ maxWidth: "80%" }}>
-        <div
-          className="msg-bubble bot"
-          dangerouslySetInnerHTML={{ __html: formatMarkdown(msg.content) }}
-        />
-        {msg.products && msg.products.length > 0 && (
-          <div style={{ marginTop: 8 }}>
-            {msg.products.map(p => <ProductCard key={p.id} product={p} />)}
-          </div>
-        )}
-      </div>
-    </div>
-  );
-}
-
-function formatMarkdown(text) {
-  return text
-    .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>")
-    .replace(/\[([^\]]+)\]\((https?:\/\/[^\)]+)\)/g,
-      '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>')
-    .replace(/\n/g, "<br/>");
-}
-
-const WELCOME_MSG = {
-  role: "assistant",
-  content: "Hi there! 👋 I'm Mumzworld's parenting advisor. I'm here to help you find the perfect products for your little one's age and stage.\n\nWhat's on your mind? You can tell me your baby's age and what challenge you're facing, and I'll recommend the right products from Mumzworld's catalogue.",
-  products: [],
+const T = {
+  en: { subheader:"AI Parenting Advisor", placeholder:"Ask about your baby's age and what you need…", online:"Online · Specialised in 0–8 years", aiPowered:"AI-powered", wishlistEmpty:"No saved products yet. Tap ❤️ on any product card to save it here.", budgetLabel:"Budget Filter", milestonesLabel:"Baby Milestones", quickPrompts:["My 4-month-old hates tummy time 😩","Teethers for my 5-month-old","High chair for 6-month solids?","Newborn won't sleep unless held","Educational toys for 18-month-old"] },
+  ar: { subheader:"مستشار التربية الذكي", placeholder:"اسألي عن عمر طفلك واحتياجاتك…", online:"متصل · متخصص في ٠–٨ سنوات", aiPowered:"مدعوم بالذكاء الاصطناعي", wishlistEmpty:"لا توجد منتجات محفوظة بعد. اضغطي ❤️ على أي منتج.", budgetLabel:"تصفية الميزانية", milestonesLabel:"مراحل نمو الطفل", quickPrompts:["طفلي ٤ أشهر ويكره وقت البطن 😩","مضغوطات لطفلي ٥ أشهر","كرسي طعام لبدء التغذية؟","المولود لا ينام إلا بأحضاني","ألعاب تعليمية لطفلي ١٨ شهر"] },
 };
 
+const SAFETY_TRIGGERS = [
+  { keys:["bouncer overnight","swing overnight","sleep in bouncer","sleep in swing","car seat overnight","overnight in bouncer"], title:"⚠️ Safe Sleep Warning", body:"Bouncers, swings, and car seats are NOT safe for unsupervised or overnight sleep. Always place baby on a firm, flat surface on their back. This is critical for SIDS prevention." },
+  { keys:["give honey","honey for baby","baby honey"], title:"⚠️ Honey is Unsafe for Babies Under 12 Months", body:"Never give honey to babies under 12 months — it can cause infant botulism, which is life-threatening." },
+  { keys:["cereal bottle","rice bottle","thicken bottle"], title:"⚠️ Feeding Safety Alert", body:"Adding cereal to a bottle is not recommended by paediatricians — it poses a choking risk and provides no nutritional benefit." },
+  { keys:["baby pillow sleep","sleep pillow infant","pillow crib"], title:"⚠️ No Pillows for Babies Under 12 Months", body:"Pillows pose a suffocation risk for babies under 12 months. Keep the sleep surface firm and completely bare." },
+];
+
+const FOLLOWUPS = {
+  tummy:   ["What play gyms work best for tummy time?","How many minutes of tummy time per day?","Best carriers to calm a fussy newborn?"],
+  teething:["What helps sore gums at night?","Is drooling normal at 4 months?","Teething toys safe from 3 months?"],
+  sleep:   ["What swaddles work best for strong babies?","Is a bouncer safe for daytime naps?","How do I start a sleep routine?"],
+  solids:  ["What trainer cups are best for 6 months?","High chair vs booster seat — which is better?","Best first finger foods?"],
+  toddler: ["LEGO DUPLO vs wooden blocks — which is better?","Best outdoor toys for a 2-year-old?","How do shape sorters help development?"],
+  walker:  ["When should babies start using a push walker?","Best shoes for first steps?","Push toys vs door bouncers — what's safer?"],
+  general: ["What's age-appropriate for my baby?","Products for the 4-month sleep regression?","Best gifts for a newborn baby shower?"],
+};
+
+function calcAgeMonths(dob) {
+  const now = new Date(), birth = new Date(dob);
+  return Math.max(0, (now.getFullYear()-birth.getFullYear())*12 + (now.getMonth()-birth.getMonth()));
+}
+function formatAge(m) {
+  if (m < 1) return "Newborn";
+  if (m < 12) return `${m} month${m>1?"s":""} old`;
+  const y=Math.floor(m/12), r=m%12;
+  return r ? `${y}yr ${r}mo` : `${y} year${y>1?"s":""} old`;
+}
+function checkSafety(q) {
+  const ql = q.toLowerCase();
+  for (const t of SAFETY_TRIGGERS) if (t.keys.some(k=>ql.includes(k))) return t;
+  return null;
+}
+function waText(products, babyName) {
+  const name = babyName || "my baby";
+  const lines = products.map((p,i)=>`${i+1}. ${p.name} — AED ${p.price}\n${p.link}`).join("\n\n");
+  return `https://wa.me/?text=${encodeURIComponent(`🛍️ Mumzworld picks for ${name}:\n\n${lines}\n\nShop at mumzworld.com`)}`;
+}
+function getFollowups(q) {
+  const ql = q.toLowerCase();
+  if (ql.includes("tummy")) return FOLLOWUPS.tummy;
+  if (ql.includes("teet")||ql.includes("drool")) return FOLLOWUPS.teething;
+  if (ql.includes("sleep")||ql.includes("newborn")||ql.includes("hold")) return FOLLOWUPS.sleep;
+  if (ql.includes("solid")||ql.includes("high chair")||ql.includes("wean")) return FOLLOWUPS.solids;
+  if (ql.includes("toddler")||ql.includes("18")||ql.includes("educat")) return FOLLOWUPS.toddler;
+  if (ql.includes("walk")||ql.includes("stand")||ql.includes("step")) return FOLLOWUPS.walker;
+  return FOLLOWUPS.general;
+}
+function generateResponse(q, budget, babyName) {
+  const ql = q.toLowerCase();
+  const nick = babyName || "your little one";
+  const ok = p => budget >= 2000 || p.price <= budget;
+  let reply, products=[], fkey="general";
+  if (ql.includes("tummy")||(ql.includes("4 month")&&!ql.includes("solid"))) {
+    reply=`That fussiness during tummy time is so common — you're not alone! 💛 ${nick} is building the neck and core strength needed to roll and sit.\n\nHere are my top picks:`;
+    products=PRODUCTS.filter(p=>["MW-003","MW-001","MW-002"].includes(p.id)&&ok(p)); fkey="tummy";
+  } else if (ql.includes("teet")||ql.includes("drool")||ql.includes("chew")||ql.includes("gum")) {
+    reply=`Sounds like teething is starting — it can begin as early as 3 months! The drooling and chewing are classic early signs. 🦷\n\nSafest options for ${nick}:`;
+    products=PRODUCTS.filter(p=>["MW-010","MW-011"].includes(p.id)&&ok(p)); fkey="teething";
+  } else if (ql.includes("sleep")||ql.includes("hold")||ql.includes("newborn")||ql.includes("swaddle")) {
+    reply=`Oh, the 'only-sleep-when-held' stage is exhausting — but so understandable! 💗 ${nick} just left the womb and your heartbeat is their favourite comfort.\n\nThese help safely:`;
+    products=PRODUCTS.filter(p=>["MW-019","MW-004","MW-005"].includes(p.id)&&ok(p)); fkey="sleep";
+  } else if (ql.includes("high chair")||ql.includes("solid")||ql.includes("wean")||ql.includes("6 month")) {
+    reply=`How exciting — starting solids is such a big milestone! At 6 months the goal is upright posture with support. Best options for ${nick}:`;
+    products=PRODUCTS.filter(p=>["MW-009","MW-008","MW-018"].includes(p.id)&&ok(p)); fkey="solids";
+  } else if (ql.includes("18 month")||ql.includes("toddler")||ql.includes("educat")||ql.includes("creative")||ql.includes("learn")) {
+    reply=`18 months is such a fun age — little sponges who learn through play! 🧩 Top educational picks for ${nick}:`;
+    products=PRODUCTS.filter(p=>["MW-015","MW-025","MW-013"].includes(p.id)&&ok(p)); fkey="toddler";
+  } else if (ql.includes("walk")||ql.includes("stand")||ql.includes("step")||ql.includes("crawl")) {
+    reply=`Those first steps are such a magical milestone! 🏃 Products to support ${nick} on that journey:`;
+    products=PRODUCTS.filter(p=>["MW-014"].includes(p.id)&&ok(p)); fkey="walker";
+  } else if (ql.includes("carrier")||ql.includes("carry")||ql.includes("babywear")||ql.includes("fussy")) {
+    reply=`Babywearing is wonderful for fussy babies — the closeness and rhythm of your movement is deeply calming. 💗 Recommendation for ${nick}:`;
+    products=PRODUCTS.filter(p=>["MW-016","MW-004"].includes(p.id)&&ok(p)); fkey="sleep";
+  } else if (ql.includes("bottle")||ql.includes("breastfeed")||ql.includes("feed")) {
+    reply=`Feeding questions are so important — here are trusted products for ${nick}:`;
+    products=PRODUCTS.filter(p=>["MW-006","MW-018"].includes(p.id)&&ok(p)); fkey="solids";
+  } else {
+    reply=`I'd love to find the perfect products for ${nick}! Could you tell me:\n\n• **How old is your baby?** (in weeks or months)\n• **What challenge are you facing?**\n\nFor example: *"My 4-month-old hates tummy time"* or *"Starting solids at 6 months."*`;
+    products=[]; fkey="general";
+  }
+  if (products.length===0&&ql.length>10&&!reply.includes("Could you tell me"))
+    reply+="\n\n*(All matching products are over your current budget — try raising the budget slider!)*";
+  return { reply, products, followups: FOLLOWUPS[fkey] };
+}
+
+/* ── COMPONENTS ── */
+function TypingIndicator() {
+  return <div className="msg-row"><div className="msg-avatar bot">👶</div><div className="typing-indicator"><div className="typing-dot"/><div className="typing-dot"/><div className="typing-dot"/></div></div>;
+}
+
+function ProductCard({ p, wishlist, toggleWishlist, compareList, toggleCompare, budget, babyName, lang }) {
+  const over = budget<2000 && p.price>budget;
+  const wishlisted = wishlist.includes(p.id);
+  const inCmp = compareList.some(c=>c.id===p.id);
+  return (
+    <div className={`product-card${over?" over-budget":""}`}>
+      <div className="product-card-header">
+        <div className="product-name">{p.name}</div>
+        <div className="product-actions">
+          <input type="checkbox" className="compare-cb" title="Add to compare" checked={inCmp} onChange={()=>toggleCompare(p)}/>
+          <button className="heart-btn" onClick={()=>toggleWishlist(p.id)}>{wishlisted?"❤️":"🤍"}</button>
+        </div>
+      </div>
+      <div className="product-price">
+        AED {p.price}
+        {over && <span className="over-budget-badge">Over budget</span>}
+      </div>
+      <div className="product-meta"><span>{lang==="ar"?"العمر:":"Age:"}</span> {p.age_min}–{p.age_max} months</div>
+      <div className="product-meta"><span>{lang==="ar"?"لماذا رائع:":"Why great:"}</span> {p.why}</div>
+      <div className="safety-badge">⚠️ {p.safety.length>80?p.safety.slice(0,80)+"…":p.safety}</div>
+      <div className="card-actions">
+        <a href={p.link} target="_blank" rel="noopener noreferrer" className="shop-btn">{lang==="ar"?"تسوق في مامزوورلد →":"Shop on Mumzworld →"}</a>
+        {babyName && <a href={waText([p],babyName)} target="_blank" rel="noopener noreferrer" className="wa-btn">📱 Share</a>}
+      </div>
+    </div>
+  );
+}
+
+function MsgBubble({ msg, wishlist, toggleWishlist, compareList, toggleCompare, budget, babyName, lang, onFollowup }) {
+  const time = msg.time ? new Date(msg.time).toLocaleTimeString([],{hour:"2-digit",minute:"2-digit"}) : "";
+  if (msg.role==="user") return (
+    <div className="msg-row user">
+      <div className="msg-avatar user">🙋</div>
+      <div><div className="msg-bubble user">{msg.content}</div><div className="msg-meta" style={{textAlign:"right"}}>{time}</div></div>
+    </div>
+  );
+  const html = msg.content.replace(/\*\*(.*?)\*\*/g,"<strong>$1</strong>").replace(/\*(.*?)\*/g,"<em>$1</em>").replace(/\n/g,"<br/>");
+  return (
+    <div>
+      <div className="msg-row">
+        <div className="msg-avatar bot">👶</div>
+        <div style={{maxWidth:"80%"}}>
+          <div className="msg-bubble bot" dangerouslySetInnerHTML={{__html:html}}/>
+          {msg.products&&msg.products.length>0&&<>
+            {msg.products.map(p=><ProductCard key={p.id} p={p} wishlist={wishlist} toggleWishlist={toggleWishlist} compareList={compareList} toggleCompare={toggleCompare} budget={budget} babyName={babyName} lang={lang}/>)}
+            {babyName&&msg.products.length>1&&<div style={{marginTop:10}}><a href={waText(msg.products,babyName)} target="_blank" rel="noopener noreferrer" className="wa-btn" style={{fontSize:12}}>📱 Share all {msg.products.length} picks on WhatsApp</a></div>}
+          </>}
+          <div className="msg-meta">{time}</div>
+        </div>
+      </div>
+      {msg.followups&&msg.followups.length>0&&(
+        <div className="followup-row">
+          {msg.followups.map(f=><button key={f} className="followup-chip" onClick={()=>onFollowup(f)}>{f}</button>)}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function MilestoneBar({ ageMonths, onSelect, t }) {
+  return (
+    <div className="milestone-bar">
+      <div className="milestone-label">{t.milestonesLabel}</div>
+      <div className="milestone-track">
+        {MILESTONES.map((m,i)=>{
+          const cls = ageMonths===null ? "upcoming"
+            : m.age<=ageMonths&&ageMonths<(MILESTONES[i+1]?.age??999) ? "active"
+            : m.age<ageMonths ? "past" : "upcoming";
+          return <React.Fragment key={m.id}>
+            {i>0&&<div className="milestone-connector"/>}
+            <div className={`milestone-item ${cls}`} onClick={()=>onSelect(m.query)} title={`Ask about ${m.label}`}>
+              <div className="milestone-dot">{m.emoji}</div>
+              <div className="milestone-name">{m.label}</div>
+              <div className="milestone-age">{m.age}m</div>
+            </div>
+          </React.Fragment>;
+        })}
+      </div>
+    </div>
+  );
+}
+
+function BudgetBar({ budget, setBudget, t }) {
+  const presets=[200,500,1000,2000];
+  return (
+    <div className="budget-bar">
+      <div className="budget-header">
+        <div className="budget-label">💰 {t.budgetLabel}</div>
+        <div className="budget-value">{budget>=2000?"No limit":`AED ${budget}`}</div>
+      </div>
+      <input type="range" className="budget-slider" min={50} max={2000} step={50} value={budget} onChange={e=>setBudget(Number(e.target.value))}/>
+      <div className="budget-presets">{presets.map(p=><button key={p} className={`budget-preset${budget===p?" active":""}`} onClick={()=>setBudget(p)}>{p>=2000?"All":`AED ${p}`}</button>)}</div>
+    </div>
+  );
+}
+
+function ProfileModal({ onSave, onSkip }) {
+  const [name,setName]=useState(""); const [dob,setDob]=useState("");
+  return (
+    <div className="modal-overlay">
+      <div className="modal">
+        <div className="modal-title">👶 Welcome! Tell us about your baby</div>
+        <div className="modal-sub">Personalise every recommendation with your baby's name and age.</div>
+        <div className="form-group"><label className="form-label">Baby's name</label><input className="form-input" placeholder="e.g. Layla, Omar…" value={name} onChange={e=>setName(e.target.value)}/></div>
+        <div className="form-group"><label className="form-label">Date of birth</label><input className="form-input" type="date" max={new Date().toISOString().split("T")[0]} value={dob} onChange={e=>setDob(e.target.value)}/></div>
+        <div className="modal-actions">
+          <button className="btn-secondary" onClick={onSkip}>Skip</button>
+          <button className="btn-primary" onClick={()=>{if(name||dob)onSave(name.trim(),dob);else onSkip();}}>Let's go! 🎉</button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function WishlistDrawer({ wishlist, toggleWishlist, onClose, t, lang, compareList, toggleCompare, budget, babyName }) {
+  const items = PRODUCTS.filter(p=>wishlist.includes(p.id));
+  return (
+    <div className="drawer">
+      <div className="drawer-backdrop" onClick={onClose}/>
+      <div className="drawer-panel">
+        <div className="drawer-header"><div className="drawer-title">❤️ Saved ({items.length})</div><button className="drawer-close" onClick={onClose}>✕</button></div>
+        <div className="drawer-body">
+          {items.length===0?<div className="drawer-empty">{t.wishlistEmpty}</div>
+           :items.map(p=><ProductCard key={p.id} p={p} wishlist={wishlist} toggleWishlist={toggleWishlist} compareList={compareList} toggleCompare={toggleCompare} budget={budget} babyName={babyName} lang={lang}/>)}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function CompareModal({ items, onClose }) {
+  const rows=[["Price",p=>`AED ${p.price}`],["Age range",p=>`${p.age_min}–${p.age_max} months`],["Category",p=>p.cat],["Why great",p=>p.why],["Safety",p=>p.safety]];
+  return (
+    <div className="modal-overlay" onClick={onClose}>
+      <div className="modal" style={{maxWidth:580}} onClick={e=>e.stopPropagation()}>
+        <div className="modal-title">⚖️ Side-by-Side Comparison</div>
+        <div style={{overflowX:"auto",marginTop:12}}>
+          <table className="compare-table">
+            <thead><tr><th style={{width:90}}></th>{items.map(p=><th key={p.id}>{p.name}</th>)}</tr></thead>
+            <tbody>
+              {rows.map(([label,fn])=><tr key={label}><td style={{fontWeight:700,color:"#999",fontSize:11}}>{label}</td>{items.map(p=><td key={p.id}>{fn(p)}</td>)}</tr>)}
+              <tr><td></td>{items.map(p=><td key={p.id}><a href={p.link} target="_blank" rel="noopener noreferrer" className="shop-btn" style={{fontSize:11}}>Shop →</a></td>)}</tr>
+            </tbody>
+          </table>
+        </div>
+        <div className="modal-actions"><button className="btn-secondary" onClick={onClose}>Close</button></div>
+      </div>
+    </div>
+  );
+}
+
+/* ── APP ── */
+const mkWelcome = name => ({ role:"assistant", content: name ? `Hi ${name}'s mum/dad! 👋 I'm your Mumzworld advisor — I already know your little one's age and I'm ready to personalise every recommendation.\n\nWhat's on your mind today?` : `Hi there! 👋 I'm your Mumzworld parenting advisor.\n\nTell me your baby's age and what challenge you're facing — I'll recommend the right products from Mumzworld's catalogue.`, products:[], followups:[], time:Date.now() });
+
 function App() {
-  const [messages, setMessages] = useState([WELCOME_MSG]);
+  const loadProfile = () => { try { return JSON.parse(localStorage.getItem("mw_profile")); } catch { return null; } };
+  const loadWishlist = () => { try { return JSON.parse(localStorage.getItem("mw_wishlist"))||[]; } catch { return []; } };
+
+  const [profile, setProfile] = useState(loadProfile);
+  const [showProfileModal, setShowProfileModal] = useState(!loadProfile());
+  const [messages, setMessages] = useState(() => [mkWelcome(loadProfile()?.name)]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
-  const messagesEndRef = useRef(null);
-  const textareaRef = useRef(null);
+  const [wishlist, setWishlist] = useState(loadWishlist);
+  const [showWishlist, setShowWishlist] = useState(false);
+  const [compareList, setCompareList] = useState([]);
+  const [showCompare, setShowCompare] = useState(false);
+  const [lang, setLang] = useState("en");
+  const [budget, setBudget] = useState(2000);
+  const [showBudget, setShowBudget] = useState(false);
+  const [listening, setListening] = useState(false);
+  const [safetyAlert, setSafetyAlert] = useState(null);
+  const endRef = useRef(null);
+  const t = T[lang];
+  const ageMonths = profile?.dob ? calcAgeMonths(profile.dob) : null;
 
-  useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages, loading]);
+  useEffect(()=>{ endRef.current?.scrollIntoView({behavior:"smooth"}); },[messages,loading]);
+  useEffect(()=>{ localStorage.setItem("mw_wishlist",JSON.stringify(wishlist)); },[wishlist]);
+  useEffect(()=>{ document.documentElement.lang=lang; document.documentElement.dir=lang==="ar"?"rtl":"ltr"; },[lang]);
 
-  async function sendMessage(text) {
-    const userText = (text || input).trim();
-    if (!userText || loading) return;
-
-    setInput("");
-    setMessages(prev => [...prev, { role: "user", content: userText, products: [] }]);
-    setLoading(true);
-    await simulateDemoResponse(userText);
+  function saveProfile(name,dob) {
+    const p={name,dob}; localStorage.setItem("mw_profile",JSON.stringify(p));
+    setProfile(p); setShowProfileModal(false); setMessages([mkWelcome(name)]);
   }
-
-  async function simulateDemoResponse(query) {
-    await new Promise(r => setTimeout(r, 1200));
-
-    const q = query.toLowerCase();
-    let reply, products = [];
-
-    if (q.includes("tummy time") || q.includes("4 month")) {
-      reply = "That fussiness during tummy time is so common at 4 months — you're not alone! 💛 Babies at this stage are building the neck and core strength needed to eventually roll and sit, so it's worth persisting gently.\n\nHere are my top picks from the Mumzworld catalogue:";
-      products = [
-        { id:"MW-003", name:"Infantino Go gaga! Tummy Time Pillow", price:79, age_min_months:0, age_max_months:6,
-          why_great:"The crescent shape lifts baby's chest, reducing the effort needed so they can enjoy tummy time longer and build strength faster.",
-          safety_notes:"Never leave baby unattended on tummy time pillow. Not for sleeping.",
-          link:"https://www.mumzworld.com/en/infantino-tummy-time-pillow" },
-        { id:"MW-001", name:"Fisher-Price Deluxe Kick & Play Piano Gym", price:189, age_min_months:0, age_max_months:36,
-          why_great:"High-contrast overhead toys give baby something fascinating to look at during tummy time, making it feel like play rather than exercise.",
-          safety_notes:"No loose parts. Machine washable mat. Meets all ASTM safety standards.",
-          link:"https://www.mumzworld.com/en/fisher-price-deluxe-kick-and-play-piano-gym" },
-      ];
-    } else if (q.includes("teethe") || q.includes("teet") || q.includes("drool") || q.includes("chew")) {
-      reply = "Sounds like teething might be starting — it can begin as early as 3 months even if teeth don't appear until later! The drooling and chewing are classic early signs. 🦷\n\nHere are some great options:";
-      products = [
-        { id:"MW-010", name:"Manhattan Toy Winkel Rattle & Sensory Teether", price:89, age_min_months:3, age_max_months:18,
-          why_great:"The looped shape is easy for small hands to grab at any angle, and the gentle rattle teaches cause-and-effect while soothing sore gums.",
-          safety_notes:"BPA-free. Inspect regularly for cracks. Wipe clean with soap and water.",
-          link:"https://www.mumzworld.com/en/manhattan-toy-winkel-teether" },
-        { id:"MW-011", name:"Sophie la Girafe Teether", price:99, age_min_months:3, age_max_months:12,
-          why_great:"Different body parts reach different parts of baby's mouth — the nose for front gums, legs for molars later on.",
-          safety_notes:"Natural rubber — wipe exterior only, do not submerge in water.",
-          link:"https://www.mumzworld.com/en/sophie-la-girafe-teether" },
-      ];
-    } else if (q.includes("sleep") || q.includes("hold") || q.includes("newborn")) {
-      reply = "Oh, the 'only-sleep-when-held' stage is exhausting — but so understandable! Your newborn has just left the warmth of the womb and your heartbeat is their favourite comfort. 💗\n\nThese products can help create that cosy feeling safely:";
-      products = [
-        { id:"MW-019", name:"Summer Infant SwaddleMe Swaddle 3-Pack", price:99, age_min_months:0, age_max_months:3,
-          why_great:"Suppresses the Moro (startle) reflex that wakes newborns — mimics the snug womb feeling without you having to hold them.",
-          safety_notes:"Stop swaddling when baby shows rolling signs. Always place on back. Ensure hips have room to flex.",
-          link:"https://www.mumzworld.com/en/summer-infant-swaddleme-3-pack" },
-        { id:"MW-004", name:"BABYBJÖRN Bouncer Balance Soft", price:849, age_min_months:0, age_max_months:24,
-          why_great:"Gentle self-bouncing motion powered by baby's own movement soothes fussy babies — gives you supervised hands-free moments.",
-          safety_notes:"5-point safety harness. Do NOT use as sleeping device. Always use on floor level.",
-          link:"https://www.mumzworld.com/en/babybjorn-bouncer-balance-soft" },
-      ];
-    } else if (q.includes("high chair") || q.includes("solid") || q.includes("wean") || q.includes("6 month")) {
-      reply = "How exciting — starting solids is such a big milestone! At 6 months, the goal is to help baby sit upright with support and begin exploring food. Here are the best options from Mumzworld:";
-      products = [
-        { id:"MW-009", name:"STOKKE Tripp Trapp High Chair", price:1199, age_min_months:6, age_max_months:216,
-          why_great:"Adjustable seat keeps baby at table height with the family, supporting natural self-feeding development from the very first spoon.",
-          safety_notes:"Baby Set required for children under 3. Ensure all bolts tightened before each use.",
-          link:"https://www.mumzworld.com/en/stokke-tripp-trapp-high-chair" },
-        { id:"MW-008", name:"Chicco Pocket Snack Booster Seat", price:179, age_min_months:6, age_max_months:36,
-          why_great:"Budget-friendly option that clips to any dining chair — perfect for starting solids at home and doubles as a travel seat.",
-          safety_notes:"Only attach to chairs without armrests. Always secure safety belt.",
-          link:"https://www.mumzworld.com/en/chicco-pocket-snack-booster-seat" },
-      ];
-    } else if (q.includes("18 month") || q.includes("toddler") || q.includes("educat") || q.includes("learn")) {
-      reply = "18 months is such a fun age — toddlers this age are little sponges who learn through play! Here are my top picks for educational toys that match their developmental stage:";
-      products = [
-        { id:"MW-015", name:"LEGO DUPLO Classic Brick Box (85 pieces)", price:279, age_min_months:18, age_max_months:60,
-          why_great:"Builds vocabulary (colours, shapes), fine motor pinch grip, and early engineering thinking — all while your toddler thinks they're just having fun.",
-          safety_notes:"DUPLO bricks are oversized and non-choking-hazard safe for toddlers. Not compatible with standard LEGO.",
-          link:"https://www.mumzworld.com/en/lego-duplo-classic-brick-box" },
-        { id:"MW-025", name:"Melissa & Doug Shape Sorting Cube", price:99, age_min_months:12, age_max_months:36,
-          why_great:"Shape sorting is a key 12–18 month milestone for hand-eye coordination, shape recognition, and trial-and-error persistence.",
-          safety_notes:"Non-toxic paint. Splinter-free smooth wood. Supervise children under 3.",
-          link:"https://www.mumzworld.com/en/melissa-doug-shape-sorting-cube" },
-      ];
-    } else {
-      reply = "I'd love to help find the perfect product for your little one! To give you the best recommendations, could you tell me:\n\n• **How old is your baby?** (age in weeks or months)\n• **What challenge are you facing**, or what are you looking to buy?\n\nFor example: *\"My 4-month-old hates tummy time\"* or *\"Looking for a high chair for 6-month-old starting solids.\"*";
-    }
-
-    setMessages(prev => [...prev, { role: "assistant", content: reply, products }]);
+  function toggleWishlist(id) { setWishlist(prev=>prev.includes(id)?prev.filter(x=>x!==id):[...prev,id]); }
+  function toggleCompare(product) {
+    setCompareList(prev=>{ if(prev.some(p=>p.id===product.id)) return prev.filter(p=>p.id!==product.id); if(prev.length>=3) return prev; return [...prev,product]; });
+  }
+  function startVoice() {
+    const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+    if(!SR){alert("Voice input not supported in this browser. Try Chrome.");return;}
+    const r=new SR(); r.lang=lang==="ar"?"ar-AE":"en-US";
+    r.onresult=e=>{setInput(e.results[0][0].transcript);setListening(false);};
+    r.onerror=()=>setListening(false); r.onend=()=>setListening(false);
+    setListening(true); r.start();
+  }
+  async function sendMessage(text) {
+    const userText=(text||input).trim(); if(!userText||loading) return;
+    setInput("");
+    const alert=checkSafety(userText); if(alert) setSafetyAlert(alert);
+    const enriched=userText+(profile?.dob?` (baby age: ${formatAge(ageMonths)})`:"");
+    setMessages(prev=>[...prev,{role:"user",content:userText,products:[],followups:[],time:Date.now()}]);
+    setLoading(true);
+    await new Promise(r=>setTimeout(r,1000));
+    const {reply,products,followups}=generateResponse(enriched,budget,profile?.name);
+    setMessages(prev=>[...prev,{role:"assistant",content:reply,products,followups,time:Date.now()}]);
     setLoading(false);
   }
 
-  function handleKeyDown(e) {
-    if (e.key === "Enter" && !e.shiftKey) {
-      e.preventDefault();
-      sendMessage();
-    }
-  }
-
   return (
-    <div className="widget-wrapper">
-      <div className="header">
-        <div className="header-logo">
-          <div className="logo-icon">🌸</div>
-          <div className="logo-text">mumz<span>world</span></div>
-        </div>
-        <div className="header-sub">AI Parenting Advisor</div>
-      </div>
+    <>
+      {showProfileModal&&<ProfileModal onSave={saveProfile} onSkip={()=>setShowProfileModal(false)}/>}
+      {showWishlist&&<WishlistDrawer wishlist={wishlist} toggleWishlist={toggleWishlist} onClose={()=>setShowWishlist(false)} t={t} lang={lang} compareList={compareList} toggleCompare={toggleCompare} budget={budget} babyName={profile?.name}/>}
+      {showCompare&&compareList.length>=2&&<CompareModal items={compareList} onClose={()=>setShowCompare(false)}/>}
 
-      <div className="chat-container">
-        <div className="chat-toolbar">
-          <div className="toolbar-avatar">👶</div>
-          <div className="toolbar-info">
-            <div className="toolbar-name">Mumzworld Parenting Advisor</div>
-            <div className="toolbar-status">
-              <span className="status-dot" /> Online · Specialised in 0–8 years
-            </div>
+      <div className="widget-wrapper">
+        <div className="header">
+          <div className="header-actions">
+            <button className="icon-btn lang-btn" onClick={()=>setLang(l=>l==="en"?"ar":"en")} title="Toggle language">{lang==="en"?"عربي":"EN"}</button>
+            <button className="icon-btn" onClick={()=>setShowBudget(s=>!s)} title="Budget filter">💰</button>
+            <button className="icon-btn" onClick={()=>setShowWishlist(true)} title="Wishlist">❤️{wishlist.length>0&&<span className="badge">{wishlist.length}</span>}</button>
+            <button className="icon-btn" onClick={()=>setShowProfileModal(true)} title="Baby profile">👶</button>
           </div>
-          <div className="toolbar-badge">AI-powered</div>
+          <div className="header-logo">
+            <div className="logo-icon">🌸</div>
+            <div className="logo-text">mumz<span>world</span></div>
+          </div>
+          {profile?.name&&(
+            <div className="baby-profile-pill" onClick={()=>setShowProfileModal(true)}>
+              <span>👶</span>
+              <div><div className="baby-name">{profile.name}</div>{ageMonths!==null&&<div className="baby-age">{formatAge(ageMonths)}</div>}</div>
+            </div>
+          )}
+          <div className="header-sub">{t.subheader}</div>
         </div>
 
-        <div className="messages">
-          {messages.map((msg, i) => <MessageBubble key={i} msg={msg} />)}
-          {loading && <TypingIndicator />}
-          <div ref={messagesEndRef} />
-        </div>
+        <MilestoneBar ageMonths={ageMonths} onSelect={q=>sendMessage(q)} t={t}/>
+        {showBudget&&<BudgetBar budget={budget} setBudget={setBudget} t={t}/>}
 
-        {messages.length === 1 && (
-          <div className="quick-prompts">
-            {QUICK_PROMPTS.map(p => (
-              <button key={p} className="quick-prompt-btn" onClick={() => sendMessage(p)}>
-                {p}
-              </button>
-            ))}
+        {safetyAlert&&(
+          <div className="safety-alert">
+            <div className="safety-alert-icon">🚨</div>
+            <div><div className="safety-alert-title">{safetyAlert.title}</div><div className="safety-alert-body">{safetyAlert.body}</div></div>
+            <button className="safety-dismiss" onClick={()=>setSafetyAlert(null)}>✕</button>
           </div>
         )}
 
-        <div className="input-area">
-          <textarea
-            ref={textareaRef}
-            className="input-box"
-            rows={1}
-            placeholder="Ask about your baby's age and what you need…"
-            value={input}
-            onChange={e => setInput(e.target.value)}
-            onKeyDown={handleKeyDown}
-          />
-          <button
-            className="send-btn"
-            onClick={() => sendMessage()}
-            disabled={loading || !input.trim()}
-            title="Send"
-          >
-            ➤
-          </button>
+        <div className="chat-container">
+          <div className="chat-toolbar">
+            <div className="toolbar-avatar">👶</div>
+            <div className="toolbar-info">
+              <div className="toolbar-name">Mumzworld Parenting Advisor</div>
+              <div className="toolbar-status"><span className="status-dot"/> {t.online}</div>
+            </div>
+            <div className="toolbar-badge">{t.aiPowered}</div>
+          </div>
+          <div className="messages">
+            {messages.map((msg,i)=><MsgBubble key={i} msg={msg} wishlist={wishlist} toggleWishlist={toggleWishlist} compareList={compareList} toggleCompare={toggleCompare} budget={budget} babyName={profile?.name} lang={lang} onFollowup={q=>sendMessage(q)}/>)}
+            {loading&&<TypingIndicator/>}
+            <div ref={endRef}/>
+          </div>
+          {messages.length===1&&(
+            <div className="quick-prompts">
+              {t.quickPrompts.map(p=><button key={p} className="quick-prompt-btn" onClick={()=>sendMessage(p)}>{p}</button>)}
+            </div>
+          )}
+          <div className="input-area">
+            <button className={`voice-btn${listening?" listening":""}`} onClick={startVoice} title="Voice input">🎤</button>
+            <textarea className="input-box" rows={1} placeholder={t.placeholder} value={input}
+              onChange={e=>setInput(e.target.value)}
+              onKeyDown={e=>{if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();sendMessage();}}}/>
+            <button className="send-btn" onClick={()=>sendMessage()} disabled={loading||!input.trim()}>➤</button>
+          </div>
         </div>
+
+        <div className="footer-note">Products from Mumzworld catalogue · Always follow safe sleep guidelines · Consult your paediatrician for medical advice</div>
       </div>
 
-      <div className="footer-note">
-        Products from Mumzworld catalogue · Always follow safe sleep guidelines · Consult your paediatrician for medical advice
-      </div>
-    </div>
+      {compareList.length>=2&&(
+        <div className="compare-float">
+          ⚖️ {compareList.length} products selected
+          <button className="cmp-btn" onClick={()=>setShowCompare(true)}>Compare →</button>
+          <button className="clr-btn" onClick={()=>setCompareList([])}>Clear</button>
+        </div>
+      )}
+    </>
   );
 }
 
-ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+ReactDOM.createRoot(document.getElementById("root")).render(<App/>);
 </script>
 </body>
 </html>

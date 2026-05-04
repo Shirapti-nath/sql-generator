@@ -1,0 +1,1393 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>TechPath OS — Navigate Your Future</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js"></script>
+<style>
+/* ── RESET ── */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#030014;--s1:#06001f;--s2:#0a0028;
+  --glass:rgba(255,255,255,0.04);--glass2:rgba(255,255,255,0.08);
+  --border:rgba(0,212,255,0.15);--border2:rgba(0,212,255,0.35);
+  --neon:#00d4ff;--neon2:#9d4edd;--neon3:#f72585;
+  --text:#e2e8f0;--muted:#64748b;--radius:14px;--accent:#00d4ff;
+}
+html{scroll-behavior:smooth}
+body{font-family:'Space Grotesk',system-ui,sans-serif;background:var(--bg);color:var(--text);
+  min-height:100vh;overflow-x:hidden;cursor:none}
+
+/* ── HEX GRID BACKGROUND ── */
+body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
+  background-image:url("data:image/svg+xml,%3Csvg width='60' height='52' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M30 0 L60 17.3 L60 34.6 L30 52 L0 34.6 L0 17.3Z' fill='none' stroke='rgba(0,212,255,0.05)' stroke-width='1'/%3E%3C/svg%3E");
+  background-size:60px 52px}
+
+/* ── NEURAL CANVAS ── */
+#neural-canvas{position:fixed;inset:0;z-index:0;pointer-events:none}
+
+/* ── LOADER ── */
+#loader{position:fixed;inset:0;z-index:99999;background:#000;display:flex;
+  align-items:center;justify-content:center;flex-direction:column}
+.loader-hex{font-size:3.5rem;color:var(--neon);animation:hexPulse 1s ease-in-out infinite;
+  text-shadow:0 0 30px var(--neon),0 0 60px var(--neon)}
+@keyframes hexPulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(.9)}}
+.loader-title{font-family:'Orbitron',monospace;font-size:1.1rem;font-weight:700;
+  color:var(--neon);letter-spacing:4px;margin:16px 0 24px;text-shadow:0 0 20px var(--neon)}
+.loader-terminal{width:340px;margin-bottom:24px;font-family:'Courier New',monospace;font-size:.78rem}
+.tline{color:#22d3ee;padding:3px 0;min-height:1.4em}
+.tline::before{content:'> ';color:var(--neon2)}
+.loader-track{width:340px;height:2px;background:rgba(0,212,255,.15);border-radius:99px;overflow:hidden;margin-bottom:10px}
+.loader-fill{height:100%;width:0%;background:linear-gradient(90deg,var(--neon2),var(--neon));
+  border-radius:99px;box-shadow:0 0 12px var(--neon);transition:width .08s linear}
+.loader-pct{font-family:'Orbitron',monospace;font-size:.72rem;color:var(--muted);letter-spacing:2px}
+
+/* ── CURSOR ── */
+#cur-dot{position:fixed;width:6px;height:6px;border-radius:50%;background:var(--neon);
+  pointer-events:none;z-index:99998;transform:translate(-50%,-50%);
+  box-shadow:0 0 10px var(--neon);transition:width .2s,height .2s,background .2s}
+#cur-ring{position:fixed;width:32px;height:32px;border-radius:50%;
+  border:1px solid rgba(0,212,255,.5);pointer-events:none;z-index:99997;
+  transform:translate(-50%,-50%);transition:width .25s,height .25s,border-color .25s}
+body.chov #cur-dot{width:10px;height:10px;background:var(--neon3)}
+body.chov #cur-ring{width:50px;height:50px;border-color:var(--neon3);background:rgba(247,37,133,.06)}
+
+/* ── TRAIL CANVAS ── */
+#trail-canvas{position:fixed;inset:0;z-index:99990;pointer-events:none}
+
+/* ── SCROLL BAR ── */
+#scroll-bar{position:fixed;top:0;left:0;height:2px;width:0%;z-index:99996;
+  background:linear-gradient(90deg,var(--neon2),var(--neon),var(--neon3));
+  box-shadow:0 0 8px var(--neon)}
+
+/* ── NAVBAR ── */
+#navbar{position:fixed;top:0;left:0;right:0;z-index:9000;padding:16px 40px;
+  display:flex;align-items:center;justify-content:space-between;
+  background:rgba(3,0,20,.8);backdrop-filter:blur(20px);
+  border-bottom:1px solid var(--border);transition:all .3s}
+.nav-logo{font-family:'Orbitron',monospace;font-size:.95rem;font-weight:900;
+  color:var(--neon);text-shadow:0 0 16px var(--neon);letter-spacing:3px;
+  display:flex;align-items:center;gap:10px}
+.nav-logo-hex{font-size:1.4rem;animation:hexPulse 2s ease-in-out infinite}
+.nav-links{display:flex;gap:28px}
+.nav-link{font-family:'Orbitron',monospace;font-size:.62rem;font-weight:700;
+  letter-spacing:2px;color:var(--muted);text-transform:uppercase;cursor:pointer;
+  transition:color .2s,text-shadow .2s;position:relative}
+.nav-link::after{content:'';position:absolute;bottom:-4px;left:0;width:0;height:1px;
+  background:var(--neon);transition:width .3s;box-shadow:0 0 8px var(--neon)}
+.nav-link:hover{color:var(--neon);text-shadow:0 0 12px var(--neon)}
+.nav-link:hover::after{width:100%}
+.nav-status{display:flex;align-items:center;gap:8px;font-family:'Orbitron',monospace;
+  font-size:.6rem;color:var(--neon);letter-spacing:2px}
+.nav-dot{width:6px;height:6px;border-radius:50%;background:var(--neon);
+  box-shadow:0 0 8px var(--neon);animation:navPulse 2s ease-in-out infinite}
+@keyframes navPulse{0%,100%{opacity:1}50%{opacity:.3}}
+
+/* ── PAGES ── */
+#page-landing,#page-detail{position:relative;z-index:2}
+#page-detail{display:none}
+
+/* ── TICKER ── */
+.ticker-wrap{overflow:hidden;background:rgba(0,212,255,.04);
+  border-top:1px solid var(--border);border-bottom:1px solid var(--border);
+  padding:9px 0;position:relative;z-index:3}
+.ticker-inner{display:flex;white-space:nowrap;animation:tick 28s linear infinite}
+.ticker-inner span{padding:0 44px;font-family:'Orbitron',monospace;font-size:.62rem;
+  font-weight:700;letter-spacing:2px;color:rgba(0,212,255,.5)}
+.ticker-inner span b{color:var(--neon);text-shadow:0 0 10px var(--neon)}
+@keyframes tick{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
+
+/* ── HERO ── */
+.hero{min-height:100vh;display:flex;flex-direction:column;align-items:center;
+  justify-content:center;text-align:center;padding:120px 24px 60px;position:relative}
+.hero-eyebrow{display:inline-flex;align-items:center;gap:10px;font-family:'Orbitron',monospace;
+  font-size:.65rem;font-weight:700;letter-spacing:3px;text-transform:uppercase;
+  color:var(--neon);background:rgba(0,212,255,.07);
+  border:1px solid var(--border2);padding:8px 20px;border-radius:99px;margin-bottom:28px;
+  box-shadow:0 0 20px rgba(0,212,255,.15),inset 0 0 20px rgba(0,212,255,.05)}
+.hero-eyebrow-dot{width:6px;height:6px;border-radius:50%;background:var(--neon);
+  box-shadow:0 0 8px var(--neon);animation:navPulse 1.5s ease-in-out infinite}
+.hero h1{font-family:'Orbitron',monospace;font-size:clamp(2rem,5.5vw,4.2rem);
+  font-weight:900;letter-spacing:-.01em;line-height:1.1;margin-bottom:20px;
+  background:linear-gradient(135deg,#fff 20%,var(--neon) 60%,var(--neon2));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+  text-shadow:none;width:100%;max-width:900px}
+.hero-sub{font-size:1rem;color:var(--muted);max-width:520px;line-height:1.8;margin-bottom:36px}
+.hero-cta-row{display:flex;gap:16px;justify-content:center;flex-wrap:wrap;margin-bottom:52px}
+.btn-primary{font-family:'Orbitron',monospace;font-size:.72rem;font-weight:700;letter-spacing:2px;
+  padding:14px 32px;border-radius:8px;border:1px solid var(--neon);
+  background:rgba(0,212,255,.1);color:var(--neon);cursor:pointer;
+  transition:all .25s;text-transform:uppercase;
+  box-shadow:0 0 20px rgba(0,212,255,.2),inset 0 0 20px rgba(0,212,255,.05)}
+.btn-primary:hover{background:rgba(0,212,255,.2);box-shadow:0 0 40px rgba(0,212,255,.4),inset 0 0 30px rgba(0,212,255,.1);transform:translateY(-2px)}
+.btn-secondary{font-family:'Orbitron',monospace;font-size:.72rem;font-weight:700;letter-spacing:2px;
+  padding:14px 32px;border-radius:8px;border:1px solid rgba(255,255,255,.12);
+  background:rgba(255,255,255,.04);color:var(--muted);cursor:pointer;
+  transition:all .25s;text-transform:uppercase}
+.btn-secondary:hover{border-color:rgba(157,78,221,.5);color:var(--neon2);background:rgba(157,78,221,.08)}
+.hero-stats{display:flex;gap:0;flex-wrap:wrap;justify-content:center;
+  border:1px solid var(--border);border-radius:12px;background:var(--glass);
+  backdrop-filter:blur(20px);overflow:hidden}
+.hstat{padding:22px 36px;text-align:center;border-right:1px solid var(--border);position:relative}
+.hstat:last-child{border-right:none}
+.hstat::before{content:'';position:absolute;inset:0;background:rgba(0,212,255,.03);opacity:0;transition:opacity .3s}
+.hstat:hover::before{opacity:1}
+.hstat-val{display:block;font-family:'Orbitron',monospace;font-size:1.6rem;font-weight:900;
+  color:var(--neon);text-shadow:0 0 20px var(--neon)}
+.hstat-lbl{font-size:.68rem;color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin-top:3px}
+
+/* ── CURSOR BLINK (hero typer) ── */
+.typer-cursor{display:inline-block;width:3px;height:.85em;background:var(--neon);
+  vertical-align:middle;margin-left:2px;animation:blink 1s step-end infinite;
+  box-shadow:0 0 8px var(--neon)}
+@keyframes blink{50%{opacity:0}}
+
+/* ── SEARCH ── */
+.search-section{max-width:820px;margin:0 auto 32px;padding:0 24px;position:relative;z-index:3}
+.search-wrap{position:relative;margin-bottom:14px}
+.search-ico{position:absolute;left:16px;top:50%;transform:translateY(-50%);
+  width:16px;height:16px;color:var(--muted);pointer-events:none}
+#search-input{width:100%;padding:14px 18px 14px 44px;
+  background:rgba(0,212,255,.04);border:1px solid var(--border);border-radius:10px;
+  color:var(--text);font-size:.9rem;font-family:'Space Grotesk',sans-serif;outline:none;
+  transition:border-color .2s,box-shadow .2s}
+#search-input::placeholder{color:var(--muted)}
+#search-input:focus{border-color:var(--border2);box-shadow:0 0 0 3px rgba(0,212,255,.1),0 0 20px rgba(0,212,255,.08)}
+.filter-row{display:flex;gap:8px;flex-wrap:wrap}
+.fbtn{padding:7px 16px;border-radius:99px;font-size:.7rem;font-weight:600;
+  letter-spacing:1px;text-transform:uppercase;border:1px solid var(--border);
+  background:var(--glass);color:var(--muted);cursor:pointer;transition:all .2s;
+  font-family:'Orbitron',monospace}
+.fbtn:hover{border-color:var(--border2);color:var(--neon)}
+.fbtn.active{background:rgba(0,212,255,.1);border-color:var(--border2);color:var(--neon);
+  box-shadow:0 0 12px rgba(0,212,255,.2)}
+
+/* ── CARDS SECTION ── */
+.cards-section{max-width:1220px;margin:0 auto;padding:0 24px 90px;position:relative;z-index:3}
+.section-eyebrow{display:flex;align-items:center;gap:12px;margin-bottom:20px}
+.section-eyebrow-line{flex:1;height:1px;background:linear-gradient(90deg,var(--border2),transparent)}
+.section-eyebrow-text{font-family:'Orbitron',monospace;font-size:.6rem;font-weight:700;
+  letter-spacing:3px;color:var(--neon);text-transform:uppercase}
+.cards-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:20px}
+
+/* ── CAREER CARD ── */
+.career-card{
+  background:linear-gradient(135deg,rgba(255,255,255,.04) 0%,rgba(0,212,255,.02) 100%);
+  border:1px solid var(--border);border-radius:var(--radius);padding:26px 22px;
+  cursor:pointer;position:relative;overflow:hidden;transition:border-color .25s,box-shadow .25s;
+  will-change:transform;transform-style:preserve-3d;backdrop-filter:blur(10px)}
+/* scan line on hover */
+.career-card::after{content:'';position:absolute;left:0;right:0;height:60px;
+  background:linear-gradient(transparent,rgba(0,212,255,.04),transparent);
+  top:-60px;pointer-events:none;transition:none;opacity:0}
+.career-card:hover::after{opacity:1;animation:scan 1.8s linear infinite}
+@keyframes scan{0%{top:-60px}100%{top:calc(100% + 60px)}}
+/* corner brackets */
+.career-card::before{content:'';position:absolute;top:0;left:0;width:16px;height:16px;
+  border-top:2px solid var(--accent);border-left:2px solid var(--accent);
+  border-radius:var(--radius) 0 0 0;opacity:0;transition:opacity .3s}
+.career-card:hover::before{opacity:1}
+.card-corner-br{position:absolute;bottom:0;right:0;width:16px;height:16px;
+  border-bottom:2px solid var(--accent);border-right:2px solid var(--accent);
+  border-radius:0 0 var(--radius) 0;opacity:0;transition:opacity .3s;pointer-events:none}
+.career-card:hover .card-corner-br{opacity:1}
+.career-card:hover{border-color:var(--border2);
+  box-shadow:0 0 40px rgba(0,212,255,.12),0 20px 50px rgba(0,0,0,.5),inset 0 0 40px rgba(0,212,255,.03)}
+/* holo shimmer */
+.card-holo{position:absolute;inset:0;border-radius:inherit;pointer-events:none;
+  background:radial-gradient(circle at var(--mx,50%) var(--my,50%),rgba(0,212,255,.07) 0%,transparent 55%);
+  opacity:0;transition:opacity .3s}
+.career-card:hover .card-holo{opacity:1}
+
+.card-top{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:14px}
+.card-icon{font-size:2rem;filter:drop-shadow(0 0 12px var(--accent));transition:transform .3s}
+.career-card:hover .card-icon{transform:scale(1.18) rotate(-6deg)}
+.card-badge{font-size:.6rem;font-weight:700;padding:4px 10px;border-radius:4px;
+  letter-spacing:1px;font-family:'Orbitron',monospace;white-space:nowrap}
+.badge-hot{background:rgba(247,37,133,.12);color:#f72585;border:1px solid rgba(247,37,133,.3)}
+.badge-trend{background:rgba(251,133,0,.12);color:#fb8500;border:1px solid rgba(251,133,0,.3)}
+.badge-top{background:rgba(0,212,255,.1);color:var(--neon);border:1px solid var(--border2)}
+.badge-new{background:rgba(157,78,221,.12);color:var(--neon2);border:1px solid rgba(157,78,221,.3)}
+.badge-creative{background:rgba(168,85,247,.12);color:#a855f7;border:1px solid rgba(168,85,247,.3)}
+
+.card-tag{font-family:'Orbitron',monospace;font-size:.58rem;font-weight:700;
+  letter-spacing:2.5px;color:var(--accent);margin-bottom:6px;text-transform:uppercase}
+.card-title{font-family:'Orbitron',monospace;font-size:.88rem;font-weight:700;color:#fff;
+  line-height:1.35;margin-bottom:8px}
+.card-desc{font-size:.8rem;color:var(--muted);line-height:1.7;margin-bottom:14px}
+
+.diff-row{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+.diff-label{font-size:.62rem;color:var(--muted);white-space:nowrap;
+  font-family:'Orbitron',monospace;letter-spacing:1px}
+.diff-track{flex:1;height:3px;background:rgba(255,255,255,.06);border-radius:99px;overflow:hidden}
+.diff-fill{height:100%;border-radius:99px;background:linear-gradient(90deg,var(--neon2),var(--accent));
+  width:0;transition:width 1.4s cubic-bezier(.4,0,.2,1) .3s;
+  box-shadow:0 0 8px var(--accent)}
+.card-revealed .diff-fill{width:var(--dpct)}
+.diff-text{font-size:.62rem;font-weight:600;color:var(--accent);white-space:nowrap;
+  font-family:'Orbitron',monospace}
+
+.card-skills{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:14px}
+.skill-chip{font-size:.62rem;padding:3px 9px;border-radius:4px;
+  background:rgba(0,212,255,.06);border:1px solid rgba(0,212,255,.15);
+  color:rgba(0,212,255,.7);font-family:'Orbitron',monospace;letter-spacing:.5px;
+  transition:all .15s}
+.skill-chip:hover{background:rgba(0,212,255,.12);border-color:var(--border2);color:var(--neon)}
+
+.card-footer{display:flex;justify-content:space-between;align-items:center}
+.card-salary{color:#34d399;font-weight:700;font-size:.78rem;font-family:'Orbitron',monospace;
+  text-shadow:0 0 10px rgba(52,211,153,.4)}
+.card-cta{display:flex;align-items:center;gap:5px;font-weight:700;font-size:.68rem;
+  color:var(--accent);transition:gap .2s;font-family:'Orbitron',monospace;letter-spacing:1px}
+.career-card:hover .card-cta{gap:10px;text-shadow:0 0 10px var(--neon)}
+
+/* ── RIPPLE ── */
+.ripple-el{position:absolute;border-radius:50%;pointer-events:none;z-index:1;
+  transform:translate(-50%,-50%) scale(0)}
+/* ── SPARK ── */
+.spark{position:fixed;border-radius:50%;pointer-events:none;z-index:99995}
+/* ── REVEAL ── */
+.reveal{opacity:0;transform:translateY(28px);
+  transition:opacity .65s cubic-bezier(.22,1,.36,1),transform .65s cubic-bezier(.22,1,.36,1)}
+.reveal.visible{opacity:1;transform:translateY(0)}
+/* ── NO RESULTS ── */
+#no-results{display:none;text-align:center;padding:60px;color:var(--muted)}
+
+/* ══════════════ DETAIL PAGE ══════════════ */
+.detail-hero{position:relative;padding:100px 24px 50px;text-align:center;overflow:hidden}
+.detail-hero-bg{position:absolute;inset:0;pointer-events:none}
+.detail-hero>*:not(.detail-hero-bg){position:relative;z-index:1}
+.back-btn{display:inline-flex;align-items:center;gap:8px;
+  font-family:'Orbitron',monospace;font-size:.65rem;font-weight:700;letter-spacing:2px;
+  color:var(--muted);background:var(--glass);border:1px solid var(--border);
+  padding:9px 18px;border-radius:8px;cursor:pointer;margin-bottom:32px;
+  transition:all .2s;text-transform:uppercase}
+.back-btn:hover{color:var(--neon);border-color:var(--border2);box-shadow:0 0 16px rgba(0,212,255,.2)}
+.detail-icon{font-size:3rem;margin-bottom:12px;display:block}
+.detail-tag{display:inline-block;font-family:'Orbitron',monospace;font-size:.6rem;
+  font-weight:700;letter-spacing:3px;text-transform:uppercase;padding:6px 16px;
+  border-radius:99px;margin-bottom:14px;border:1px solid var(--accent);color:var(--accent)}
+.detail-title{font-family:'Orbitron',monospace;
+  font-size:clamp(1.5rem,4vw,2.6rem);font-weight:900;letter-spacing:-.01em;
+  margin-bottom:14px;background:linear-gradient(135deg,#fff,var(--accent));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.detail-overview{font-size:.95rem;color:var(--muted);max-width:600px;margin:0 auto;line-height:1.8}
+.detail-stats{display:flex;justify-content:center;gap:14px;flex-wrap:wrap;margin-top:26px}
+.dstat{background:var(--glass);border:1px solid var(--border);border-radius:10px;
+  padding:14px 20px;text-align:center;backdrop-filter:blur(10px);
+  transition:border-color .2s,box-shadow .2s}
+.dstat:hover{border-color:var(--border2);box-shadow:0 0 20px rgba(0,212,255,.12)}
+.dstat-val{font-family:'Orbitron',monospace;font-size:1.25rem;font-weight:900;
+  color:var(--accent);display:block;text-shadow:0 0 16px var(--accent)}
+.dstat-lbl{font-size:.65rem;color:var(--muted);margin-top:2px;letter-spacing:.5px}
+
+/* Detail sections */
+.detail-content{max-width:900px;margin:0 auto;padding:0 24px 80px}
+.section-block{background:linear-gradient(135deg,rgba(0,212,255,.03),rgba(157,78,221,.02));
+  border:1px solid var(--border);border-radius:var(--radius);margin-bottom:10px;
+  overflow:hidden;transition:border-color .2s}
+.section-block.open{border-color:var(--border2);box-shadow:0 0 24px rgba(0,212,255,.07)}
+.section-header{display:flex;align-items:center;gap:12px;padding:18px 20px;cursor:pointer;
+  user-select:none;transition:background .2s}
+.section-header:hover{background:rgba(0,212,255,.03)}
+.section-num{width:28px;height:28px;border-radius:6px;background:rgba(0,212,255,.1);
+  border:1px solid var(--border);display:flex;align-items:center;justify-content:center;
+  font-family:'Orbitron',monospace;font-size:.68rem;font-weight:700;color:var(--accent);flex-shrink:0}
+.section-title-row{flex:1}
+.section-title{font-family:'Orbitron',monospace;font-weight:700;font-size:.85rem;color:#fff}
+.section-subtitle{font-size:.74rem;color:var(--muted);margin-top:2px}
+.section-chevron{color:var(--muted);transition:transform .3s;font-size:.9rem}
+.section-block.open .section-chevron{transform:rotate(180deg);color:var(--neon)}
+.section-body{max-height:0;overflow:hidden;transition:max-height .45s cubic-bezier(.4,0,.2,1)}
+.section-block.open .section-body{max-height:3000px}
+.section-inner{padding:0 20px 20px}
+
+.sub-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px;margin-bottom:14px}
+.sub-card{background:rgba(0,212,255,.03);border:1px solid var(--border);border-radius:10px;padding:13px}
+.sub-card-title{font-family:'Orbitron',monospace;font-size:.62rem;font-weight:700;
+  text-transform:uppercase;letter-spacing:1.5px;color:var(--accent);margin-bottom:8px}
+.sub-card ul{list-style:none}
+.sub-card li{font-size:.78rem;color:var(--muted);padding:2.5px 0;
+  display:flex;align-items:center;gap:7px}
+.sub-card li::before{content:'';width:4px;height:4px;border-radius:50%;
+  background:var(--accent);flex-shrink:0;box-shadow:0 0 4px var(--accent)}
+.cert-list{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.cert-badge{display:inline-flex;align-items:center;gap:5px;font-size:.7rem;font-weight:600;
+  padding:4px 11px;border-radius:4px;background:rgba(52,211,153,.08);
+  border:1px solid rgba(52,211,153,.25);color:#34d399;font-family:'Orbitron',monospace;letter-spacing:.5px}
+.focus-box{background:rgba(0,212,255,.04);border-radius:8px;padding:12px 14px;
+  margin-bottom:12px;border:1px solid rgba(0,212,255,.1);font-size:.8rem;color:#94a3b8;line-height:1.75}
+.salary-range{display:flex;align-items:center;gap:12px;margin-top:12px;padding:12px 14px;
+  background:rgba(52,211,153,.04);border-radius:8px;border:1px solid rgba(52,211,153,.15)}
+.salary-info{flex:1}
+.salary-label{font-size:.65rem;color:var(--muted);font-family:'Orbitron',monospace;letter-spacing:1px}
+.salary-amount{font-size:1rem;font-weight:700;color:#34d399;font-family:'Orbitron',monospace;
+  text-shadow:0 0 12px rgba(52,211,153,.4)}
+.salary-bar-track{height:3px;background:rgba(255,255,255,.06);border-radius:99px;margin-top:5px;overflow:hidden}
+.salary-bar-fill{height:100%;border-radius:99px;background:linear-gradient(90deg,#34d399,#10b981);
+  transition:width 1.2s cubic-bezier(.4,0,.2,1) .3s;width:0;box-shadow:0 0 8px rgba(52,211,153,.5)}
+.section-block.open .salary-bar-fill{width:var(--pct,60%)}
+.progression-track{display:flex;align-items:center;flex-wrap:wrap;gap:0;margin:10px 0}
+.prog-node{display:flex;align-items:center}
+.prog-label{padding:6px 12px;border-radius:6px;font-size:.68rem;font-weight:700;
+  background:rgba(0,212,255,.06);border:1px solid var(--border);color:var(--text);
+  white-space:nowrap;transition:all .25s;cursor:default;font-family:'Orbitron',monospace;letter-spacing:.5px}
+.prog-label:hover{background:rgba(0,212,255,.12);border-color:var(--border2);color:var(--neon);
+  box-shadow:0 0 12px rgba(0,212,255,.2)}
+.prog-arrow{width:22px;text-align:center;color:var(--accent);font-size:.8rem;opacity:.5}
+.salary-growth{display:flex;align-items:flex-end;gap:10px;height:120px;margin-top:10px}
+.sg-col{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px}
+.sg-bar{width:100%;border-radius:4px 4px 0 0;
+  background:linear-gradient(180deg,var(--accent),rgba(0,212,255,.1));
+  opacity:.8;transition:height 1.2s cubic-bezier(.4,0,.2,1) .2s;height:0;
+  box-shadow:0 0 10px rgba(0,212,255,.3)}
+.section-block.open .sg-bar{height:var(--h)}
+.sg-label{font-size:.55rem;color:var(--muted);text-align:center;line-height:1.35;
+  font-family:'Orbitron',monospace}
+.sg-amount{font-size:.62rem;font-weight:700;color:var(--accent);font-family:'Orbitron',monospace}
+.career-table{width:100%;border-collapse:collapse;font-size:.78rem}
+.career-table thead tr{background:rgba(0,212,255,.05)}
+.career-table th{padding:10px 12px;text-align:left;font-size:.6rem;font-weight:700;
+  text-transform:uppercase;letter-spacing:1.5px;color:var(--muted);
+  border-bottom:1px solid var(--border);font-family:'Orbitron',monospace}
+.career-table td{padding:11px 12px;border-bottom:1px solid rgba(0,212,255,.05);
+  color:var(--muted);vertical-align:top}
+.career-table td:first-child{color:var(--text);font-weight:600;font-family:'Orbitron',monospace;font-size:.72rem}
+.career-table tr:last-child td{border-bottom:none}
+.career-table tr:hover td{background:rgba(0,212,255,.03)}
+.salary-cell{color:#34d399!important;font-weight:700!important;font-family:'Orbitron',monospace!important;
+  text-shadow:0 0 8px rgba(52,211,153,.3)!important}
+
+/* ── RESUME AI CTA BANNER ── */
+.resume-ai-banner{
+  max-width:1220px;margin:0 auto 60px;padding:0 24px;position:relative;z-index:3}
+.resume-ai-inner{
+  background:linear-gradient(135deg,rgba(157,78,221,.08) 0%,rgba(247,37,133,.06) 50%,rgba(0,212,255,.06) 100%);
+  border:1px solid rgba(157,78,221,.3);border-radius:16px;padding:36px 40px;
+  display:flex;align-items:center;justify-content:space-between;gap:24px;flex-wrap:wrap;
+  position:relative;overflow:hidden}
+.resume-ai-inner::before{content:'';position:absolute;inset:0;
+  background:radial-gradient(ellipse at 80% 50%,rgba(247,37,133,.06),transparent 60%);pointer-events:none}
+.resume-ai-label{font-family:'Orbitron',monospace;font-size:.55rem;font-weight:700;
+  letter-spacing:3px;color:var(--neon2);text-transform:uppercase;margin-bottom:8px;
+  display:flex;align-items:center;gap:8px}
+.resume-ai-label::before{content:'';width:6px;height:6px;border-radius:50%;
+  background:var(--neon3);box-shadow:0 0 8px var(--neon3);animation:navPulse 1.5s ease-in-out infinite;flex-shrink:0}
+.resume-ai-title{font-family:'Orbitron',monospace;font-size:1.1rem;font-weight:900;
+  color:#fff;letter-spacing:.5px;margin-bottom:6px}
+.resume-ai-sub{font-size:.85rem;color:var(--muted);line-height:1.6;max-width:480px}
+.btn-resume-ai{font-family:'Orbitron',monospace;font-size:.72rem;font-weight:700;letter-spacing:2px;
+  padding:15px 32px;border-radius:8px;border:1px solid var(--neon3);
+  background:rgba(247,37,133,.12);color:var(--neon3);cursor:pointer;
+  transition:all .25s;text-transform:uppercase;white-space:nowrap;flex-shrink:0;
+  box-shadow:0 0 20px rgba(247,37,133,.2),inset 0 0 20px rgba(247,37,133,.05)}
+.btn-resume-ai:hover{background:rgba(247,37,133,.22);
+  box-shadow:0 0 40px rgba(247,37,133,.4),inset 0 0 30px rgba(247,37,133,.1);transform:translateY(-2px)}
+
+/* ── FLOATING RESUME AI FAB ── */
+#resume-ai-fab{
+  position:fixed;bottom:32px;right:32px;z-index:9500;
+  font-family:'Orbitron',monospace;font-size:.6rem;font-weight:700;letter-spacing:1.5px;
+  padding:13px 20px;border-radius:50px;border:1px solid var(--neon3);
+  background:rgba(3,0,20,.9);color:var(--neon3);cursor:pointer;
+  transition:all .25s;text-transform:uppercase;backdrop-filter:blur(12px);
+  box-shadow:0 0 24px rgba(247,37,133,.3),0 8px 24px rgba(0,0,0,.4);
+  display:flex;align-items:center;gap:8px}
+#resume-ai-fab:hover{background:rgba(247,37,133,.15);
+  box-shadow:0 0 40px rgba(247,37,133,.5),0 12px 32px rgba(0,0,0,.5);transform:translateY(-2px)}
+#resume-ai-fab .fab-dot{width:7px;height:7px;border-radius:50%;background:var(--neon3);
+  box-shadow:0 0 8px var(--neon3);animation:navPulse 1.5s ease-in-out infinite;flex-shrink:0}
+
+/* ── NAV RESUME AI LINK ── */
+.nav-link-ai{color:var(--neon3)!important;border:1px solid rgba(247,37,133,.3);
+  padding:5px 12px!important;border-radius:6px;background:rgba(247,37,133,.07);
+  transition:all .25s!important}
+.nav-link-ai:hover{background:rgba(247,37,133,.16)!important;
+  border-color:rgba(247,37,133,.6)!important;box-shadow:0 0 16px rgba(247,37,133,.3)!important;
+  color:var(--neon3)!important;text-shadow:0 0 12px var(--neon3)!important}
+.nav-link-ai::after{background:var(--neon3)!important;box-shadow:0 0 8px var(--neon3)!important}
+
+/* ── RESPONSIVE ── */
+@media(max-width:768px){
+  #navbar{padding:12px 20px}
+  .nav-links,.nav-status{display:none}
+  .hero{padding:90px 16px 48px}
+  .hero h1{font-size:1.8rem}
+  .hstat{padding:16px 20px}
+  .cards-grid{grid-template-columns:1fr;gap:14px}
+  body{cursor:auto}#cur-dot,#cur-ring{display:none}
+  .resume-ai-inner{flex-direction:column;padding:24px 20px}
+  #resume-ai-fab{bottom:20px;right:16px;font-size:.55rem;padding:11px 16px}
+}
+@media(max-width:500px){
+  .hero-cta-row{flex-direction:column;align-items:center}
+  .hero-stats{flex-direction:column}
+  .hstat{border-right:none;border-bottom:1px solid var(--border)}
+  .hstat:last-child{border-bottom:none}
+}
+</style>
+</head>
+<body>
+
+<!-- LOADER -->
+<div id="loader">
+  <div class="loader-hex">⬡</div>
+  <div class="loader-title">TECHPATH OS</div>
+  <div class="loader-terminal">
+    <div class="tline" id="tl1"></div>
+    <div class="tline" id="tl2"></div>
+    <div class="tline" id="tl3"></div>
+    <div class="tline" id="tl4"></div>
+  </div>
+  <div class="loader-track"><div class="loader-fill" id="loader-fill"></div></div>
+  <div class="loader-pct" id="loader-pct">0%</div>
+</div>
+
+<!-- CURSOR -->
+<div id="cur-dot"></div>
+<div id="cur-ring"></div>
+<!-- TRAIL -->
+<canvas id="trail-canvas"></canvas>
+<!-- NEURAL BG -->
+<canvas id="neural-canvas"></canvas>
+<!-- SCROLL BAR -->
+<div id="scroll-bar"></div>
+
+<!-- NAVBAR -->
+<nav id="navbar">
+  <div class="nav-logo"><span class="nav-logo-hex">⬡</span>TECHPATH OS</div>
+  <div class="nav-links">
+    <span class="nav-link" onclick="showLanding()">CAREER PATHS</span>
+    <span class="nav-link">SKILLS MAP</span>
+    <span class="nav-link">SALARY DATA</span>
+    <span class="nav-link nav-link-ai" onclick="window.open('https://shirapti-nath.github.io/sql-generator/resume-analyzer/demo.html','_blank')">⬡ RESUME AI</span>
+  </div>
+  <div class="nav-status"><span class="nav-dot"></span>SYSTEM ONLINE</div>
+</nav>
+
+<!-- ═══════ LANDING ═══════ -->
+<div id="page-landing">
+  <div class="ticker-wrap">
+    <div class="ticker-inner">
+      <span>⬡ <b>10 CAREER PATHS</b></span><span>💰 SALARIES UP TO <b>₹80 LPA</b></span>
+      <span>🚀 INDIA'S FASTEST GROWING TECH FIELDS</span><span>🎯 FRESHER-FRIENDLY ROADMAPS</span>
+      <span>📈 4-YEAR SKILL PROGRESSION</span><span>🏅 TOP CERTIFICATIONS LISTED</span>
+      <span>⬡ <b>10 CAREER PATHS</b></span><span>💰 SALARIES UP TO <b>₹80 LPA</b></span>
+      <span>🚀 INDIA'S FASTEST GROWING TECH FIELDS</span><span>🎯 FRESHER-FRIENDLY ROADMAPS</span>
+      <span>📈 4-YEAR SKILL PROGRESSION</span><span>🏅 TOP CERTIFICATIONS LISTED</span>
+    </div>
+  </div>
+
+  <section class="hero">
+    <div class="hero-eyebrow"><span class="hero-eyebrow-dot"></span>NEURAL CAREER INTERFACE v2.0</div>
+    <h1 id="hero-h1"></h1>
+    <p class="hero-sub">Explore 10 structured tech career paths — real skills, certifications, and salary benchmarks from year one to senior leadership.</p>
+    <div class="hero-cta-row">
+      <button class="btn-primary" onclick="document.querySelector('.cards-section').scrollIntoView({behavior:'smooth'})">⬡ EXPLORE PATHS</button>
+      <button class="btn-resume-ai" onclick="window.open('https://shirapti-nath.github.io/sql-generator/resume-analyzer/demo.html','_blank')">🤖 AI RESUME ANALYZER</button>
+    </div>
+    <div class="hero-stats">
+      <div class="hstat"><span class="hstat-val" data-target="10" data-suf="">0</span><div class="hstat-lbl">Career Paths</div></div>
+      <div class="hstat"><span class="hstat-val" data-target="50" data-suf="+">0</span><div class="hstat-lbl">Skill Areas</div></div>
+      <div class="hstat"><span class="hstat-val" data-target="80" data-suf=" LPA">0</span><div class="hstat-lbl">Max Salary ₹</div></div>
+      <div class="hstat"><span class="hstat-val" data-target="4" data-suf=" Yr">0</span><div class="hstat-lbl">Full Roadmap</div></div>
+    </div>
+  </section>
+
+  <div class="search-section">
+    <div class="search-wrap">
+      <svg class="search-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <input id="search-input" type="text" placeholder="Search paths, skills, tools — e.g. Docker, Python, SQL…"/>
+    </div>
+    <div class="filter-row">
+      <button class="fbtn active" data-filter="all">ALL [12]</button>
+      <button class="fbtn" data-filter="software">💻 SOFTWARE</button>
+      <button class="fbtn" data-filter="data">📊 DATA &amp; AI</button>
+      <button class="fbtn" data-filter="infrastructure">🖥 INFRA</button>
+      <button class="fbtn" data-filter="security">🛡 SECURITY</button>
+      <button class="fbtn" data-filter="creative">🎮 CREATIVE</button>
+    </div>
+  </div>
+
+  <div class="cards-section">
+    <div class="section-eyebrow">
+      <div class="section-eyebrow-line"></div>
+      <div class="section-eyebrow-text">CHOOSE YOUR PATH</div>
+      <div class="section-eyebrow-line"></div>
+    </div>
+    <div class="cards-grid" id="cards-grid"></div>
+    <div id="no-results"><span style="font-size:2.5rem;display:block;margin-bottom:12px">🔍</span>No paths match. Try different keywords.</div>
+  </div>
+</div>
+
+<!-- ═══════ DETAIL ═══════ -->
+<!-- Floating Resume AI Button -->
+<button id="resume-ai-fab" onclick="window.open('https://shirapti-nath.github.io/sql-generator/resume-analyzer/demo.html','_blank')">
+  <span class="fab-dot"></span>AI RESUME ANALYZER
+</button>
+
+<div id="page-detail">
+  <div class="detail-hero">
+    <div class="detail-hero-bg" id="d-hero-bg"></div>
+    <button class="back-btn" onclick="showLanding()">← BACK TO ALL PATHS</button>
+    <div id="d-icon" class="detail-icon"></div>
+    <div id="d-tag" class="detail-tag"></div>
+    <h2 id="d-title" class="detail-title"></h2>
+    <p id="d-overview" class="detail-overview"></p>
+    <div class="detail-stats" id="d-stats"></div>
+  </div>
+  <div class="detail-content" id="d-content"></div>
+
+  <!-- Resume AI Banner inside career detail -->
+  <div class="resume-ai-banner">
+    <div class="resume-ai-inner">
+      <div>
+        <div class="resume-ai-label">AI-POWERED CAREER TOOLKIT</div>
+        <div class="resume-ai-title">Ready to land a job in <span id="banner-career-name">this field</span>?</div>
+        <p class="resume-ai-sub">Upload your resume and get an instant ATS score, AI-powered suggestions, a tailored cover letter, and LinkedIn optimization — all built for your chosen career path.</p>
+      </div>
+      <button class="btn-resume-ai" onclick="window.open('https://shirapti-nath.github.io/sql-generator/resume-analyzer/demo.html','_blank')">
+        🤖 ANALYZE MY RESUME →
+      </button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════
+// CAREER DATA
+// ═══════════════════════════════════════
+const PATHS=[
+ {id:'cse',tag:'CSE',icon:'💻',title:'COMPUTER SCIENCE ENGINEERING',subtitle:'Software Development',
+  description:'Build the software that powers the world — web apps, operating systems, and everything in between.',
+  color:'#0ea5e9',bg:'rgba(14,165,233,.15)',category:'software',
+  topSalary:'₹40 LPA',entryRange:'₹3–6 LPA',badge:'badge-top',badgeText:'⭐ TOP PICK',
+  diff:65,diffLabel:'MODERATE',skills:['Python','React','DSA','System Design'],
+  overview:'Software Development is the backbone of the tech industry. CSE graduates are in the highest demand globally. The career rewards builders who love turning logic into working products at scale.',
+  stats:[{val:'₹6 LPA',lbl:'Fresher Avg.'},{val:'₹25 LPA',lbl:'Mid-Senior'},{val:'4 Yrs',lbl:'To Senior'},{val:'#1',lbl:'Hiring'}],
+  sections:[
+   {title:'YEAR 1–2 · FOUNDATION',subtitle:'Core CS fundamentals & first programming skills',icon:'📚',
+    body:{skills:['Data Structures & Algorithms','Object-Oriented Programming','C++ / Java','Discrete Mathematics','Computer Architecture','Git & GitHub','Linux CLI'],
+      tools:['VS Code','Git','LeetCode','HackerRank'],focus:'Solve 200+ DSA problems. Start contributing to open-source projects. Build the algorithmic foundation.',
+      certs:['CS50 (Harvard — free)','Oracle Java SE Foundations']}},
+   {title:'YEAR 2–3 · INTERMEDIATE',subtitle:'Web development, databases & system design',icon:'⚙️',
+    body:{skills:['React.js / Next.js','Node.js & Express','REST APIs & GraphQL','SQL & NoSQL','Docker basics','Networking (HTTP, TCP/IP)'],
+      tools:['React','Node.js','PostgreSQL','MongoDB','Postman','Docker'],focus:'Build 3–5 portfolio projects. Complete 6-month internship. Learn system design. Commit to GitHub daily.',
+      certs:['AWS Cloud Practitioner','Meta React Developer']}},
+   {title:'YEAR 3–4 · JUNIOR DEVELOPER',subtitle:'First job — real codebases & shipping features',icon:'🛠️',
+    salary:{label:'Starting CTC',amount:'₹3–6 LPA',pct:'30%'},
+    body:{skills:['Code reviews & PRs','CI/CD pipelines','Testing (Jest, PyTest)','Agile/Scrum','Microservices basics'],
+      responsibilities:['Implement features from tickets','Write unit tests','Participate in code reviews','Debug production issues','Sprint planning'],
+      certs:['AWS Developer Associate','Azure Fundamentals']}},
+   {title:'YEAR 4+ · SENIOR & LEADERSHIP',subtitle:'Architecture, mentorship & strategic engineering',icon:'🏆',
+    salary:{label:'Senior Range',amount:'₹15–40 LPA',pct:'88%'},
+    body:{skills:['System Architecture','Tech Leadership','Performance Optimization','Security Best Practices'],
+      progression:['Junior Developer','Mid-level Developer','Senior Developer','Staff Engineer','Engineering Manager'],
+      salaryGrowth:[{label:'Junior\n0–2yr',amount:'₹4L',h:'20px'},{label:'Mid-Level\n2–4yr',amount:'₹9L',h:'46px'},{label:'Senior\n4–7yr',amount:'₹18L',h:'80px'},{label:'Staff\n7–10yr',amount:'₹28L',h:'110px'},{label:'Principal\n10+yr',amount:'₹40L+',h:'120px'}]}},
+   {title:'CAREER PROGRESSION TABLE',subtitle:'Full role map with India salaries',icon:'📊',isTable:true,
+    table:{headers:['Role','Responsibilities','Experience','Salary (LPA)'],
+      rows:[['Junior Developer','Feature implementation, bug fixes, PRs','0–2 yrs','₹3–6'],['Mid-level Developer','Feature ownership, DB design, API design','2–4 yrs','₹7–14'],['Senior Developer','Architecture, performance, mentoring','4–7 yrs','₹15–25'],['Staff / Principal Eng.','Cross-team strategy, org-wide design','7–10 yrs','₹25–40'],['Engineering Manager','Hiring, roadmap, delivery, culture','8+ yrs','₹25–45+']]}}
+  ]},
+ {id:'aiml',tag:'AI/ML',icon:'🤖',title:'ARTIFICIAL INTELLIGENCE & ML',subtitle:'AI/ML Engineering',
+  description:'Shape the intelligence of tomorrow. Train models, deploy AI systems, and push the boundaries of what machines can reason about.',
+  color:'#9d4edd',bg:'rgba(157,78,221,.15)',category:'data',
+  topSalary:'₹50 LPA',entryRange:'₹4–8 LPA',badge:'badge-hot',badgeText:'🔥 HOTTEST FIELD',
+  diff:85,diffLabel:'ADVANCED',skills:['Python','PyTorch','Linear Algebra','MLOps'],
+  overview:'AI/ML is the fastest-growing field in tech, transforming healthcare, finance, autonomous systems, and creative tools. Engineers here are among the highest-paid globally.',
+  stats:[{val:'₹7 LPA',lbl:'Fresher Avg.'},{val:'₹30 LPA',lbl:'Mid-Senior'},{val:'5×',lbl:'Growth Rate'},{val:'Top 3',lbl:'Salary Rank'}],
+  sections:[
+   {title:'YEAR 1–2 · FOUNDATION',subtitle:'Math, Python & data manipulation',icon:'📐',
+    body:{skills:['Linear Algebra & Calculus','Probability & Statistics','Python (NumPy, Pandas, Matplotlib)','Data Wrangling & EDA','SQL for Data Analysis'],
+      tools:['Jupyter Notebook','Google Colab','Pandas','NumPy','Matplotlib'],focus:"Master Python and math. Complete Andrew Ng's ML Specialization. Work on Kaggle datasets.",
+      certs:['Google Data Analytics Certificate','Kaggle Micro-courses']}},
+   {title:'YEAR 2–3 · INTERMEDIATE',subtitle:'Deep learning, frameworks & deployment',icon:'🧠',
+    body:{skills:['ML fundamentals (regression, trees, SVM)','Neural Networks & Deep Learning','TensorFlow / PyTorch','NLP & Transformers','Computer Vision (CNNs)','Cloud ML (SageMaker, Vertex AI)'],
+      tools:['PyTorch','TensorFlow','Hugging Face','scikit-learn','MLflow','Docker'],focus:'Complete 3+ end-to-end ML projects. Do a research internship. Deploy a model as a live API.',
+      certs:['DeepLearning.AI Specialization','TensorFlow Developer Certificate']}},
+   {title:'YEAR 3–4 · JUNIOR ML ENGINEER',subtitle:'Model building, pipelines & production',icon:'🔬',
+    salary:{label:'Starting CTC',amount:'₹4–8 LPA',pct:'38%'},
+    body:{skills:['MLOps & CI/CD for ML','A/B testing of models','Model monitoring & drift detection','ETL pipelines','FastAPI deployment'],
+      responsibilities:['Train, tune, and evaluate models','Build data pipelines','Deploy models as REST APIs','Monitor production performance','Write model documentation'],
+      certs:['AWS Machine Learning Specialty','Google Professional ML Engineer']}},
+   {title:'YEAR 4+ · SENIOR ML / RESEARCH',subtitle:'Research, system design & AI strategy',icon:'🏆',
+    salary:{label:'Senior Range',amount:'₹20–50 LPA',pct:'95%'},
+    body:{skills:['LLM fine-tuning & RAG pipelines','System design for ML at scale','Research paper implementation','Novel architecture design'],
+      progression:['Junior ML Engineer','ML Engineer','Senior ML Engineer','Research Scientist','Principal Scientist / AI Director'],
+      salaryGrowth:[{label:'Junior\n0–2yr',amount:'₹6L',h:'25px'},{label:'ML Eng\n2–4yr',amount:'₹14L',h:'54px'},{label:'Senior\n4–7yr',amount:'₹25L',h:'92px'},{label:'Research\n6–9yr',amount:'₹35L',h:'112px'},{label:'Principal\n10+yr',amount:'₹55L+',h:'120px'}]}},
+   {title:'CAREER PROGRESSION TABLE',subtitle:'Full role map with India salaries',icon:'📊',isTable:true,
+    table:{headers:['Role','Responsibilities','Experience','Salary (LPA)'],
+      rows:[['Junior ML Engineer','Data prep, model training, eval scripts','0–2 yrs','₹4–8'],['ML Engineer','End-to-end pipelines, production models','2–4 yrs','₹10–18'],['Senior ML Engineer','Architecture, scalable systems, mentoring','4–7 yrs','₹20–35'],['Research Scientist','Novel methods, publications, PoCs','4–8 yrs','₹25–45'],['Principal / AI Director','Research direction, team leadership','8+ yrs','₹40–65+']]}}
+  ]},
+ {id:'ds',tag:'DATA SCIENCE',icon:'📊',title:'DATA SCIENCE',subtitle:'Analytics & Data Intelligence',
+  description:'Turn raw data into business decisions. Extract insights, build predictive models, and help organizations move from gut instinct to evidence.',
+  color:'#10b981',bg:'rgba(16,185,129,.15)',category:'data',
+  topSalary:'₹35 LPA',entryRange:'₹3–6 LPA',badge:'badge-top',badgeText:'⭐ ALL INDUSTRIES',
+  diff:60,diffLabel:'MODERATE',skills:['SQL','Python','Tableau','Statistics'],
+  overview:'Data Science bridges statistics, programming, and business strategy. Data professionals are embedded in every department — product, marketing, finance, and operations.',
+  stats:[{val:'₹5 LPA',lbl:'Fresher Avg.'},{val:'₹22 LPA',lbl:'Mid-Senior'},{val:'All',lbl:'Industries'},{val:'5 Yrs',lbl:'To Lead'}],
+  sections:[
+   {title:'YEAR 1–2 · FOUNDATION',subtitle:'Statistics, SQL & visualization',icon:'📐',
+    body:{skills:['SQL (MySQL, PostgreSQL)','Python or R','Descriptive Statistics','Excel & Power Query','Tableau / Power BI'],
+      tools:['MySQL','Jupyter Notebook','Tableau','Power BI','Excel'],focus:'Master SQL and Python. Build 2–3 dashboards. Complete a capstone analytics project.',
+      certs:['Google Data Analytics Certificate','Microsoft Power BI Analyst']}},
+   {title:'YEAR 2–3 · INTERMEDIATE',subtitle:'ML, big data & experimentation',icon:'🔍',
+    body:{skills:['ML for Analysts (regression, clustering)','A/B Testing & Hypothesis Testing','scikit-learn & statsmodels','PySpark','BigQuery / Snowflake / Redshift'],
+      tools:['PySpark','BigQuery','Snowflake','dbt','Airflow','Looker'],focus:'Lead an end-to-end analysis project. Intern at a data team. Publish a Kaggle notebook or blog.',
+      certs:['Databricks Certified Associate','dbt Analytics Engineer']}},
+   {title:'YEAR 3–4 · DATA ANALYST/SCIENTIST',subtitle:'First role — insights, dashboards & models',icon:'🛠️',
+    salary:{label:'Starting CTC',amount:'₹3–6 LPA',pct:'28%'},
+    body:{skills:['Business KPI analysis','Executive dashboards','Cohort & funnel analytics','Predictive modeling'],
+      responsibilities:['Write complex SQL for reporting','Build and maintain dashboards','Conduct A/B tests','Build ML models','Present insights to leadership'],
+      certs:['Tableau Desktop Specialist','AWS Data Analytics Specialty']}},
+   {title:'YEAR 4+ · SENIOR & LEADERSHIP',subtitle:'Strategy, team management & data platform',icon:'🏆',
+    salary:{label:'Senior Range',amount:'₹18–35 LPA',pct:'88%'},
+    body:{skills:['Data strategy & roadmapping','Data team management','Advanced ML: XGBoost, LightGBM','Causal inference'],
+      progression:['Data Analyst','Data Scientist','Senior Data Scientist','Lead / Principal Scientist','Head of Data / CDO'],
+      salaryGrowth:[{label:'Analyst\n0–2yr',amount:'₹4L',h:'20px'},{label:'Scientist\n2–4yr',amount:'₹10L',h:'46px'},{label:'Senior\n4–6yr',amount:'₹20L',h:'80px'},{label:'Lead\n6–9yr',amount:'₹28L',h:'104px'},{label:'CDO\n10+yr',amount:'₹40L+',h:'120px'}]}},
+   {title:'CAREER PROGRESSION TABLE',subtitle:'Full role map with India salaries',icon:'📊',isTable:true,
+    table:{headers:['Role','Responsibilities','Experience','Salary (LPA)'],
+      rows:[['Data Analyst','SQL reporting, dashboards, basic modeling','0–2 yrs','₹3–6'],['Data Scientist','Statistical modeling, ML, A/B tests','2–4 yrs','₹7–15'],['Senior Data Scientist','Strategic insights, advanced ML, mentoring','4–7 yrs','₹18–30'],['Lead / Principal Scientist','Platform design, research, team lead','6–10 yrs','₹25–40'],['Head of Data / CDO','Data strategy, governance, org leadership','10+ yrs','₹35–60+']]}}
+  ]},
+ {id:'cyber',tag:'CYBERSECURITY',icon:'🛡️',title:'CYBERSECURITY',subtitle:'Security Engineering & Ethical Hacking',
+  description:'Defend the digital world. Protect systems, hunt threats, and ethically break into networks before malicious actors do.',
+  color:'#ef4444',bg:'rgba(239,68,68,.15)',category:'security',
+  topSalary:'₹55 LPA',entryRange:'₹4–8 LPA',badge:'badge-hot',badgeText:'🔥 3M SHORTAGE',
+  diff:80,diffLabel:'HARD',skills:['Networking','Linux','Pentesting','SIEM'],
+  overview:'Cybersecurity is one of the most critical and fastest-growing fields with a global shortage of over 3 million professionals. Engineers protect sensitive data, privacy, and critical infrastructure.',
+  stats:[{val:'₹6 LPA',lbl:'Fresher Avg.'},{val:'₹28 LPA',lbl:'Mid-Senior'},{val:'3M+',lbl:'Global Shortage'},{val:'Critical',lbl:'Industry Need'}],
+  sections:[
+   {title:'YEAR 1–2 · FOUNDATION',subtitle:'Networking, OS & security fundamentals',icon:'🔐',
+    body:{skills:['Computer Networking (OSI, TCP/IP, DNS)','Linux system administration','Windows Server admin','Cryptography fundamentals','OWASP Top 10 awareness'],
+      tools:['Kali Linux','Wireshark','Nmap','VirtualBox','Burp Suite Community'],focus:'Build a home lab. Practice on TryHackMe and HackTheBox beginner tracks.',
+      certs:['CompTIA A+','CompTIA Security+','CompTIA Network+']}},
+   {title:'YEAR 2–3 · INTERMEDIATE',subtitle:'Web app security, pen testing & red teaming',icon:'⚔️',
+    body:{skills:['Web Application Pentesting','Network Penetration Testing','Active Directory attacks & defense','SIEM platforms (Splunk, ELK)','Incident Response fundamentals'],
+      tools:['Burp Suite Pro','Metasploit','Nessus','Splunk','BloodHound'],focus:'Complete HackTheBox Pro Labs. Participate in CTF competitions. Document findings in writeups.',
+      certs:['CEH (EC-Council)','eJPT (eLearnSecurity)','OSCP (when ready)']}},
+   {title:'YEAR 3–4 · SECURITY ANALYST',subtitle:'First role — monitoring, assessment & response',icon:'🔎',
+    salary:{label:'Starting CTC',amount:'₹4–8 LPA',pct:'38%'},
+    body:{skills:['SOC operations (L1/L2)','Threat intelligence & hunting','Vulnerability assessment','Security policy documentation'],
+      responsibilities:['Monitor SIEM alerts and triage incidents','Conduct vulnerability scans','Write penetration test reports','Patch management coordination'],
+      certs:['OSCP (Offensive Security)','Splunk Core Certified','AWS Security Specialty']}},
+   {title:'YEAR 4+ · SENIOR & CISO TRACK',subtitle:'Red/blue team leadership & executive roles',icon:'🏆',
+    salary:{label:'Senior Range',amount:'₹20–55 LPA',pct:'96%'},
+    body:{skills:['Security architecture','Zero Trust implementation','Cloud security (AWS/Azure)','Incident command & crisis management'],
+      progression:['SOC Analyst','Security Engineer','Senior Security Engineer','Security Architect','CISO / VP Security'],
+      salaryGrowth:[{label:'Analyst\n0–2yr',amount:'₹5L',h:'22px'},{label:'Engineer\n2–4yr',amount:'₹12L',h:'50px'},{label:'Senior\n4–7yr',amount:'₹22L',h:'84px'},{label:'Architect\n7–10yr',amount:'₹35L',h:'112px'},{label:'CISO\n10+yr',amount:'₹60L+',h:'120px'}]}},
+   {title:'CAREER PROGRESSION TABLE',subtitle:'Full role map with India salaries',icon:'📊',isTable:true,
+    table:{headers:['Role','Responsibilities','Experience','Salary (LPA)'],
+      rows:[['SOC Analyst (L1/L2)','Alert triage, log analysis, basic IR','0–2 yrs','₹4–8'],['Security / Pentest Engineer','Pentesting, vuln assessment, red teaming','2–5 yrs','₹10–20'],['Senior Security Engineer','Security arch, purple teaming, IR lead','5–8 yrs','₹20–38'],['Security Architect','Zero Trust, cloud sec, org-wide design','7–12 yrs','₹30–50'],['CISO / VP Security','Security strategy, compliance, board','12+ yrs','₹45–80+']]}}
+  ]},
+ {id:'it',tag:'IT INFRA',icon:'🖥️',title:'IT INFRASTRUCTURE',subtitle:'Systems, Cloud & Network Engineering',
+  description:'Keep the world running. Design, manage, and scale the servers, networks, and cloud systems every application depends on.',
+  color:'#f59e0b',bg:'rgba(245,158,11,.15)',category:'infrastructure',
+  topSalary:'₹30 LPA',entryRange:'₹2.5–5 LPA',badge:'badge-new',badgeText:'☁️ CLOUD ERA',
+  diff:55,diffLabel:'MODERATE',skills:['Linux','AWS/Azure','Networking','IaC'],
+  overview:'IT Infrastructure professionals ensure every digital service stays online, performant, and secure. The field has evolved rapidly — on-prem admins now work with cloud platforms, Kubernetes, and infrastructure-as-code.',
+  stats:[{val:'₹4 LPA',lbl:'Fresher Avg.'},{val:'₹20 LPA',lbl:'Mid-Senior'},{val:'Cloud',lbl:'Future Focus'},{val:'5 Yrs',lbl:'To Senior'}],
+  sections:[
+   {title:'YEAR 1–2 · FOUNDATION',subtitle:'Hardware, OS & networking essentials',icon:'🔧',
+    body:{skills:['Windows Server & Active Directory','Linux administration','Networking (subnetting, routing, VLANs)','PowerShell & Bash scripting','Virtualization (VMware, Hyper-V)'],
+      tools:['VirtualBox','VMware','PuTTY','Wireshark','Cisco Packet Tracer'],focus:'Set up a home lab with VMs. Practice Linux CLI daily. Network+ is a priority cert.',
+      certs:['CompTIA A+','CompTIA Network+','CCNA (optional)']}},
+   {title:'YEAR 2–3 · INTERMEDIATE',subtitle:'Server admin, cloud platforms & automation',icon:'☁️',
+    body:{skills:['AWS / Azure / GCP fundamentals','IaC (Terraform, Ansible)','Containerization (Docker, Kubernetes)','Monitoring (Grafana, Prometheus)','Backup & disaster recovery'],
+      tools:['AWS Console','Terraform','Ansible','Docker','Kubernetes','Grafana'],focus:'Get AWS Solutions Architect Associate. Deploy 3-tier architecture in cloud. Learn Terraform.',
+      certs:['AWS Solutions Architect Associate','Azure Administrator AZ-104','HashiCorp Terraform Associate']}},
+   {title:'YEAR 3–4 · JUNIOR SYSADMIN',subtitle:'First role — maintenance, troubleshooting & ops',icon:'🖥️',
+    salary:{label:'Starting CTC',amount:'₹2.5–5 LPA',pct:'22%'},
+    body:{skills:['L2/L3 helpdesk & incident resolution','Patch management & WSUS','Network switch/firewall configuration','ITSM tools (ServiceNow, Jira)'],
+      responsibilities:['Manage Windows/Linux servers','Configure network devices','Handle user account provisioning','Ensure backup procedures','Maintain asset inventory'],
+      certs:['AWS SysOps Administrator','ITIL Foundation','Red Hat RHCSA']}},
+   {title:'YEAR 4+ · CLOUD ARCHITECT',subtitle:'Infrastructure design, DevOps & cloud strategy',icon:'🏆',
+    salary:{label:'Senior Range',amount:'₹15–30 LPA',pct:'80%'},
+    body:{skills:['Enterprise cloud architecture','Multi-cloud & hybrid strategies','FinOps & cost optimization','Kubernetes cluster management','SRE principles'],
+      progression:['IT Support','Systems Administrator','Cloud Engineer / Sr SysAdmin','Cloud Architect','IT Manager / DevOps Lead'],
+      salaryGrowth:[{label:'Support\n0–2yr',amount:'₹3L',h:'15px'},{label:'SysAdmin\n2–4yr',amount:'₹8L',h:'38px'},{label:'Senior\n4–7yr',amount:'₹16L',h:'68px'},{label:'Architect\n7–10yr',amount:'₹24L',h:'96px'},{label:'Manager\n10+yr',amount:'₹32L+',h:'120px'}]}},
+   {title:'CAREER PROGRESSION TABLE',subtitle:'Full role map with India salaries',icon:'📊',isTable:true,
+    table:{headers:['Role','Responsibilities','Experience','Salary (LPA)'],
+      rows:[['IT Support / Helpdesk','User support, hardware troubleshooting','0–2 yrs','₹2.5–5'],['Systems Administrator','Server management, AD, backups','2–4 yrs','₹6–12'],['Cloud Engineer / Sr SysAdmin','Cloud provisioning, IaC, monitoring','4–7 yrs','₹15–24'],['Cloud Architect','Multi-cloud design, cost optimization','7–10 yrs','₹22–35'],['IT Manager / DevOps Lead','Team leadership, roadmap, governance','8+ yrs','₹25–40+']]}}
+  ]},
+ {id:'db',tag:'DATABASE ENG.',icon:'🗄️',title:'DATABASE ENGINEERING',subtitle:'DBA & Data Platforms',
+  description:'Design and optimize the data systems every application depends on — from relational databases to modern cloud-native data platforms.',
+  color:'#ec4899',bg:'rgba(236,72,153,.15)',category:'data',
+  topSalary:'₹28 LPA',entryRange:'₹3–6 LPA',badge:'badge-trend',badgeText:'📈 HIGH DEMAND',
+  diff:60,diffLabel:'MODERATE',skills:['SQL','PostgreSQL','MongoDB','Redis'],
+  overview:'Database Engineers design, implement, and optimize the storage systems that hold data for every application. As data volumes explode, DBEs specializing in distributed databases and cloud platforms are in growing demand.',
+  stats:[{val:'₹5 LPA',lbl:'Fresher Avg.'},{val:'₹20 LPA',lbl:'Mid-Senior'},{val:'All',lbl:'Industries'},{val:'4 Yrs',lbl:'To Senior'}],
+  sections:[
+   {title:'YEAR 1–2 · FOUNDATION',subtitle:'Relational databases, SQL & data modeling',icon:'📚',
+    body:{skills:['SQL fundamentals (SELECT, JOIN, CTEs)','RDBMS: MySQL, PostgreSQL','Database normalization (1NF–3NF)','ER diagrams & schema design','Indexes, views & stored procedures','ACID properties & transactions'],
+      tools:['MySQL','PostgreSQL','pgAdmin','DBeaver','SQLite','Draw.io'],focus:'Master SQL deeply. Build and normalize a real schema for a project. Practice on SQLZoo and Mode Analytics.',
+      certs:['Oracle Database Foundations','Microsoft DP-900']}},
+   {title:'YEAR 2–3 · INTERMEDIATE',subtitle:'NoSQL, performance tuning & cloud databases',icon:'⚙️',
+    body:{skills:['NoSQL: MongoDB, Redis, Cassandra','Query optimization & execution plans','Indexing strategies (B-tree, Hash, Full-text)','Replication & high availability','Cloud databases: RDS, Cloud SQL, Cosmos DB'],
+      tools:['MongoDB','Redis','Cassandra','AWS RDS','Google Cloud SQL','Kafka (basics)'],focus:'Work on query optimization for real-world datasets. Set up a replicated PostgreSQL cluster. Build an ETL pipeline.',
+      certs:['MongoDB Certified Developer','AWS Certified Database Specialty','Google Professional Data Engineer']}},
+   {title:'YEAR 3–4 · JUNIOR DBA',subtitle:'First role — administration, optimization & reliability',icon:'🛠️',
+    salary:{label:'Starting CTC',amount:'₹3–6 LPA',pct:'30%'},
+    body:{skills:['Database monitoring & alerting','Backup, restore & point-in-time recovery','Schema migrations (Flyway, Liquibase)','Performance tuning & slow query analysis'],
+      responsibilities:['Manage and monitor production databases','Investigate slow queries','Design and maintain backup strategies','Perform schema migrations with zero downtime'],
+      certs:['AWS Certified Database Specialty','PostgreSQL pgCert','Azure Data Engineer DP-203']}},
+   {title:'YEAR 4+ · DATABASE ARCHITECT',subtitle:'Architecture, distributed systems & leadership',icon:'🏆',
+    salary:{label:'Senior Range',amount:'₹15–28 LPA',pct:'78%'},
+    body:{skills:['Distributed DB design (CockroachDB, Spanner)','Sharding & partitioning strategies','Data platform architecture','Multi-region replication & failover'],
+      progression:['Junior DBA','Database Administrator','Senior DBA','Database Architect','Data Platform Lead'],
+      salaryGrowth:[{label:'Jr DBA\n0–2yr',amount:'₹4L',h:'20px'},{label:'DBA\n2–4yr',amount:'₹8L',h:'40px'},{label:'Senior\n4–7yr',amount:'₹15L',h:'68px'},{label:'Architect\n7–10yr',amount:'₹22L',h:'94px'},{label:'Lead\n10+yr',amount:'₹30L+',h:'120px'}]}},
+   {title:'CAREER PROGRESSION TABLE',subtitle:'Full role map with India salaries',icon:'📊',isTable:true,
+    table:{headers:['Role','Responsibilities','Experience','Salary (LPA)'],
+      rows:[['Junior DBA','DB monitoring, backups, basic tuning','0–2 yrs','₹3–6'],['Database Administrator','Performance tuning, schema design, HA','2–5 yrs','₹8–14'],['Senior DBA','Architecture, replication, security','5–8 yrs','₹15–22'],['Database Architect','Distributed DB, multi-region, sharding','7–12 yrs','₹20–30'],['Data Platform Lead','Data strategy, team leadership, cloud','10+ yrs','₹25–38+']]}}
+  ]},
+ {id:'net',tag:'NETWORKING',icon:'🌐',title:'NETWORK ENGINEERING',subtitle:'Networks, Routing & SDN',
+  description:'Connect the world. Design, deploy, and optimize the networks that carry every byte of data across the internet and enterprise infrastructure.',
+  color:'#06b6d4',bg:'rgba(6,182,212,.15)',category:'infrastructure',
+  topSalary:'₹35 LPA',entryRange:'₹3–5 LPA',badge:'badge-new',badgeText:'🌐 CORE INFRA',
+  diff:70,diffLabel:'HARD',skills:['Cisco IOS','BGP','OSPF','SDN'],
+  overview:'Network Engineers design and maintain the physical and virtual infrastructure connecting devices, data centers, and the internet. The role is evolving rapidly with SDN, network automation, and cloud networking.',
+  stats:[{val:'₹4.5 LPA',lbl:'Fresher Avg.'},{val:'₹22 LPA',lbl:'Mid-Senior'},{val:'Stable',lbl:'Job Security'},{val:'4 Yrs',lbl:'To Senior'}],
+  sections:[
+   {title:'YEAR 1–2 · FOUNDATION',subtitle:'OSI model, protocols & basic routing',icon:'📚',
+    body:{skills:['OSI & TCP/IP model (all 7 layers)','IP addressing & subnetting (CIDR)','Static & dynamic routing (RIP, OSPF)','Switching (VLANs, STP)','Network troubleshooting (Wireshark, ping, traceroute)'],
+      tools:['Cisco Packet Tracer','GNS3','Wireshark','PuTTY','Cisco IOS CLI'],focus:'Practice Cisco IOS CLI daily. Build subnetting speed. Simulate multi-router topologies.',
+      certs:['CompTIA Network+','Cisco CCNA (200-301) — top priority cert']}},
+   {title:'YEAR 2–3 · INTERMEDIATE',subtitle:'Advanced routing, automation & cloud networking',icon:'⚙️',
+    body:{skills:['Advanced routing: BGP, OSPF, EIGRP, MPLS','Network security: VPN (IPsec, SSL)','Software-Defined Networking (SDN)','Network automation (Python + Netmiko, Ansible)','Cloud networking: AWS VPC, Azure VNet'],
+      tools:['EVE-NG','Python (Netmiko, NAPALM)','Ansible','AWS VPC','Cisco ASA','pfSense'],focus:'Get CCNP or focus on network automation. Automate config backups and VLAN provisioning with Python.',
+      certs:['Cisco CCNP Enterprise','AWS Advanced Networking Specialty','Juniper JNCIA-Junos']}},
+   {title:'YEAR 3–4 · NOC / JUNIOR ENGINEER',subtitle:'First role — network ops & troubleshooting',icon:'🛠️',
+    salary:{label:'Starting CTC',amount:'₹3–5 LPA',pct:'25%'},
+    body:{skills:['NOC operations & incident escalation','Change management (ITIL)','Network documentation & diagrams','Firewall rule management & VPN support'],
+      responsibilities:['Monitor network health and respond to alerts','Troubleshoot connectivity issues','Configure routers, switches, firewalls','Maintain network documentation'],
+      certs:['Cisco CCNP Enterprise','AWS Advanced Networking','Palo Alto PCNSE']}},
+   {title:'YEAR 4+ · NETWORK ARCHITECT',subtitle:'Enterprise design, SDN & cloud architecture',icon:'🏆',
+    salary:{label:'Senior Range',amount:'₹18–35 LPA',pct:'88%'},
+    body:{skills:['Enterprise network architecture','SD-WAN deployment & management','Multi-cloud network interconnects','Network automation at scale'],
+      progression:['NOC Analyst','Network Engineer','Senior Network Engineer','Network Architect','Head of Network Infrastructure'],
+      salaryGrowth:[{label:'NOC\n0–2yr',amount:'₹3.5L',h:'18px'},{label:'Engineer\n2–4yr',amount:'₹9L',h:'42px'},{label:'Senior\n4–7yr',amount:'₹18L',h:'74px'},{label:'Architect\n7–10yr',amount:'₹28L',h:'106px'},{label:'Head\n10+yr',amount:'₹38L+',h:'120px'}]}},
+   {title:'CAREER PROGRESSION TABLE',subtitle:'Full role map with India salaries',icon:'📊',isTable:true,
+    table:{headers:['Role','Responsibilities','Experience','Salary (LPA)'],
+      rows:[['NOC Analyst','Network monitoring, incident tickets','0–2 yrs','₹3–5'],['Network Engineer','Config, troubleshooting, VPN, firewall','2–4 yrs','₹8–14'],['Senior Network Engineer','Design, automation, performance','4–7 yrs','₹18–26'],['Network Architect','Enterprise design, SD-WAN, cloud nets','7–12 yrs','₹24–36'],['Head of Network / CTO','Strategy, team, budget, security','12+ yrs','₹35–55+']]}}
+  ]},
+ {id:'devops',tag:'DEVOPS',icon:'♾️',title:'DEVOPS & CLOUD ENGINEERING',subtitle:'Automation, CI/CD & Cloud',
+  description:'Bridge development and operations. Automate pipelines, orchestrate containers, and build the cloud infrastructure that ships software faster.',
+  color:'#22c55e',bg:'rgba(34,197,94,.15)',category:'infrastructure',
+  topSalary:'₹40 LPA',entryRange:'₹5–9 LPA',badge:'badge-hot',badgeText:'🔥 TRENDING 2024',
+  diff:75,diffLabel:'HARD',skills:['Docker','Kubernetes','Terraform','CI/CD'],
+  overview:'DevOps Engineering is the fastest-evolving IT role — merging software engineering, operations, and cloud expertise. Cloud-native DevOps commands some of the highest salaries in the industry.',
+  stats:[{val:'₹7 LPA',lbl:'Fresher Avg.'},{val:'₹28 LPA',lbl:'Mid-Senior'},{val:'5×',lbl:'Job Growth'},{val:'Top 5',lbl:'Salary Rank'}],
+  sections:[
+   {title:'YEAR 1–2 · FOUNDATION',subtitle:'Linux, scripting, Git & containers',icon:'📚',
+    body:{skills:['Linux system administration','Bash scripting & Python automation','Git & GitHub workflows','Docker: containers, images, Dockerfile','Networking fundamentals','AWS free tier exploration'],
+      tools:['Linux (Ubuntu)','Docker','Git','GitHub Actions','VS Code','AWS Free Tier'],focus:'Get comfortable with Linux CLI and Docker. Automate daily tasks with Bash. Deploy a simple app using Docker Compose.',
+      certs:['AWS Cloud Practitioner','Linux Foundation: Introduction to Linux','Docker Certified Associate']}},
+   {title:'YEAR 2–3 · INTERMEDIATE',subtitle:'Kubernetes, IaC, CI/CD & monitoring',icon:'⚙️',
+    body:{skills:['Kubernetes (Pods, Deployments, Services, Helm)','Terraform, Pulumi (IaC)','CI/CD: GitHub Actions, Jenkins, ArgoCD','Cloud deep dive: AWS, GCP, or Azure','Monitoring: Prometheus, Grafana, Datadog','GitOps principles'],
+      tools:['Kubernetes','Terraform','Helm','ArgoCD','Prometheus','Grafana','HashiCorp Vault'],focus:'Build a full CI/CD pipeline: commit → test → build → Docker → K8s deploy. Set up monitoring dashboards.',
+      certs:['AWS Solutions Architect Associate','CKA (Certified Kubernetes Administrator)','HashiCorp Terraform Associate']}},
+   {title:'YEAR 3–4 · JUNIOR DEVOPS ENGINEER',subtitle:'First role — pipelines, cloud ops & automation',icon:'🛠️',
+    salary:{label:'Starting CTC',amount:'₹5–9 LPA',pct:'42%'},
+    body:{skills:['CI/CD pipeline maintenance','Kubernetes cluster management','Cloud cost optimization (FinOps)','Incident response & on-call rotations'],
+      responsibilities:['Maintain and improve CI/CD pipelines','Manage Kubernetes clusters in production','Provision cloud infrastructure with Terraform','Investigate and resolve infrastructure incidents'],
+      certs:['AWS DevOps Engineer Professional','CKA','Google Cloud Professional DevOps Engineer']}},
+   {title:'YEAR 4+ · PLATFORM LEAD / SRE',subtitle:'Platform engineering, SRE & cloud architecture',icon:'🏆',
+    salary:{label:'Senior Range',amount:'₹20–40 LPA',pct:'92%'},
+    body:{skills:['Platform engineering & internal dev platforms','SRE practices (SLOs, SLAs, error budgets)','Multi-cloud & hybrid architecture','DevSecOps'],
+      progression:['Junior DevOps Engineer','DevOps Engineer','Senior DevOps / SRE','Platform Engineering Lead','Head of Platform / CTO'],
+      salaryGrowth:[{label:'Junior\n0–2yr',amount:'₹6L',h:'25px'},{label:'DevOps\n2–4yr',amount:'₹13L',h:'54px'},{label:'Senior\n4–7yr',amount:'₹22L',h:'86px'},{label:'Platform\n7–10yr',amount:'₹32L',h:'112px'},{label:'Head\n10+yr',amount:'₹45L+',h:'120px'}]}},
+   {title:'CAREER PROGRESSION TABLE',subtitle:'Full role map with India salaries',icon:'📊',isTable:true,
+    table:{headers:['Role','Responsibilities','Experience','Salary (LPA)'],
+      rows:[['Junior DevOps Engineer','CI/CD support, Docker, basic K8s','0–2 yrs','₹5–9'],['DevOps / Cloud Engineer','Pipeline ownership, cloud infra, monitoring','2–4 yrs','₹12–20'],['Senior DevOps / SRE','Platform design, SLOs, security, mentoring','4–7 yrs','₹20–35'],['Platform Engineering Lead','Internal platforms, developer experience','7–10 yrs','₹30–42'],['Head of Platform / CTO','Cloud strategy, org-wide infra, team','10+ yrs','₹40–60+']]}}
+  ]},
+ {id:'fullstack',tag:'FULL STACK',icon:'⚡',title:'FULL STACK WEB DEVELOPMENT',subtitle:'Frontend, Backend & Cloud Deployment',
+  description:'Build complete web applications end-to-end — from pixel-perfect UIs to scalable APIs and cloud deployments.',
+  color:'#f97316',bg:'rgba(249,115,22,.15)',category:'software',
+  topSalary:'₹35 LPA',entryRange:'₹4–7 LPA',badge:'badge-top',badgeText:'⭐ MOST HIRED',
+  diff:60,diffLabel:'MODERATE',skills:['React','Node.js','TypeScript','MongoDB'],
+  overview:'Full Stack Web Development is the most in-demand skill set for product companies and startups. Full stack developers can own features end-to-end. It\'s the fastest path to becoming a founding engineer at a startup.',
+  stats:[{val:'₹6 LPA',lbl:'Fresher Avg.'},{val:'₹24 LPA',lbl:'Mid-Senior'},{val:'#1',lbl:'Startup Hire'},{val:'3 Yrs',lbl:'To Senior'}],
+  sections:[
+   {title:'YEAR 1–2 · FOUNDATION',subtitle:'HTML, CSS, JavaScript & React',icon:'📚',
+    body:{skills:['HTML5 & CSS3 (Flexbox, Grid, animations)','JavaScript fundamentals (ES6+, async/await)','React.js (hooks, state, routing)','Version control with Git & GitHub','Responsive design & mobile-first CSS','Vite & npm ecosystem'],
+      tools:['VS Code','Chrome DevTools','Git','Figma (design ref)','Vite','React DevTools'],focus:'Build 3 frontend projects: portfolio, weather app, CRUD app. Learn React deeply. Deploy on Vercel.',
+      certs:['freeCodeCamp Responsive Web Design','Meta Front-End Developer Certificate']}},
+   {title:'YEAR 2–3 · INTERMEDIATE',subtitle:'Backend, databases & full stack projects',icon:'⚙️',
+    body:{skills:['Node.js & Express.js','TypeScript (types, interfaces, generics)','SQL (PostgreSQL) & NoSQL (MongoDB)','REST APIs & GraphQL','Authentication (JWT, OAuth)','Next.js (SSR, SSG, App Router)'],
+      tools:['Node.js','PostgreSQL','MongoDB','Prisma','Next.js','Postman','Railway'],focus:'Build a full-stack SaaS app. Implement user auth with JWT. Deploy to cloud. Build a public API with docs.',
+      certs:['AWS Cloud Practitioner','Meta Back-End Developer Certificate','MongoDB Node.js Developer']}},
+   {title:'YEAR 3–4 · JUNIOR FULL STACK DEV',subtitle:'First role — features, APIs & deployment',icon:'🛠️',
+    salary:{label:'Starting CTC',amount:'₹4–7 LPA',pct:'36%'},
+    body:{skills:['Full feature ownership (frontend + backend)','Database schema design','API versioning & documentation','Testing: Jest, Vitest, Playwright'],
+      responsibilities:['Build complete features end-to-end','Write and maintain REST/GraphQL APIs','Design and migrate database schemas','Write tests for frontend and backend'],
+      certs:['AWS Developer Associate','Google Cloud Associate Cloud Engineer']}},
+   {title:'YEAR 4+ · LEAD & FOUNDING ENGINEER',subtitle:'Architecture, team lead & technical vision',icon:'🏆',
+    salary:{label:'Senior Range',amount:'₹18–35 LPA',pct:'88%'},
+    body:{skills:['System architecture for SaaS products','Micro-frontends & monorepo setup','Web performance engineering (Core Web Vitals)','Tech hiring & team building'],
+      progression:['Junior Full Stack Dev','Full Stack Developer','Senior Developer','Lead / Staff Engineer','Founding Engineer / VP Engineering'],
+      salaryGrowth:[{label:'Junior\n0–2yr',amount:'₹5L',h:'22px'},{label:'Dev\n2–4yr',amount:'₹11L',h:'48px'},{label:'Senior\n4–7yr',amount:'₹20L',h:'80px'},{label:'Lead\n7–10yr',amount:'₹30L',h:'110px'},{label:'VP Eng\n10+yr',amount:'₹40L+',h:'120px'}]}},
+   {title:'CAREER PROGRESSION TABLE',subtitle:'Full role map with India salaries',icon:'📊',isTable:true,
+    table:{headers:['Role','Responsibilities','Experience','Salary (LPA)'],
+      rows:[['Junior Full Stack Dev','Feature implementation, basic APIs','0–2 yrs','₹4–7'],['Full Stack Developer','Owned features, DB design, deployment','2–4 yrs','₹9–16'],['Senior Developer','Architecture decisions, team code reviews','4–7 yrs','₹18–28'],['Lead / Staff Engineer','System design, tech roadmap, mentoring','7–10 yrs','₹28–40'],['VP Engineering / Founding Eng.','Product tech vision, team building','10+ yrs','₹35–60+']]}}
+  ]},
+ {id:'da',tag:'DATA ANALYST',icon:'📈',title:'DATA ANALYTICS',subtitle:'Business Intelligence & Insights',
+  description:'Turn raw numbers into business decisions. Create dashboards, run experiments, and be the data voice in every boardroom.',
+  color:'#f59e0b',bg:'rgba(245,158,11,.15)',category:'data',
+  topSalary:'₹28 LPA',entryRange:'₹3–5 LPA',badge:'badge-top',badgeText:'⭐ ALL SECTORS',
+  diff:45,diffLabel:'BEGINNER FRIENDLY',skills:['SQL','Excel','Tableau','Python'],
+  overview:'Data Analysts are the storytellers of data. Every industry — banking, e-commerce, health, logistics — needs analysts who can extract insight from messy data and drive business decisions.',
+  stats:[{val:'₹4 LPA',lbl:'Fresher Avg.'},{val:'₹18 LPA',lbl:'Mid-Senior'},{val:'All',lbl:'Industries'},{val:'3 Yrs',lbl:'To Senior'}],
+  sections:[
+   {title:'YEAR 1–2 · FOUNDATION',subtitle:'SQL, Excel & visualization essentials',icon:'📚',
+    body:{skills:['SQL fundamentals (SELECT, JOIN, GROUP BY, CTEs)','Excel & Google Sheets (pivot tables, vlookup, macros)','Descriptive statistics (mean, median, distributions)','Tableau or Power BI basics','Data cleaning with Python (pandas)'],
+      tools:['MySQL','Excel','Tableau Public','Google Sheets','Jupyter Notebook'],focus:'Write 50+ SQL queries on real datasets. Build 2 Tableau dashboards. Complete the Google Data Analytics Certificate.',
+      certs:['Google Data Analytics Certificate (Coursera)','Microsoft Power BI Data Analyst PL-300']}},
+   {title:'YEAR 2–3 · INTERMEDIATE',subtitle:'Advanced analytics, Python & BI tools',icon:'📊',
+    body:{skills:['Advanced SQL (window functions, partitions)','Python for analytics (pandas, seaborn, plotly)','A/B testing & hypothesis testing','Funnel & cohort analysis','Google Analytics & Mixpanel','BigQuery / Snowflake basics'],
+      tools:['Tableau','Power BI','Python','pandas','BigQuery','Looker Studio','Mixpanel'],focus:'Own one analytics project end-to-end. Build a public Tableau portfolio. Get an analytics internship.',
+      certs:['Tableau Desktop Specialist','Google Advanced Data Analytics Certificate','Databricks Lakehouse Fundamentals']}},
+   {title:'YEAR 3–4 · DATA ANALYST',subtitle:'First role — insights, dashboards & experimentation',icon:'🛠️',
+    salary:{label:'Starting CTC',amount:'₹3–5 LPA',pct:'25%'},
+    body:{skills:['KPI tracking & executive reporting','A/B experiment design and evaluation','Stakeholder communication & storytelling','Cohort analysis & retention modeling'],
+      responsibilities:['Write complex SQL to answer business questions','Build and maintain BI dashboards','Design and analyze A/B tests','Present weekly insights to leadership','Identify anomalies and growth levers'],
+      certs:['AWS Certified Cloud Practitioner','Tableau Desktop Certified Professional','dbt Analytics Engineer']}},
+   {title:'YEAR 4+ · SENIOR & LEADERSHIP',subtitle:'Strategy, team & analytics platform',icon:'🏆',
+    salary:{label:'Senior Range',amount:'₹14–28 LPA',pct:'82%'},
+    body:{skills:['Analytics engineering (dbt, Airflow)','Predictive analytics & ML for analysts','Data strategy & governance','Analyst team management'],
+      progression:['Junior Data Analyst','Data Analyst','Senior Data Analyst','Analytics Manager','Head of Analytics / CDO'],
+      salaryGrowth:[{label:'Junior\n0–2yr',amount:'₹4L',h:'18px'},{label:'Analyst\n2–4yr',amount:'₹8L',h:'38px'},{label:'Senior\n4–6yr',amount:'₹14L',h:'62px'},{label:'Manager\n6–9yr',amount:'₹20L',h:'88px'},{label:'Head\n10+yr',amount:'₹30L+',h:'120px'}]}},
+   {title:'CAREER PROGRESSION TABLE',subtitle:'Full role map with India salaries',icon:'📊',isTable:true,
+    table:{headers:['Role','Responsibilities','Experience','Salary (LPA)'],
+      rows:[['Junior Data Analyst','SQL reports, basic dashboards, data cleaning','0–2 yrs','₹3–5'],['Data Analyst','BI dashboards, A/B tests, stakeholder insights','2–4 yrs','₹6–12'],['Senior Data Analyst','Strategy analytics, cohort models, team lead','4–7 yrs','₹14–22'],['Analytics Manager','Analytics roadmap, platform, hiring','6–10 yrs','₹18–28'],['Head of Analytics / CDO','Data org leadership, governance, strategy','10+ yrs','₹25–45+']]}}
+  ]},
+ {id:'de',tag:'DATA ENGINEER',icon:'🔧',title:'DATA ENGINEERING',subtitle:'Pipelines, Warehouses & Data Infrastructure',
+  description:'Build the highways that data travels on. Design pipelines, data lakes, and warehouses that power every analytics and AI system.',
+  color:'#06b6d4',bg:'rgba(6,182,212,.15)',category:'data',
+  topSalary:'₹45 LPA',entryRange:'₹4–7 LPA',badge:'badge-hot',badgeText:'🔥 HIGH DEMAND',
+  diff:75,diffLabel:'HARD',skills:['Python','Spark','Kafka','dbt'],
+  overview:'Data Engineers build the infrastructure that makes data accessible, reliable, and fast. As AI and analytics scale, DE is among the fastest-growing specializations — essential to every data-driven company.',
+  stats:[{val:'₹6 LPA',lbl:'Fresher Avg.'},{val:'₹25 LPA',lbl:'Mid-Senior'},{val:'5×',lbl:'Growth Rate'},{val:'Top 4',lbl:'Salary Rank'}],
+  sections:[
+   {title:'YEAR 1–2 · FOUNDATION',subtitle:'Python, SQL & fundamentals of data systems',icon:'📚',
+    body:{skills:['Python (pandas, file I/O, OOP)','SQL (advanced joins, CTEs, window functions)','Linux & shell scripting','Git & version control','REST APIs & JSON handling','Data modeling basics (star schema, snowflake)'],
+      tools:['Python','PostgreSQL','MySQL','VS Code','Git','Linux'],focus:'Write 100+ SQL queries. Build an ETL script in Python. Store and query data from an API into a local database.',
+      certs:['Google Data Analytics Certificate','IBM Data Engineering Foundations (Coursera)']}},
+   {title:'YEAR 2–3 · INTERMEDIATE',subtitle:'Big data, cloud & pipeline orchestration',icon:'⚙️',
+    body:{skills:['Apache Spark (PySpark)','Apache Kafka (streaming data)','Airflow for pipeline orchestration','dbt for data transformation','Cloud: AWS S3 + Glue, GCP BigQuery, Azure Data Factory','Docker & containerization'],
+      tools:['PySpark','Kafka','Apache Airflow','dbt','BigQuery','Snowflake','AWS Glue','Databricks'],focus:'Build a real-time streaming pipeline with Kafka. Orchestrate an ETL workflow in Airflow. Load and transform data in BigQuery with dbt.',
+      certs:['Databricks Certified Associate Developer for Apache Spark','Google Professional Data Engineer','dbt Analytics Engineer Certification']}},
+   {title:'YEAR 3–4 · JUNIOR DATA ENGINEER',subtitle:'First role — pipelines, warehouses & reliability',icon:'🛠️',
+    salary:{label:'Starting CTC',amount:'₹4–7 LPA',pct:'35%'},
+    body:{skills:['Building and maintaining ETL/ELT pipelines','Data warehouse design & optimization','Data quality & validation frameworks','CI/CD for data pipelines'],
+      responsibilities:['Build ingestion pipelines from APIs and databases','Maintain and monitor data warehouse','Optimize slow dbt models and Spark jobs','Ensure data quality and SLAs','Collaborate with analysts and ML engineers'],
+      certs:['AWS Certified Data Analytics Specialty','Databricks Certified Professional','Snowflake SnowPro Core']}},
+   {title:'YEAR 4+ · SENIOR & ARCHITECTURE',subtitle:'Data platform architecture & team leadership',icon:'🏆',
+    salary:{label:'Senior Range',amount:'₹20–45 LPA',pct:'93%'},
+    body:{skills:['Data lakehouse architecture (Delta Lake, Iceberg)','Real-time streaming at scale','DataOps & data governance','Multi-cloud data platform design'],
+      progression:['Junior Data Engineer','Data Engineer','Senior Data Engineer','Staff / Principal Engineer','Head of Data Platform'],
+      salaryGrowth:[{label:'Junior\n0–2yr',amount:'₹5L',h:'20px'},{label:'Engineer\n2–4yr',amount:'₹12L',h:'50px'},{label:'Senior\n4–7yr',amount:'₹22L',h:'86px'},{label:'Staff\n7–10yr',amount:'₹32L',h:'112px'},{label:'Head\n10+yr',amount:'₹48L+',h:'120px'}]}},
+   {title:'CAREER PROGRESSION TABLE',subtitle:'Full role map with India salaries',icon:'📊',isTable:true,
+    table:{headers:['Role','Responsibilities','Experience','Salary (LPA)'],
+      rows:[['Junior Data Engineer','ETL scripts, pipeline support, SQL modeling','0–2 yrs','₹4–7'],['Data Engineer','Pipeline ownership, DWH design, dbt models','2–4 yrs','₹10–18'],['Senior Data Engineer','Architecture, streaming, governance, mentoring','4–7 yrs','₹20–32'],['Staff / Principal Engineer','Platform design, org-wide data infra','7–10 yrs','₹30–42'],['Head of Data Platform','Data strategy, team, cloud architecture','10+ yrs','₹40–60+']]}}
+  ]},
+ {id:'gamedev',tag:'GAME DEV',icon:'🎮',title:'GAME DEVELOPMENT',subtitle:'Unity, Unreal & Interactive Experiences',
+  description:'Build the worlds people play in. Create immersive games, interactive simulations, and experiences that blend art, technology, and design.',
+  color:'#a855f7',bg:'rgba(168,85,247,.15)',category:'creative',
+  topSalary:'₹30 LPA',entryRange:'₹3–6 LPA',badge:'badge-creative',badgeText:'🎨 CREATIVE TECH',
+  diff:80,diffLabel:'HARD',skills:['Unity','C++','Unreal Engine','C#'],
+  overview:'Game Development combines programming, mathematics, art, and design into one of the most creatively rewarding career paths. The global gaming industry is worth over $200 billion. India\'s game dev industry is growing rapidly.',
+  stats:[{val:'₹4 LPA',lbl:'Fresher Avg.'},{val:'₹18 LPA',lbl:'Mid-Senior'},{val:'$200B',lbl:'Global Market'},{val:'XR/VR',lbl:'Next Frontier'}],
+  sections:[
+   {title:'YEAR 1–2 · FOUNDATION',subtitle:'Programming, game math & first engine skills',icon:'📚',
+    body:{skills:['C++ fundamentals (memory, OOP, STL)','C# for Unity scripting','Game math (vectors, matrices, quaternions)','Unity engine basics (scenes, GameObjects, physics)','2D game development'],
+      tools:['Unity (free tier)','Visual Studio','Git + Git LFS','Blender (basics)','Aseprite'],focus:'Build 3 small games: Pong clone, platformer, top-down shooter. Learn the Unity editor inside-out.',
+      certs:['Unity Certified Associate: Game Developer','freeCodeCamp Game Dev (JS/HTML5)']}},
+   {title:'YEAR 2–3 · INTERMEDIATE',subtitle:'3D development, shaders, Unreal & multiplayer',icon:'⚙️',
+    body:{skills:['Unreal Engine 5 (Blueprints & C++)','3D game development (lighting, PBR)','Shader programming (HLSL, Unity Shader Graph)','AI for games (pathfinding, A*, behavior trees)','Multiplayer networking (Photon, Mirror)'],
+      tools:['Unreal Engine 5','Unity DOTS/ECS','Photon PUN','Shader Graph','Blender 3D'],focus:'Build a 3D multiplayer game. Publish a mobile game. Participate in a game jam (itch.io or Global Game Jam).',
+      certs:['Unreal Authorized Instructor training','Unity Certified Professional: Programmer']}},
+   {title:'YEAR 3–4 · JUNIOR GAME DEVELOPER',subtitle:'First studio role — gameplay, tools & live-ops',icon:'🛠️',
+    salary:{label:'Starting CTC',amount:'₹3–6 LPA',pct:'28%'},
+    body:{skills:['Feature ownership within gameplay systems','Tools programming for artists & designers','Profiling & performance optimization','Live operations & content updates'],
+      responsibilities:['Implement gameplay mechanics from design docs','Fix bugs and optimize frame rates','Build editor tools for level design','Integrate third-party SDKs (analytics, ads, IAP)'],
+      certs:['Unity Certified Professional','AWS GameLift for game backends','Unreal Certified Developer']}},
+   {title:'YEAR 4+ · SENIOR & TECHNICAL DIRECTOR',subtitle:'Architecture, graphics & studio leadership',icon:'🏆',
+    salary:{label:'Senior Range',amount:'₹15–30 LPA',pct:'80%'},
+    body:{skills:['Rendering pipeline architecture','Engine customization & custom tools','Technical art direction','VR/AR development (Unity XR, OpenXR)'],
+      progression:['Junior Game Developer','Game Programmer','Senior Programmer','Lead Programmer','Technical Director / Studio Head'],
+      salaryGrowth:[{label:'Junior\n0–2yr',amount:'₹4L',h:'18px'},{label:'Programmer\n2–4yr',amount:'₹9L',h:'42px'},{label:'Senior\n4–7yr',amount:'₹16L',h:'68px'},{label:'Lead\n7–10yr',amount:'₹24L',h:'100px'},{label:'Tech Dir\n10+yr',amount:'₹35L+',h:'120px'}]}},
+   {title:'CAREER PROGRESSION TABLE',subtitle:'Full role map with India salaries',icon:'📊',isTable:true,
+    table:{headers:['Role','Responsibilities','Experience','Salary (LPA)'],
+      rows:[['Junior Game Developer','Gameplay features, bug fixes, basic tools','0–2 yrs','₹3–6'],['Game Programmer','System ownership, performance work','2–4 yrs','₹8–14'],['Senior Game Programmer','Architecture, rendering, AI, mentoring','4–7 yrs','₹15–24'],['Lead Programmer','Technical roadmap, team review, tools','7–10 yrs','₹22–32'],['Technical Director','Studio-wide tech vision, engine ownership','10+ yrs','₹28–40+']]}}
+  ]}
+];
+
+// ═══════════════════════════════════════
+// LOADER
+// ═══════════════════════════════════════
+const BOOT_LINES = [
+  'Initializing Neural Engine...',
+  'Loading Career Pathways [12/12]',
+  'Synchronizing Data Streams...',
+  'SYSTEM READY. WELCOME.'
+];
+let loaderDone = false;
+
+function typeLoader() {
+  let lineIdx = 0, charIdx = 0, progress = 0;
+  const lineEls = [document.getElementById('tl1'),document.getElementById('tl2'),document.getElementById('tl3'),document.getElementById('tl4')];
+  const fill = document.getElementById('loader-fill');
+  const pct = document.getElementById('loader-pct');
+
+  function tick() {
+    if(lineIdx >= BOOT_LINES.length) {
+      setTimeout(hideLoader, 400);
+      return;
+    }
+    const line = BOOT_LINES[lineIdx];
+    if(charIdx <= line.length) {
+      lineEls[lineIdx].textContent = line.slice(0, charIdx);
+      charIdx++;
+      progress = ((lineIdx * line.length + charIdx) / BOOT_LINES.reduce((a,l)=>a+l.length,0)) * 100;
+      fill.style.width = Math.min(progress,98) + '%';
+      pct.textContent = Math.round(Math.min(progress,98)) + '%';
+      setTimeout(tick, lineIdx===3 ? 60 : 22);
+    } else {
+      lineIdx++; charIdx = 0;
+      setTimeout(tick, 180);
+    }
+  }
+  tick();
+}
+
+function hideLoader() {
+  const fill = document.getElementById('loader-fill');
+  const pct = document.getElementById('loader-pct');
+  fill.style.width = '100%'; pct.textContent = '100%';
+  setTimeout(() => {
+    const loader = document.getElementById('loader');
+    loader.style.transition = 'opacity .7s ease';
+    loader.style.opacity = '0';
+    setTimeout(() => { loader.style.display = 'none'; loaderDone = true; startHeroAnim(); }, 700);
+  }, 300);
+}
+
+typeLoader();
+
+// ═══════════════════════════════════════
+// NEURAL BACKGROUND CANVAS
+// ═══════════════════════════════════════
+(function(){
+  const c = document.getElementById('neural-canvas');
+  const ctx = c.getContext('2d');
+  let W, H, nmx=-9999, nmy=-9999;
+  function resize(){ W=c.width=innerWidth; H=c.height=innerHeight; }
+  resize(); window.addEventListener('resize', resize);
+  document.addEventListener('mousemove', e=>{nmx=e.clientX;nmy=e.clientY;});
+
+  const COLS=['#00d4ff','#9d4edd','#f72585','#22c55e','#f59e0b'];
+  const nodes = Array.from({length:70},(_,i)=>({
+    x:Math.random()*W, y:Math.random()*H,
+    vx:(Math.random()-.5)*.3, vy:(Math.random()-.5)*.3,
+    r:Math.random()*1.8+.5,
+    col:COLS[Math.floor(Math.random()*COLS.length)],
+    pulse:Math.random()*Math.PI*2
+  }));
+
+  function draw(){
+    ctx.clearRect(0,0,W,H);
+    // Draw connections
+    for(let i=0;i<nodes.length;i++){
+      for(let j=i+1;j<nodes.length;j++){
+        const a=nodes[i],b=nodes[j];
+        const d=Math.hypot(a.x-b.x,a.y-b.y);
+        if(d<160){
+          const alpha=(1-d/160)*.25;
+          ctx.beginPath();
+          ctx.moveTo(a.x,a.y);ctx.lineTo(b.x,b.y);
+          ctx.strokeStyle=`rgba(0,212,255,${alpha})`;
+          ctx.lineWidth=.6;ctx.stroke();
+        }
+      }
+    }
+    const t=Date.now()*.001;
+    nodes.forEach(n=>{
+      // Mouse repulsion
+      const dx=n.x-nmx,dy=n.y-nmy,d=Math.hypot(dx,dy);
+      if(d<180&&d>0){n.vx+=(dx/d)*.06;n.vy+=(dy/d)*.06;}
+      n.vx*=.978;n.vy*=.978;
+      n.x+=n.vx;n.y+=n.vy;
+      if(n.x<0||n.x>W)n.vx*=-1;
+      if(n.y<0||n.y>H)n.vy*=-1;
+      // Pulse glow
+      const pulse=.6+Math.sin(t+n.pulse)*.4;
+      const grd=ctx.createRadialGradient(n.x,n.y,0,n.x,n.y,n.r*5);
+      grd.addColorStop(0,n.col+(Math.floor(pulse*40).toString(16).padStart(2,'0')));
+      grd.addColorStop(1,'transparent');
+      ctx.beginPath();ctx.arc(n.x,n.y,n.r*5,0,Math.PI*2);
+      ctx.fillStyle=grd;ctx.fill();
+      // Core dot
+      ctx.beginPath();ctx.arc(n.x,n.y,n.r,0,Math.PI*2);
+      ctx.fillStyle=n.col;ctx.fill();
+    });
+    requestAnimationFrame(draw);
+  }
+  draw();
+})();
+
+// ═══════════════════════════════════════
+// CURSOR
+// ═══════════════════════════════════════
+const dot=document.getElementById('cur-dot'),ring=document.getElementById('cur-ring');
+let mx=-200,my=-200,rx=-200,ry=-200;
+document.addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY;});
+document.addEventListener('mouseover',e=>{
+  if(e.target.matches('button,.career-card,.fbtn,.back-btn,.skill-chip,.prog-label,.nav-link'))document.body.classList.add('chov');
+});
+document.addEventListener('mouseout',e=>{
+  if(e.target.matches('button,.career-card,.fbtn,.back-btn,.skill-chip,.prog-label,.nav-link'))document.body.classList.remove('chov');
+});
+(function curLoop(){
+  dot.style.left=mx+'px';dot.style.top=my+'px';
+  rx+=(mx-rx)*.12;ry+=(my-ry)*.12;
+  ring.style.left=rx+'px';ring.style.top=ry+'px';
+  requestAnimationFrame(curLoop);
+})();
+
+// ═══════════════════════════════════════
+// TRAIL CANVAS
+// ═══════════════════════════════════════
+(function(){
+  const c=document.getElementById('trail-canvas');
+  const ctx=c.getContext('2d');
+  let W,H;
+  function resize(){W=c.width=innerWidth;H=c.height=innerHeight;}
+  resize();window.addEventListener('resize',resize);
+  const trail=[];
+  const TCOLS=['#00d4ff','#9d4edd','#f72585','#22c55e','#f59e0b','#06b6d4','#a855f7'];
+  let ci=0;
+  document.addEventListener('mousemove',e=>{
+    trail.push({x:e.clientX,y:e.clientY,age:0,col:TCOLS[ci++%TCOLS.length]});
+    if(trail.length>24)trail.shift();
+  });
+  (function loop(){
+    ctx.clearRect(0,0,W,H);
+    for(let i=trail.length-1;i>=0;i--){
+      const p=trail[i];p.age+=3;
+      if(p.age>100){trail.splice(i,1);continue;}
+      const a=(1-p.age/100)*.7,r=(1-p.age/100)*5+.5;
+      ctx.beginPath();ctx.arc(p.x,p.y,r,0,Math.PI*2);
+      ctx.fillStyle=p.col;ctx.globalAlpha=a;ctx.fill();ctx.globalAlpha=1;
+    }
+    requestAnimationFrame(loop);
+  })();
+})();
+
+// ═══════════════════════════════════════
+// SCROLL PROGRESS
+// ═══════════════════════════════════════
+const scrollBar=document.getElementById('scroll-bar');
+window.addEventListener('scroll',()=>{
+  const p=window.scrollY/(document.documentElement.scrollHeight-window.innerHeight)*100;
+  scrollBar.style.width=p+'%';
+},{passive:true});
+
+// ═══════════════════════════════════════
+// SPARKLE
+// ═══════════════════════════════════════
+function sparkle(x,y,color){
+  for(let i=0;i<14;i++){
+    const el=document.createElement('div');
+    el.className='spark';
+    const s=3+Math.random()*6;
+    el.style.cssText=`left:${x}px;top:${y}px;width:${s}px;height:${s}px;background:${color};box-shadow:0 0 8px ${color}`;
+    document.body.appendChild(el);
+    const angle=(i/14)*Math.PI*2+Math.random()*.3;
+    const dist=50+Math.random()*80;
+    el.animate([
+      {transform:`translate(-50%,-50%) scale(1)`,opacity:1},
+      {transform:`translate(${Math.cos(angle)*dist-50}%,${Math.sin(angle)*dist-50}%) scale(0)`,opacity:0}
+    ],{duration:500+Math.random()*400,easing:'cubic-bezier(0,.9,.57,1)',fill:'forwards'}).onfinish=()=>el.remove();
+  }
+}
+
+// ═══════════════════════════════════════
+// RIPPLE
+// ═══════════════════════════════════════
+function ripple(card,e,color){
+  const r=card.getBoundingClientRect();
+  const el=document.createElement('div');
+  el.className='ripple-el';
+  el.style.cssText=`left:${e.clientX-r.left}px;top:${e.clientY-r.top}px;width:300px;height:300px;background:radial-gradient(circle,${color}22 0%,transparent 70%)`;
+  card.appendChild(el);
+  el.animate([{transform:'translate(-50%,-50%) scale(0)',opacity:1},{transform:'translate(-50%,-50%) scale(1)',opacity:0}],
+    {duration:700,easing:'ease-out',fill:'forwards'}).onfinish=()=>el.remove();
+}
+
+// ═══════════════════════════════════════
+// TEXT SCRAMBLE
+// ═══════════════════════════════════════
+const CHARS='!<>-_\\/[]{}=+*^?#░▒▓@$';
+function scramble(el,text,color){
+  let frame=0;
+  const q=[...text].map(to=>({to,start:Math.floor(Math.random()*10),end:Math.floor(Math.random()*10)+12,char:''}));
+  function upd(){
+    let out='',done=0;
+    for(const item of q){
+      if(frame>=item.end){out+=item.to;done++;}
+      else if(frame>=item.start){
+        if(!item.char||Math.random()<.28)item.char=CHARS[Math.floor(Math.random()*CHARS.length)];
+        out+=`<span style="color:${color};opacity:.5">${item.char}</span>`;
+      }else out+=`<span style="opacity:.25">${item.to}</span>`;
+    }
+    el.innerHTML=out;
+    if(done<q.length)requestAnimationFrame(()=>{frame++;upd();});
+  }
+  upd();
+}
+
+// ═══════════════════════════════════════
+// 3D TILT + SHIMMER
+// ═══════════════════════════════════════
+function init3D(card){
+  card.addEventListener('mouseenter',()=>{card._t=true;});
+  card.addEventListener('mousemove',e=>{
+    if(!card._t)return;
+    const r=card.getBoundingClientRect();
+    const x=e.clientX-r.left,y=e.clientY-r.top;
+    const cx=r.width/2,cy=r.height/2;
+    card.style.transform=`perspective(900px) rotateX(${-((y-cy)/cy)*10}deg) rotateY(${((x-cx)/cx)*12}deg) scale(1.04)`;
+    card.style.setProperty('--mx',(x/r.width*100)+'%');
+    card.style.setProperty('--my',(y/r.height*100)+'%');
+  });
+  card.addEventListener('mouseleave',()=>{
+    card._t=false;
+    card.style.transform='perspective(900px) rotateX(0deg) rotateY(0deg) scale(1)';
+    setTimeout(()=>{if(!card._t)card.style.transform='';},280);
+  });
+}
+
+// ═══════════════════════════════════════
+// ANTI-GRAVITY
+// ═══════════════════════════════════════
+let agx=-9999,agy=-9999;
+document.addEventListener('mousemove',e=>{agx=e.clientX;agy=e.clientY;});
+(function agLoop(){
+  document.querySelectorAll('.career-card:not(:hover)').forEach(el=>{
+    if(el._t)return;
+    const r=el.getBoundingClientRect(),cx=r.left+r.width/2,cy=r.top+r.height/2;
+    const dx=agx-cx,dy=agy-cy,dist=Math.hypot(dx,dy),RAD=300;
+    if(dist<RAD&&dist>0){
+      const f=Math.pow((1-dist/RAD),1.8)*26;
+      el.style.transform=`translate(${-(dx/dist)*f}px,${-(dy/dist)*f}px)`;
+    }else el.style.transform='';
+  });
+  document.querySelectorAll('.skill-chip,.fbtn,.prog-label,.btn-primary').forEach(el=>{
+    const r=el.getBoundingClientRect(),cx=r.left+r.width/2,cy=r.top+r.height/2;
+    const dx=agx-cx,dy=agy-cy,dist=Math.hypot(dx,dy),RAD=140;
+    if(dist<RAD&&dist>0){const f=(1-dist/RAD)*9;el.style.transform=`translate(${(dx/dist)*f}px,${(dy/dist)*f}px)`;}
+    else el.style.transform='';
+  });
+  requestAnimationFrame(agLoop);
+})();
+
+// ═══════════════════════════════════════
+// HERO TYPEWRITER
+// ═══════════════════════════════════════
+function startHeroAnim(){
+  const h1=document.getElementById('hero-h1');
+  const text='NAVIGATE YOUR TECH FUTURE';
+  let i=0;
+  h1.innerHTML='<span class="typer-cursor"></span>';
+  function type(){
+    if(i<=text.length){
+      h1.innerHTML=text.slice(0,i)+'<span class="typer-cursor"></span>';
+      i++;setTimeout(type,65+Math.random()*40);
+    }else{
+      h1.innerHTML=text;
+      // Start counters
+      document.querySelectorAll('.hstat-val[data-target]').forEach(el=>{
+        const target=+el.dataset.target,suf=el.dataset.suf||'';
+        let start=performance.now();
+        (function upd(now){
+          const t=Math.min((now-start)/1800,1),ease=1-Math.pow(1-t,3);
+          el.textContent=Math.round(ease*target)+suf;
+          if(t<1)requestAnimationFrame(upd);
+        })(start);
+      });
+    }
+  }
+  setTimeout(type,200);
+  // GSAP hero entrance
+  if(window.gsap){
+    gsap.from('.hero-eyebrow',{opacity:0,y:20,duration:.8,ease:'power3.out'});
+    gsap.from('.hero-sub',{opacity:0,y:20,duration:.8,delay:.6,ease:'power3.out'});
+    gsap.from('.hero-cta-row',{opacity:0,y:20,duration:.8,delay:.9,ease:'power3.out'});
+    gsap.from('.hero-stats',{opacity:0,y:24,duration:.8,delay:1.2,ease:'power3.out'});
+  }
+}
+
+// ═══════════════════════════════════════
+// INTERSECTION OBSERVER
+// ═══════════════════════════════════════
+const revObs=new IntersectionObserver(entries=>{
+  entries.forEach(en=>{
+    if(en.isIntersecting){en.target.classList.add('visible','card-revealed');revObs.unobserve(en.target);}
+  });
+},{threshold:.1,rootMargin:'0px 0px -30px 0px'});
+
+// ═══════════════════════════════════════
+// SEARCH + FILTER
+// ═══════════════════════════════════════
+let activeFilter='all';
+document.getElementById('search-input').addEventListener('input',filterCards);
+document.querySelectorAll('.fbtn').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    document.querySelectorAll('.fbtn').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');activeFilter=btn.dataset.filter;filterCards();
+  });
+});
+function filterCards(){
+  const q=document.getElementById('search-input').value.toLowerCase();
+  let vis=0;
+  document.querySelectorAll('.career-card').forEach(card=>{
+    const p=PATHS.find(c=>c.id===card.dataset.id);
+    const mQ=!q||p.title.toLowerCase().includes(q)||p.description.toLowerCase().includes(q)||p.skills.some(s=>s.toLowerCase().includes(q))||p.tag.toLowerCase().includes(q);
+    const mF=activeFilter==='all'||p.category===activeFilter;
+    card.style.display=mQ&&mF?'':'none';
+    if(mQ&&mF)vis++;
+  });
+  document.getElementById('no-results').style.display=vis===0?'block':'none';
+}
+
+// ═══════════════════════════════════════
+// RENDER CARDS
+// ═══════════════════════════════════════
+function renderCards(){
+  const grid=document.getElementById('cards-grid');
+  grid.innerHTML='';
+  PATHS.forEach((p,i)=>{
+    const card=document.createElement('div');
+    card.className='career-card reveal';card.dataset.id=p.id;card.dataset.color=p.color;
+    card.style.setProperty('--accent',p.color);
+    card.innerHTML=`
+      <div class="card-corner-br"></div>
+      <div class="card-holo"></div>
+      <div class="card-top">
+        <span class="card-icon">${p.icon}</span>
+        <span class="card-badge ${p.badge}">${p.badgeText}</span>
+      </div>
+      <div class="card-tag">${p.tag}</div>
+      <div class="card-title" data-orig="${p.title}">${p.title}</div>
+      <p class="card-desc">${p.description}</p>
+      <div class="diff-row">
+        <span class="diff-label">DIFFICULTY</span>
+        <div class="diff-track"><div class="diff-fill" style="--dpct:${p.diff}%"></div></div>
+        <span class="diff-text">${p.diffLabel}</span>
+      </div>
+      <div class="card-skills">${p.skills.map(s=>`<span class="skill-chip">${s}</span>`).join('')}</div>
+      <div class="card-footer">
+        <span class="card-salary">↑ ${p.topSalary}</span>
+        <span class="card-cta">EXPLORE →</span>
+      </div>`;
+    card.addEventListener('click',e=>{ripple(card,e,p.color);sparkle(e.clientX,e.clientY,p.color);setTimeout(()=>showDetail(p.id),130);});
+    const titleEl=card.querySelector('.card-title');
+    card.addEventListener('mouseenter',()=>scramble(titleEl,p.title,p.color));
+    card.addEventListener('mouseleave',()=>{titleEl.innerHTML=p.title;});
+    init3D(card);grid.appendChild(card);revObs.observe(card);
+  });
+}
+
+// ═══════════════════════════════════════
+// RENDER DETAIL
+// ═══════════════════════════════════════
+function renderDetail(p){
+  document.getElementById('d-icon').textContent=p.icon;
+  const tag=document.getElementById('d-tag');
+  tag.textContent=p.tag;tag.style.cssText=`color:${p.color};border-color:${p.color};background:${p.bg}`;
+  document.getElementById('d-title').textContent=p.title;
+  document.getElementById('d-overview').textContent=p.overview;
+  document.getElementById('d-hero-bg').style.background=`radial-gradient(ellipse 70% 80% at 50% 0%,${p.bg} 0%,transparent 70%)`;
+  document.getElementById('d-stats').innerHTML=p.stats.map(s=>`<div class="dstat" style="--accent:${p.color}"><span class="dstat-val">${s.val}</span><div class="dstat-lbl">${s.lbl}</div></div>`).join('');
+  document.documentElement.style.setProperty('--accent',p.color);
+  const content=document.getElementById('d-content');
+  content.innerHTML=p.sections.map((sec,idx)=>`
+    <div class="section-block reveal" id="sec-${idx}" style="--accent:${p.color}">
+      <div class="section-header" onclick="toggleSec(${idx})">
+        <div class="section-num">${idx+1}</div>
+        <div class="section-title-row">
+          <div class="section-title">${sec.icon} ${sec.title}</div>
+          <div class="section-subtitle">${sec.subtitle}</div>
+        </div>
+        <span class="section-chevron">▾</span>
+      </div>
+      <div class="section-body"><div class="section-inner">${renderSecBody(sec,p.color)}</div></div>
+    </div>`).join('');
+  content.querySelectorAll('.reveal').forEach(el=>revObs.observe(el));
+  setTimeout(()=>toggleSec(0),80);
+}
+
+function renderSecBody(sec){
+  if(sec.isTable)return`<div style="overflow-x:auto;border-radius:8px;border:1px solid var(--border)"><table class="career-table"><thead><tr>${sec.table.headers.map(h=>`<th>${h}</th>`).join('')}</tr></thead><tbody>${sec.table.rows.map(r=>`<tr>${r.map((c,i)=>`<td${i===r.length-1?' class="salary-cell"':''}>${c}</td>`).join('')}</tr>`).join('')}</tbody></table></div>`;
+  const b=sec.body;let html='<div class="sub-grid">';
+  if(b.skills)html+=`<div class="sub-card"><div class="sub-card-title">📌 Skills</div><ul>${b.skills.map(s=>`<li>${s}</li>`).join('')}</ul></div>`;
+  if(b.tools)html+=`<div class="sub-card"><div class="sub-card-title">🛠 Tools</div><ul>${b.tools.map(t=>`<li>${t}</li>`).join('')}</ul></div>`;
+  if(b.responsibilities)html+=`<div class="sub-card"><div class="sub-card-title">📋 Responsibilities</div><ul>${b.responsibilities.map(r=>`<li>${r}</li>`).join('')}</ul></div>`;
+  html+='</div>';
+  if(b.focus)html+=`<div class="focus-box"><b style="color:#fff">🎯 FOCUS: </b>${b.focus}</div>`;
+  if(b.certs)html+=`<div style="margin-bottom:12px"><div style="font-family:'Orbitron',monospace;font-size:.6rem;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:#34d399;margin-bottom:8px">🏅 CERTIFICATIONS</div><div class="cert-list">${b.certs.map(c=>`<span class="cert-badge">✓ ${c}</span>`).join('')}</div></div>`;
+  if(sec.salary)html+=`<div class="salary-range"><span style="font-size:1.2rem">💰</span><div class="salary-info"><div class="salary-label">${sec.salary.label}</div><div class="salary-amount">${sec.salary.amount}</div><div class="salary-bar-track"><div class="salary-bar-fill" style="--pct:${sec.salary.pct}"></div></div></div></div>`;
+  if(b.progression)html+=`<div style="margin-top:14px"><div style="font-family:'Orbitron',monospace;font-size:.6rem;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:var(--muted);margin-bottom:8px">📈 CAREER PROGRESSION</div><div class="progression-track">${b.progression.map((l,i)=>`<div class="prog-node"><span class="prog-label">${l}</span>${i<b.progression.length-1?'<span class="prog-arrow">→</span>':''}</div>`).join('')}</div></div>`;
+  if(b.salaryGrowth)html+=`<div style="margin-top:16px"><div style="font-family:'Orbitron',monospace;font-size:.6rem;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:var(--muted);margin-bottom:8px">📊 SALARY GROWTH</div><div class="salary-growth">${b.salaryGrowth.map(g=>`<div class="sg-col"><span class="sg-amount">${g.amount}</span><div class="sg-bar" style="--h:${g.h}"></div><div class="sg-label">${g.label.replace('\n','<br>')}</div></div>`).join('')}</div></div>`;
+  return html;
+}
+
+// ═══════════════════════════════════════
+// NAVIGATION
+// ═══════════════════════════════════════
+function showDetail(id){
+  const p=PATHS.find(c=>c.id===id);if(!p)return;
+  renderDetail(p);
+  document.getElementById('page-landing').style.display='none';
+  document.getElementById('page-detail').style.display='block';
+  ring.style.borderColor=p.color;
+  // Update resume AI banner career name
+  const bn=document.getElementById('banner-career-name');
+  if(bn)bn.textContent=p.title.charAt(0)+p.title.slice(1).toLowerCase();
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+function showLanding(){
+  document.getElementById('page-landing').style.display='block';
+  document.getElementById('page-detail').style.display='none';
+  document.documentElement.style.setProperty('--accent','#00d4ff');
+  ring.style.borderColor='';
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+function toggleSec(idx){
+  const bl=document.getElementById('sec-'+idx);if(!bl)return;
+  const was=bl.classList.contains('open');
+  document.querySelectorAll('.section-block').forEach(b=>b.classList.remove('open'));
+  if(!was)bl.classList.add('open');
+}
+
+// ═══════════════════════════════════════
+// GSAP SCROLL ANIMATIONS
+// ═══════════════════════════════════════
+if(window.gsap && window.ScrollTrigger){
+  gsap.registerPlugin(ScrollTrigger);
+  gsap.from('.search-section',{opacity:0,y:30,duration:.8,scrollTrigger:{trigger:'.search-section',start:'top 85%'}});
+  gsap.from('.section-eyebrow',{opacity:0,y:20,duration:.7,scrollTrigger:{trigger:'.cards-section',start:'top 85%'}});
+}
+
+// Periodic glitch on hero
+setInterval(()=>{
+  const h=document.getElementById('hero-h1');if(!h)return;
+  h.style.textShadow='2px 0 #f72585,-2px 0 #00d4ff';
+  setTimeout(()=>{h.style.textShadow='';},200);
+},6000);
+
+renderCards();
+</script>
+</body>
+</html>

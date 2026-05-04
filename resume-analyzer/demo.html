@@ -913,10 +913,15 @@ Warm regards,
 <!-- Hidden printable resume for PDF -->
 <div id="print-resume" style="display:none;">
   <style id="print-style">
+    @page {
+      size: A4;
+      margin: 0 !important;
+    }
     @media print {
+      html, body { margin: 0 !important; padding: 0 !important; }
       body > *:not(#print-resume) { display: none !important; }
-      #print-resume { display: block !important; }
-      #print-resume-inner { padding: 40px 50px; font-family: 'Inter', sans-serif; font-size: 11pt; color: #111; }
+      #print-resume { display: block !important; margin: 0 !important; padding: 0 !important; }
+      #print-resume-inner { padding: 32px 44px; font-family: 'Inter', sans-serif; font-size: 11pt; color: #111; line-height: 1.6; }
     }
   </style>
   <div id="print-resume-inner"></div>

@@ -1,0 +1,13 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "framework": "nextjs",
+  "regions": ["iad1"],
+  "functions": {
+    "app/api/ai/copilot/route.ts": {
+      "maxDuration": 60
+    },
+    "app/api/ai/quality/route.ts": {
+      "maxDuration": 30
+    }
+  }
+}

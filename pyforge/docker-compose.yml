@@ -1,0 +1,70 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: pyforge
+      POSTGRES_PASSWORD: pyforge
+      POSTGRES_DB: pyforge
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U pyforge"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    environment:
+      DATABASE_URL: postgresql://pyforge:pyforge@postgres:5432/pyforge
+      REDIS_URL: redis://redis:6379/0
+      JWT_SECRET: dev-secret-change-in-production-min-32-chars
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+      DOCKER_HOST: unix:///var/run/docker.sock
+    volumes:
+      - ./backend:/app
+      - /var/run/docker.sock:/var/run/docker.sock
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+
+  celery-worker:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    environment:
+      DATABASE_URL: postgresql://pyforge:pyforge@postgres:5432/pyforge
+      REDIS_URL: redis://redis:6379/0
+      JWT_SECRET: dev-secret-change-in-production-min-32-chars
+      DOCKER_HOST: unix:///var/run/docker.sock
+    volumes:
+      - ./backend:/app
+      - /var/run/docker.sock:/var/run/docker.sock
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    command: celery -A app.workers.celery_app worker --loglevel=info
+
+volumes:
+  postgres_data:

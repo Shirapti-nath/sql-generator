@@ -18,7 +18,10 @@ interface EditorState {
   getActiveContent: () => string;
 }
 
-const DEFAULT_CODE = `print("Hello, Engineer!")
+const DEFAULT_CODE = `# PyForge Playground — Run with ⌘+Enter
+# Tip: use # %% to split notebook-style cells
+
+print("Hello, Engineer!")
 `;
 
 export const useEditorStore = create<EditorState>()(

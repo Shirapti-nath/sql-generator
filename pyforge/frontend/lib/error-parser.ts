@@ -7,6 +7,8 @@ export interface ParsedError {
   explanation: string;
   howToFix: string;
   example?: string;
+  suggestions?: string[];
+  conceptTags?: string[];
 }
 
 const ERROR_GUIDE: Record<
@@ -137,8 +139,11 @@ export function parsePythonError(raw: string, codeContext?: string): ParsedError
   const { line, column } = extractLineColumn(raw);
   const message = extractMessage(raw, type);
 
+  const resolvedType = custom?.type ?? guide.title;
+  const suggestions = buildSuggestions(resolvedType, custom, codeContext);
+
   return {
-    type: custom?.type ?? guide.title,
+    type: resolvedType,
     message: custom?.message ?? message,
     line,
     column,
@@ -146,7 +151,51 @@ export function parsePythonError(raw: string, codeContext?: string): ParsedError
     explanation: custom?.explanation ?? guide.explanation,
     howToFix: custom?.howToFix ?? guide.howToFix,
     example: custom?.example ?? guide.example,
+    suggestions,
+    conceptTags: conceptTagsForType(type, custom),
   };
+}
+
+function buildSuggestions(
+  resolvedType: string,
+  custom: Partial<ParsedError> | null,
+  codeContext?: string
+): string[] {
+  const tips: string[] = [];
+  if (custom?.type?.includes("Quotes")) {
+    tips.push("Use double quotes for text: print(\"hello\")");
+    tips.push("Variables need no quotes; strings always do.");
+    tips.push("Try the Fix drill in the Learn tab to practice.");
+  }
+  if (resolvedType.includes("Name")) {
+    tips.push("Assign the variable on a line above where you use it.");
+    tips.push("Check spelling and capitalization.");
+  }
+  if (resolvedType.includes("Syntax")) {
+    tips.push("Read the error line number in the editor highlight.");
+    tips.push("Match opening and closing parentheses.");
+  }
+  if (resolvedType.includes("Indent")) {
+    tips.push("Select all and convert tabs to 4 spaces in your editor.");
+  }
+  if (codeContext?.includes("pandas") && resolvedType.includes("Key")) {
+    tips.push("Print df.columns to see available column names.");
+  }
+  if (tips.length === 0) {
+    tips.push("Run again after each small fix — one change at a time.");
+    tips.push("Open the Learn tab for a practice drill on this error type.");
+  }
+  return tips.slice(0, 4);
+}
+
+function conceptTagsForType(type: string, custom: Partial<ParsedError> | null): string[] {
+  if (custom?.type?.includes("Quotes")) return ["strings", "syntax"];
+  if (type.includes("Name")) return ["variables"];
+  if (type.includes("Indent")) return ["indentation"];
+  if (type.includes("Type")) return ["types"];
+  if (type.includes("Index")) return ["collections"];
+  if (type.includes("Key")) return ["collections", "pandas"];
+  return ["python-basics"];
 }
 
 export function friendlyError(traceback: string): string {

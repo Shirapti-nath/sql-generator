@@ -1,7 +1,8 @@
 /* Load Pyodide from CDN — avoids Turbopack "expression is too dynamic" bundling errors */
 
-type PyodideInterface = {
+export type PyodideInterface = {
   runPythonAsync: (code: string) => Promise<unknown>;
+  loadPackages: (packages: string | string[]) => Promise<void>;
   setStdout: (opts: { batched: (msg: string) => void }) => void;
   setStderr: (opts: { batched: (msg: string) => void }) => void;
 };

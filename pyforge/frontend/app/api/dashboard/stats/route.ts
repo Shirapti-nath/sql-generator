@@ -9,7 +9,7 @@ export async function GET(req: Request) {
       return NextResponse.json({ detail: "Not authenticated" }, { status: 401 });
     }
     const userId = await verifyToken(auth.slice(7));
-    const user = findUserById(userId);
+    const user = await findUserById(userId);
     if (!user) {
       return NextResponse.json({ detail: "User not found" }, { status: 401 });
     }

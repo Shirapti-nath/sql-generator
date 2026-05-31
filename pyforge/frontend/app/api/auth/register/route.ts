@@ -14,7 +14,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ detail: "Password must be at least 8 characters" }, { status: 400 });
     }
     const hash = await bcrypt.hash(password, 12);
-    const user = createUser(email, hash, display_name);
+    const user = await createUser(email, hash, display_name);
 
     sendWelcomeEmail(user.email, user.display_name).catch(() => {});
 

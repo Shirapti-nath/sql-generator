@@ -1,17 +1,18 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Bot, ShieldCheck, AlertCircle } from "lucide-react";
+import { Bot, ShieldCheck, AlertCircle, GraduationCap } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { ErrorAssistant } from "@/components/editor/ErrorAssistant";
 import { QualityPanel } from "@/components/editor/QualityPanel";
 import { CopilotPanel } from "@/components/editor/CopilotPanel";
+import { LearnPanel } from "@/components/editor/LearnPanel";
 import { useErrorAssistantStore } from "@/stores/errorAssistantStore";
 
-type Tab = "fix" | "quality" | "copilot";
+type Tab = "learn" | "fix" | "quality" | "copilot";
 
 export function RightSidebar() {
-  const [tab, setTab] = useState<Tab>("copilot");
+  const [tab, setTab] = useState<Tab>("learn");
   const hasError = useErrorAssistantStore((s) => !!s.error);
 
   useEffect(() => {
@@ -19,9 +20,10 @@ export function RightSidebar() {
   }, [hasError]);
 
   const tabs: { id: Tab; label: string; icon: typeof Bot; badge?: boolean }[] = [
-    { id: "copilot", label: "Copilot", icon: Bot },
+    { id: "learn", label: "Learn", icon: GraduationCap },
+    { id: "fix", label: "Guide", icon: AlertCircle, badge: hasError },
     { id: "quality", label: "Quality", icon: ShieldCheck },
-    { id: "fix", label: "Fix", icon: AlertCircle, badge: hasError },
+    { id: "copilot", label: "Copilot", icon: Bot },
   ];
 
   return (
@@ -30,6 +32,7 @@ export function RightSidebar() {
         {tabs.map((t) => (
           <button
             key={t.id}
+            type="button"
             onClick={() => setTab(t.id)}
             className={cn(
               "flex-1 flex items-center justify-center gap-1 py-2.5 text-xs font-medium transition-colors relative",
@@ -41,13 +44,14 @@ export function RightSidebar() {
             <t.icon className="h-3.5 w-3.5" />
             {t.label}
             {t.badge && (
-              <span className="absolute top-1.5 right-2 w-1.5 h-1.5 rounded-full bg-red-500" />
+              <span className="absolute top-1.5 right-1 w-1.5 h-1.5 rounded-full bg-red-500" />
             )}
           </button>
         ))}
       </div>
 
       <div className="flex-1 min-h-0 overflow-hidden">
+        {tab === "learn" && <LearnPanel />}
         {tab === "copilot" && <CopilotPanel />}
         {tab === "quality" && <QualityPanel />}
         {tab === "fix" && <ErrorAssistant embedded />}

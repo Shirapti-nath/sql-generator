@@ -1,22 +1,30 @@
 "use client";
 
-import { useCallback, useEffect } from "react";
-import { Play, Plus, FileCode, Code2, Trash2 } from "lucide-react";
+import { useCallback, useEffect, useState } from "react";
+import { Play, Plus, FileCode, Code2, Trash2, GraduationCap, AlertCircle } from "lucide-react";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { CodeEditor } from "@/components/editor/CodeEditor";
 import { OutputPanel } from "@/components/editor/OutputPanel";
 import { RightSidebar } from "@/components/editor/RightSidebar";
+import { PreRunBanner } from "@/components/editor/PreRunBanner";
+import { LearnPanel } from "@/components/editor/LearnPanel";
+import { ErrorAssistant } from "@/components/editor/ErrorAssistant";
+import { useErrorAssistantStore } from "@/stores/errorAssistantStore";
 import { useEditorStore } from "@/stores/editorStore";
 import { useExecution } from "@/components/execution/useExecution";
 import { useExecutionStore } from "@/stores/executionStore";
 import { cn } from "@/lib/utils";
+
+type MobilePanel = "learn" | "guide" | null;
 
 export function PlaygroundIDE() {
   const { files, activeFile, setActiveFile, updateFile, addFile, deleteFile, getActiveContent } =
     useEditorStore();
   const { run } = useExecution();
   const { isRunning } = useExecutionStore();
+  const hasError = useErrorAssistantStore((s) => !!s.error);
+  const [mobilePanel, setMobilePanel] = useState<MobilePanel>(null);
 
   const code = getActiveContent();
 
@@ -39,6 +47,12 @@ export function PlaygroundIDE() {
     while (files.some((f) => f.name === `script${n}.py`)) n++;
     return `script${n}.py`;
   };
+
+  useEffect(() => {
+    if (hasError && typeof window !== "undefined" && window.innerWidth < 1024) {
+      setMobilePanel("guide");
+    }
+  }, [hasError]);
 
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
@@ -74,7 +88,7 @@ export function PlaygroundIDE() {
       </div>
 
       <div className="flex flex-1 min-h-0">
-        <aside className="w-52 border-r border-border bg-card/30 hidden md:flex flex-col shrink-0">
+        <aside className="w-44 sm:w-52 border-r border-border bg-card/30 flex flex-col shrink-0 max-w-[40vw]">
           <div className="p-3 flex items-center gap-2 text-xs font-semibold text-muted uppercase tracking-wider">
             <FileCode className="h-3.5 w-3.5" /> Files
           </div>
@@ -102,7 +116,7 @@ export function PlaygroundIDE() {
                   <button
                     type="button"
                     onClick={(e) => handleDelete(f.name, e)}
-                    className="opacity-0 group-hover:opacity-100 p-1.5 mr-1 rounded text-muted hover:text-red-400 hover:bg-red-500/10 transition-all"
+                    className="opacity-60 sm:opacity-0 sm:group-hover:opacity-100 p-1.5 mr-1 rounded text-muted hover:text-red-400 hover:bg-red-500/10 transition-all"
                     title={`Delete ${f.name}`}
                     aria-label={`Delete ${f.name}`}
                   >
@@ -122,6 +136,7 @@ export function PlaygroundIDE() {
         </aside>
 
         <div className="flex-1 flex flex-col min-w-0">
+          <PreRunBanner code={code} />
           <motion.div className="flex-1 min-h-0" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
             <CodeEditor value={code} onChange={(v) => updateFile(activeFile, v)} />
           </motion.div>
@@ -132,6 +147,30 @@ export function PlaygroundIDE() {
 
         <RightSidebar />
       </div>
+
+      {/* Mobile learning panels */}
+      <div className="lg:hidden border-t border-border bg-card/80 flex">
+        <button
+          type="button"
+          onClick={() => setMobilePanel(mobilePanel === "learn" ? null : "learn")}
+          className="flex-1 flex items-center justify-center gap-2 py-2.5 text-xs font-medium text-muted"
+        >
+          <GraduationCap className="h-4 w-4" /> Learn
+        </button>
+        <button
+          type="button"
+          onClick={() => setMobilePanel(mobilePanel === "guide" ? null : "guide")}
+          className="flex-1 flex items-center justify-center gap-2 py-2.5 text-xs font-medium text-muted relative"
+        >
+          <AlertCircle className="h-4 w-4" /> Guide
+          {hasError && <span className="absolute top-2 right-6 w-1.5 h-1.5 rounded-full bg-red-500" />}
+        </button>
+      </div>
+      {mobilePanel && (
+        <div className="lg:hidden h-64 border-t border-border bg-card shrink-0 overflow-hidden">
+          {mobilePanel === "learn" ? <LearnPanel /> : <ErrorAssistant embedded />}
+        </div>
+      )}
     </div>
   );
 }

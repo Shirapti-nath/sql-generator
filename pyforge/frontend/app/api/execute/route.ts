@@ -2,6 +2,17 @@ import { NextResponse } from "next/server";
 import { runPythonCode } from "@/lib/server/python-runner";
 
 export async function POST(req: Request) {
+  if (process.env.VERCEL === "1") {
+    return NextResponse.json(
+      {
+        detail:
+          "Server-side Python is disabled on Vercel. Code runs in your browser via Pyodide (including NumPy/Pandas).",
+        use_browser: true,
+      },
+      { status: 503 }
+    );
+  }
+
   try {
     const { code, stdin = "" } = await req.json();
     if (!code || typeof code !== "string") {

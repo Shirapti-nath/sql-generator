@@ -3,7 +3,9 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { Flame, Trophy, Code2, Terminal, ArrowRight } from "lucide-react";
+import { Flame, Trophy, Code2, Terminal, ArrowRight, GraduationCap, Target } from "lucide-react";
+import { useLearningStore } from "@/stores/learningStore";
+import { currentMilestone, nextMilestone } from "@/lib/learning/career-path";
 import { Card, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { api } from "@/lib/api";
@@ -13,6 +15,12 @@ export default function DashboardPage() {
   const [stats, setStats] = useState<Awaited<ReturnType<typeof api.getDashboard>> | null>(null);
   const { user, accessToken } = useAuthStore();
   const router = useRouter();
+  const xp = useLearningStore((s) => s.xp);
+  const getTopMistakes = useLearningStore((s) => s.getTopMistakes);
+  const completedDrills = useLearningStore((s) => s.completedDrills);
+  const milestone = currentMilestone(xp);
+  const next = nextMilestone(xp);
+  const topMistakes = getTopMistakes(3);
 
   useEffect(() => {
     if (!accessToken) {
@@ -37,6 +45,45 @@ export default function DashboardPage() {
         <StatCard icon={Code2} label="Account" value="Active" color="text-blue-400" isText />
       </div>
 
+      <Card className="mb-6 border-accent/20">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2 text-lg">
+            <GraduationCap className="h-5 w-5 text-accent" />
+            Learning path — {milestone.title}
+          </CardTitle>
+          <CardDescription>{milestone.description}</CardDescription>
+        </CardHeader>
+        <div className="px-6 pb-4 space-y-3">
+          <div className="flex flex-wrap gap-4 text-sm">
+            <span>
+              <strong className="text-accent">{xp}</strong> XP
+            </span>
+            <span>
+              <strong>{completedDrills.length}</strong> drills completed
+            </span>
+            {next && (
+              <span className="text-muted">
+                {next.xpRequired - xp} XP until <strong>{next.title}</strong>
+              </span>
+            )}
+          </div>
+          {topMistakes.length > 0 && (
+            <div>
+              <p className="text-xs font-semibold text-muted uppercase mb-2 flex items-center gap-1">
+                <Target className="h-3.5 w-3.5" /> Practice these next
+              </p>
+              <ul className="text-sm space-y-1">
+                {topMistakes.map((m) => (
+                  <li key={m.type} className="text-muted">
+                    {m.type} <span className="text-amber-400">({m.count}×)</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+        </div>
+      </Card>
+
       <Card className="border-accent/30 bg-accent/5">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
@@ -44,7 +91,7 @@ export default function DashboardPage() {
             Ready to code?
           </CardTitle>
           <CardDescription>
-            Open the playground to run Python with full library support and smart error explanations.
+            Pre-run checks, error guide, drills, and career XP — all in the playground Learn tab.
           </CardDescription>
         </CardHeader>
         <div className="px-6 pb-6">

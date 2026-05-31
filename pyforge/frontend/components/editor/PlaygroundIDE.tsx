@@ -1,0 +1,137 @@
+"use client";
+
+import { useCallback, useEffect } from "react";
+import { Play, Plus, FileCode, Code2, Trash2 } from "lucide-react";
+import { motion } from "framer-motion";
+import { Button } from "@/components/ui/button";
+import { CodeEditor } from "@/components/editor/CodeEditor";
+import { OutputPanel } from "@/components/editor/OutputPanel";
+import { RightSidebar } from "@/components/editor/RightSidebar";
+import { useEditorStore } from "@/stores/editorStore";
+import { useExecution } from "@/components/execution/useExecution";
+import { useExecutionStore } from "@/stores/executionStore";
+import { cn } from "@/lib/utils";
+
+export function PlaygroundIDE() {
+  const { files, activeFile, setActiveFile, updateFile, addFile, deleteFile, getActiveContent } =
+    useEditorStore();
+  const { run } = useExecution();
+  const { isRunning } = useExecutionStore();
+
+  const code = getActiveContent();
+
+  const handleRun = useCallback(async () => {
+    try {
+      await run(code);
+    } catch {
+      /* errors handled inside useExecution */
+    }
+  }, [run, code]);
+
+  const handleDelete = (name: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (files.length <= 1) return;
+    deleteFile(name);
+  };
+
+  const nextScriptName = () => {
+    let n = 1;
+    while (files.some((f) => f.name === `script${n}.py`)) n++;
+    return `script${n}.py`;
+  };
+
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === "Enter") {
+        e.preventDefault();
+        void handleRun();
+      }
+    };
+    window.addEventListener("keydown", handler);
+    return () => window.removeEventListener("keydown", handler);
+  }, [handleRun]);
+
+  return (
+    <div className="flex flex-col h-[calc(100vh-3.5rem)] bg-background">
+      <div className="flex items-center gap-3 px-4 py-2.5 border-b border-border bg-card/80">
+        <Button
+          variant="accent"
+          size="sm"
+          onClick={() => void handleRun()}
+          disabled={isRunning}
+          className={cn(!isRunning && "run-pulse")}
+        >
+          <Play className="h-4 w-4 mr-1.5 fill-current" />
+          {isRunning ? "Running..." : "Run"}
+        </Button>
+
+        <span className="ml-auto text-xs text-muted hidden sm:flex items-center gap-1">
+          <kbd className="px-1.5 py-0.5 rounded bg-background border border-border font-mono">⌘</kbd>
+          <span>+</span>
+          <kbd className="px-1.5 py-0.5 rounded bg-background border border-border font-mono">↵</kbd>
+          <span className="ml-1">to run</span>
+        </span>
+      </div>
+
+      <div className="flex flex-1 min-h-0">
+        <aside className="w-52 border-r border-border bg-card/30 hidden md:flex flex-col shrink-0">
+          <div className="p-3 flex items-center gap-2 text-xs font-semibold text-muted uppercase tracking-wider">
+            <FileCode className="h-3.5 w-3.5" /> Files
+          </div>
+          <div className="flex-1 overflow-y-auto">
+            {files.map((f) => (
+              <div
+                key={f.name}
+                className={cn(
+                  "group flex items-center gap-1 mx-2 mb-0.5 rounded-lg",
+                  activeFile === f.name && "bg-accent/15"
+                )}
+              >
+                <button
+                  type="button"
+                  onClick={() => setActiveFile(f.name)}
+                  className={cn(
+                    "flex-1 flex items-center gap-2 px-2 py-1.5 text-sm text-left min-w-0",
+                    activeFile === f.name ? "text-accent font-medium" : "text-muted hover:text-foreground"
+                  )}
+                >
+                  <Code2 className="h-3.5 w-3.5 shrink-0" />
+                  <span className="truncate">{f.name}</span>
+                </button>
+                {files.length > 1 && (
+                  <button
+                    type="button"
+                    onClick={(e) => handleDelete(f.name, e)}
+                    className="opacity-0 group-hover:opacity-100 p-1.5 mr-1 rounded text-muted hover:text-red-400 hover:bg-red-500/10 transition-all"
+                    title={`Delete ${f.name}`}
+                    aria-label={`Delete ${f.name}`}
+                  >
+                    <Trash2 className="h-3.5 w-3.5" />
+                  </button>
+                )}
+              </div>
+            ))}
+          </div>
+          <button
+            type="button"
+            onClick={() => addFile(nextScriptName())}
+            className="flex items-center gap-2 mx-2 mt-1 mb-3 px-2 py-1.5 text-sm text-muted hover:text-accent transition-colors"
+          >
+            <Plus className="h-3.5 w-3.5" /> New file
+          </button>
+        </aside>
+
+        <div className="flex-1 flex flex-col min-w-0">
+          <motion.div className="flex-1 min-h-0" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+            <CodeEditor value={code} onChange={(v) => updateFile(activeFile, v)} />
+          </motion.div>
+          <div className="h-[38%] min-h-[140px] max-h-[280px] border-t border-border">
+            <OutputPanel />
+          </div>
+        </div>
+
+        <RightSidebar />
+      </div>
+    </div>
+  );
+}

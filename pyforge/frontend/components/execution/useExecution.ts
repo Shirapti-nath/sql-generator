@@ -7,9 +7,15 @@ import { detectExecutionMode } from "@/lib/execution-router";
 import { isVercelDeployment } from "@/lib/is-vercel";
 import { runPythonInBrowser } from "@/lib/pyodide-runner";
 import { analyzeBeforeRun } from "@/lib/learning/pre-run-analyzer";
+import {
+  buildDataProbeScript,
+  parseDataProbeOutput,
+} from "@/lib/learning/data-detective";
+import { detectConcept } from "@/lib/learning/snapshots";
 import { useExecutionStore } from "@/stores/executionStore";
 import { useErrorAssistantStore } from "@/stores/errorAssistantStore";
-import { useLearningStore } from "@/stores/learningStore";
+import { useLearningStore, useClassroomPulseStore } from "@/stores/learningStore";
+import { useEliteFeaturesStore } from "@/stores/eliteFeaturesStore";
 import { drillsForErrorType } from "@/lib/learning/drills";
 
 const forceBrowser = isVercelDeployment();
@@ -17,29 +23,45 @@ const forceBrowser = isVercelDeployment();
 export function useExecution() {
   const { reset, setRunning, setResult } = useExecutionStore();
   const { setError, clear: clearError } = useErrorAssistantStore();
-  const { recordRun, recordError, setLastStoryboardCode, scheduleReview } = useLearningStore();
+  const { recordRun, recordError, setLastStoryboardCode, scheduleReview, saveSnapshot } =
+    useLearningStore();
+  const { clearRunExtras, setDataInsight } = useEliteFeaturesStore();
+  const reportPulse = useClassroomPulseStore((s) => s.reportError);
+  const sessionCode = useClassroomPulseStore((s) => s.sessionCode);
 
   const handleError = useCallback(
     (raw: string, codeContext?: string) => {
       const parsed = parsePythonError(raw, codeContext);
       setError(parsed);
-      recordError(parsed.type);
+      recordError(parsed.type, parsed.line);
+      if (sessionCode) reportPulse(parsed.type);
       const drill = drillsForErrorType(parsed.type)[0];
       if (drill) scheduleReview(drill.id);
       return parsed;
     },
-    [setError, recordError, scheduleReview]
+    [setError, recordError, scheduleReview, sessionCode, reportPulse]
   );
 
   const runBrowser = useCallback(
     async (code: string) => {
       setResult({ mode: "browser", status: "running" });
-      const result = await runPythonInBrowser(code);
+      let runCode = code;
+      const probe = buildDataProbeScript(code);
+      if (probe) runCode = probe;
+
+      const result = await runPythonInBrowser(runCode);
+
+      const insight = parseDataProbeOutput(result.stdout);
+      if (insight) setDataInsight(insight);
+
+      const displayStdout = insight
+        ? result.stdout.replace(/__PYFORGE_DF__[^\n]*/g, "").trim()
+        : result.stdout;
 
       if (result.exit_code !== 0) {
         handleError(result.stderr, code);
         setResult({
-          stdout: result.stdout,
+          stdout: displayStdout,
           stderr: result.stderr,
           plots: result.plots,
           status: "error",
@@ -48,8 +70,9 @@ export function useExecution() {
           mode: "browser",
         });
       } else {
+        saveSnapshot(detectConcept(code), code);
         setResult({
-          stdout: result.stdout,
+          stdout: displayStdout,
           stderr: "",
           plots: result.plots,
           status: "completed",
@@ -59,7 +82,7 @@ export function useExecution() {
         });
       }
     },
-    [handleError, setResult]
+    [handleError, setResult, setDataInsight, saveSnapshot]
   );
 
   const runServer = useCallback(
@@ -67,6 +90,7 @@ export function useExecution() {
       const start = performance.now();
       reset();
       clearError();
+      clearRunExtras();
       setRunning(true);
       setResult({ mode: "server", status: "running" });
 
@@ -87,6 +111,7 @@ export function useExecution() {
             mode: "server",
           });
         } else {
+          saveSnapshot(detectConcept(code), code);
           setResult({
             stdout: result.stdout,
             stderr: "",
@@ -111,7 +136,7 @@ export function useExecution() {
         setRunning(false);
       }
     },
-    [reset, clearError, setRunning, setResult, handleError]
+    [reset, clearError, clearRunExtras, setRunning, setResult, handleError, saveSnapshot]
   );
 
   const run = useCallback(
@@ -122,6 +147,7 @@ export function useExecution() {
       setLastStoryboardCode(code);
       reset();
       clearError();
+      clearRunExtras();
       setRunning(true);
 
       try {
@@ -149,6 +175,7 @@ export function useExecution() {
     [
       reset,
       clearError,
+      clearRunExtras,
       setRunning,
       setResult,
       runBrowser,

@@ -79,6 +79,25 @@ export function analyzeBeforeRun(code: string): PreRunWarning[] {
     });
   }
 
+  if (/requests\.(get|post)|urllib|httpx/.test(code)) {
+    warnings.push({
+      id: "ethics-network",
+      severity: "warning",
+      title: "Ethics gate: network request",
+      message: "Fetching URLs may scrape data you don't have permission to use. Confirm before running.",
+      concept: "Only request data you are allowed to access.",
+    });
+  }
+
+  if (/\.\.\/|\/etc\/|\/Users\//.test(code)) {
+    warnings.push({
+      id: "ethics-path",
+      severity: "warning",
+      title: "Ethics gate: sensitive paths",
+      message: "Reading system paths can expose private files. Use sandbox-safe sample data instead.",
+    });
+  }
+
   if (/read_csv\s*\(\s*['"][^'"]+['"]\s*\)/.test(code)) {
     warnings.push({
       id: "data-ethics",

@@ -1,37 +1,62 @@
 import Link from "next/link";
 import { AntiGravityHero } from "@/components/home/AntiGravityHero";
-import { Zap, Bot, Keyboard, Mail, Terminal, Sparkles } from "lucide-react";
+import {
+  Zap,
+  Bot,
+  Brain,
+  GitBranch,
+  Target,
+  Shield,
+  Terminal,
+  Sparkles,
+  Users,
+} from "lucide-react";
 
 const features = [
   {
-    icon: Keyboard,
-    title: "Tab Autocomplete",
-    desc: "Python 3.12+, NumPy, Pandas, scikit-learn, PyTorch snippets — press Tab to complete.",
+    icon: Brain,
+    title: "Cognitive Load Meter",
+    desc: "Real-time complexity score with tips before you hit run — learn to simplify, not just fix.",
   },
   {
-    icon: Bot,
-    title: "AI Copilot",
-    desc: "Like GitHub Copilot: fix errors, improve code, and get recommendations in real time.",
+    icon: GitBranch,
+    title: "Counterfactual Run",
+    desc: "See what would happen if you applied the suggested fix — without overwriting your code.",
+  },
+  {
+    icon: Target,
+    title: "Intent Lens",
+    desc: "Align your code with your stated learning goal — spot orphan lines that don't serve the mission.",
   },
   {
     icon: Sparkles,
-    title: "Code Quality",
-    desc: "Side-panel linting and AI review tuned for data science & ML workflows.",
+    title: "Syntax Ghost",
+    desc: "Unquoted identifiers glow before run — catch print(hello world) before Python does.",
   },
   {
-    icon: Terminal,
-    title: "Full Python Runtime",
-    desc: "Run production libraries on a real Python 3 interpreter — not a toy sandbox.",
+    icon: Bot,
+    title: "Socratic Copilot",
+    desc: "Hints and questions instead of copy-paste fixes — build real problem-solving muscle.",
+  },
+  {
+    icon: Shield,
+    title: "Ethics Gate",
+    desc: "Pre-run checks for network calls and sensitive data — responsible data science by default.",
   },
   {
     icon: Zap,
-    title: "Smart Error Fix",
-    desc: "SyntaxError, KeyError, and more — explained on the exact line with fixes.",
+    title: "Error Genealogy",
+    desc: "Track how one mistake leads to the next — patterns teachers wish they could see.",
   },
   {
-    icon: Mail,
-    title: "Community Edition",
-    desc: "Sign up free and get a welcome email when you join the PyForge community.",
+    icon: Terminal,
+    title: "Browser Python + NumPy",
+    desc: "Full Pyodide runtime in the browser — deploy globally on Vercel, no backend required.",
+  },
+  {
+    icon: Users,
+    title: "Classroom Pulse",
+    desc: "Live error heatmaps for instructors — students join with a session code.",
   },
 ];
 
@@ -41,9 +66,10 @@ export default function HomePage() {
       <AntiGravityHero />
 
       <section className="max-w-6xl mx-auto px-4 py-20">
-        <h2 className="text-3xl font-bold text-center mb-3">Built for Python professionals</h2>
-        <p className="text-muted text-center mb-12 max-w-xl mx-auto">
-          Whether you train models, build pipelines, or ship AI products — PyForge is your browser IDE.
+        <h2 className="text-3xl font-bold text-center mb-3">Learning-first, not just another IDE</h2>
+        <p className="text-muted text-center mb-12 max-w-2xl mx-auto">
+          PyForge teaches you to think like a Python engineer — counterfactual debugging, mistake memory,
+          spaced-repetition drills, and AI that asks questions instead of handing you answers.
         </p>
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
           {features.map((f) => (
@@ -60,13 +86,18 @@ export default function HomePage() {
       </section>
 
       <section className="border-t border-border py-16 text-center mesh-bg">
-        <h2 className="text-2xl font-bold mb-4">Ready to code like a pro?</h2>
-        <Link
-          href="/playground"
-          className="inline-flex items-center gap-2 text-accent hover:underline font-medium"
-        >
-          Open the IDE <Terminal className="h-4 w-4" />
-        </Link>
+        <h2 className="text-2xl font-bold mb-4">Ready to forge your Python skills?</h2>
+        <div className="flex flex-wrap justify-center gap-4">
+          <Link
+            href="/playground"
+            className="inline-flex items-center gap-2 text-accent hover:underline font-medium"
+          >
+            Open the IDE <Terminal className="h-4 w-4" />
+          </Link>
+          <Link href="/exercises" className="inline-flex items-center gap-2 text-muted hover:text-accent font-medium">
+            Try challenge mutations
+          </Link>
+        </div>
       </section>
     </div>
   );

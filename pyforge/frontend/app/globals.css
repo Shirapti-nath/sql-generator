@@ -63,6 +63,17 @@ body {
   margin-top: 6px;
 }
 
+.syntax-ghost-identifier {
+  background: rgba(245, 158, 11, 0.25) !important;
+  border-bottom: 2px wavy #f59e0b !important;
+}
+
+.intent-orphan-line {
+  opacity: 0.45;
+  background: rgba(100, 116, 139, 0.08) !important;
+}
+
+
 /* Gradient mesh background for landing */
 .mesh-bg {
   background-image:

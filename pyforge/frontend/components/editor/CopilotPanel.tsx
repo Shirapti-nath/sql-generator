@@ -1,11 +1,13 @@
 "use client";
 
 import { useState } from "react";
-import { Bot, Send, Sparkles, Wand2, Trash2 } from "lucide-react";
+import { Bot, Send, Sparkles, Wand2, Trash2, GraduationCap } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useCopilotStore } from "@/stores/copilotStore";
 import { useErrorAssistantStore } from "@/stores/errorAssistantStore";
 import { useEditorStore } from "@/stores/editorStore";
+import { useSettingsStore } from "@/stores/settingsStore";
+import { cn } from "@/lib/utils";
 
 export function CopilotPanel() {
   const [input, setInput] = useState("");
@@ -14,6 +16,8 @@ export function CopilotPanel() {
   const getActiveContent = useEditorStore((s) => s.getActiveContent);
   const updateFile = useEditorStore((s) => s.updateFile);
   const activeFile = useEditorStore((s) => s.activeFile);
+  const socraticMode = useSettingsStore((s) => s.socraticMode);
+  const toggleSocratic = useSettingsStore((s) => s.toggleSocratic);
 
   const send = async (text: string) => {
     if (!text.trim() || loading) return;
@@ -30,6 +34,7 @@ export function CopilotPanel() {
           code,
           message: text,
           error_context: error?.raw,
+          socratic_mode: socraticMode,
         }),
       });
       const data = await res.json();
@@ -61,14 +66,27 @@ export function CopilotPanel() {
 
   return (
     <div className="flex flex-col h-full">
-      <div className="p-3 border-b border-border flex items-center justify-between">
+      <div className="p-3 border-b border-border flex items-center justify-between gap-2">
         <div className="flex items-center gap-2">
           <Bot className="h-4 w-4 text-accent" />
           <span className="text-sm font-semibold">AI Copilot</span>
         </div>
-        <Button variant="ghost" size="sm" onClick={clear} title="Clear chat">
-          <Trash2 className="h-3.5 w-3.5" />
-        </Button>
+        <div className="flex items-center gap-1">
+          <button
+            type="button"
+            onClick={toggleSocratic}
+            title="Socratic mode — hints only, no full solutions"
+            className={cn(
+              "flex items-center gap-1 text-[10px] px-2 py-1 rounded-md transition-colors",
+              socraticMode ? "bg-accent/20 text-accent" : "bg-background text-muted hover:text-foreground"
+            )}
+          >
+            <GraduationCap className="h-3 w-3" /> Socratic
+          </button>
+          <Button variant="ghost" size="sm" onClick={clear} title="Clear chat">
+            <Trash2 className="h-3.5 w-3.5" />
+          </Button>
+        </div>
       </div>
 
       <div className="flex flex-wrap gap-1 p-2 border-b border-border">

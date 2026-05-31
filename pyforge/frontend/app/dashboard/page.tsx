@@ -3,19 +3,25 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { Flame, Trophy, Code2, Terminal, ArrowRight, GraduationCap, Target } from "lucide-react";
+import { Flame, Trophy, Code2, Terminal, ArrowRight, GraduationCap, Target, Clock, BookOpen } from "lucide-react";
 import { useLearningStore } from "@/stores/learningStore";
 import { currentMilestone, nextMilestone } from "@/lib/learning/career-path";
+import { diffHighlights } from "@/lib/learning/snapshots";
 import { Card, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { api } from "@/lib/api";
 import { useAuthStore } from "@/stores/authStore";
+
+function slugify(name: string): string {
+  return name.toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, "");
+}
 
 export default function DashboardPage() {
   const [stats, setStats] = useState<Awaited<ReturnType<typeof api.getDashboard>> | null>(null);
   const { user, accessToken } = useAuthStore();
   const router = useRouter();
   const xp = useLearningStore((s) => s.xp);
+  const snapshots = useLearningStore((s) => s.snapshots);
   const getTopMistakes = useLearningStore((s) => s.getTopMistakes);
   const completedDrills = useLearningStore((s) => s.completedDrills);
   const milestone = currentMilestone(xp);
@@ -29,6 +35,12 @@ export default function DashboardPage() {
     }
     api.getDashboard(accessToken).then(setStats);
   }, [accessToken, router]);
+
+  const recentSnapshots = [...snapshots].reverse().slice(0, 3);
+  const timeTravelPraise =
+    snapshots.length >= 2
+      ? diffHighlights(snapshots[snapshots.length - 2].code, snapshots[snapshots.length - 1].code)
+      : [];
 
   if (!stats || !user) {
     return <div className="max-w-7xl mx-auto px-4 py-12 text-muted">Loading dashboard...</div>;
@@ -84,24 +96,74 @@ export default function DashboardPage() {
         </div>
       </Card>
 
-      <Card className="border-accent/30 bg-accent/5">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Terminal className="h-5 w-5 text-accent" />
-            Ready to code?
-          </CardTitle>
-          <CardDescription>
-            Pre-run checks, error guide, drills, and career XP — all in the playground Learn tab.
-          </CardDescription>
-        </CardHeader>
-        <div className="px-6 pb-6">
-          <Link href="/playground">
-            <Button variant="accent">
-              Open Playground <ArrowRight className="h-4 w-4 ml-2" />
-            </Button>
-          </Link>
-        </div>
-      </Card>
+      {recentSnapshots.length > 0 && (
+        <Card className="mb-6">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-lg">
+              <Clock className="h-5 w-5 text-accent" />
+              Time-travel diff
+            </CardTitle>
+            <CardDescription>How your code evolved across concept snapshots.</CardDescription>
+          </CardHeader>
+          <div className="px-6 pb-4 space-y-3">
+            {timeTravelPraise.length > 0 && (
+              <ul className="text-sm space-y-1">
+                {timeTravelPraise.map((p) => (
+                  <li key={p} className="text-accent">
+                    ✓ {p}
+                  </li>
+                ))}
+              </ul>
+            )}
+            {recentSnapshots.map((snap) => (
+              <div key={snap.id} className="p-3 rounded-lg border border-border">
+                <p className="text-xs font-medium capitalize flex items-center gap-1">
+                  <BookOpen className="h-3.5 w-3.5 text-accent" />
+                  {snap.concept} · {new Date(snap.at).toLocaleDateString()}
+                </p>
+                <pre className="text-[10px] font-mono text-muted mt-1 truncate">{snap.code.split("\n")[0]}</pre>
+              </div>
+            ))}
+            <Link href={`/u/${slugify(user.display_name)}`}>
+              <Button variant="outline" size="sm">
+                View portfolio
+              </Button>
+            </Link>
+          </div>
+        </Card>
+      )}
+
+      <div className="grid sm:grid-cols-2 gap-4 mb-6">
+        <Card className="border-accent/30 bg-accent/5">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Terminal className="h-5 w-5 text-accent" />
+              Playground
+            </CardTitle>
+            <CardDescription>Counterfactual runs, syntax ghost, intent lens, and more.</CardDescription>
+          </CardHeader>
+          <div className="px-6 pb-6">
+            <Link href="/playground">
+              <Button variant="accent">
+                Open IDE <ArrowRight className="h-4 w-4 ml-2" />
+              </Button>
+            </Link>
+          </div>
+        </Card>
+        <Card>
+          <CardHeader>
+            <CardTitle>Challenge mutations</CardTitle>
+            <CardDescription>Auto-graded exercises with mutating test cases.</CardDescription>
+          </CardHeader>
+          <div className="px-6 pb-6">
+            <Link href="/exercises">
+              <Button variant="outline">
+                Start challenges <ArrowRight className="h-4 w-4 ml-2" />
+              </Button>
+            </Link>
+          </div>
+        </Card>
+      </div>
     </div>
   );
 }

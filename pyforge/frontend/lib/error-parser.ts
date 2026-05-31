@@ -9,6 +9,7 @@ export interface ParsedError {
   example?: string;
   suggestions?: string[];
   conceptTags?: string[];
+  suggestedPatch?: string;
 }
 
 const ERROR_GUIDE: Record<
@@ -141,6 +142,7 @@ export function parsePythonError(raw: string, codeContext?: string): ParsedError
 
   const resolvedType = custom?.type ?? guide.title;
   const suggestions = buildSuggestions(resolvedType, custom, codeContext);
+  const patchLine = custom?.example?.split("\n").find((l) => l.trim() && !l.startsWith("#"));
 
   return {
     type: resolvedType,
@@ -153,6 +155,7 @@ export function parsePythonError(raw: string, codeContext?: string): ParsedError
     example: custom?.example ?? guide.example,
     suggestions,
     conceptTags: conceptTagsForType(type, custom),
+    suggestedPatch: patchLine,
   };
 }
 

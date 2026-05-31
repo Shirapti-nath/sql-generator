@@ -10,9 +10,13 @@ import {
   RotateCcw,
   BookOpen,
   ListOrdered,
+  GitBranch,
+  LineChart,
 } from "lucide-react";
+import { MLSimPanel } from "@/components/learning/MLSimPanel";
+import { buildTransitions, timelineSummary } from "@/lib/learning/error-genealogy";
 import { Button } from "@/components/ui/button";
-import { useLearningStore } from "@/stores/learningStore";
+import { useLearningStore, useClassroomPulseStore } from "@/stores/learningStore";
 import { useErrorAssistantStore } from "@/stores/errorAssistantStore";
 import { useEditorStore } from "@/stores/editorStore";
 import {
@@ -30,10 +34,13 @@ import { buildExecutionStoryboard } from "@/lib/learning/execution-storyboard";
 import { hasNotebookMarkers, splitNotebookCells } from "@/lib/learning/notebook-cells";
 import { cn } from "@/lib/utils";
 
-type LearnSection = "path" | "mistakes" | "drills" | "trace";
+type LearnSection = "path" | "mistakes" | "drills" | "trace" | "genealogy" | "mlsim";
 
 export function LearnPanel() {
   const [section, setSection] = useState<LearnSection>("path");
+  const [sessionInput, setSessionInput] = useState("");
+  const joinSession = useClassroomPulseStore((s) => s.joinSession);
+  const sessionCode = useClassroomPulseStore((s) => s.sessionCode);
   const xp = useLearningStore((s) => s.xp);
   const totalRuns = useLearningStore((s) => s.totalRuns);
   const successfulRuns = useLearningStore((s) => s.successfulRuns);
@@ -42,6 +49,7 @@ export function LearnPanel() {
   const getTopMistakes = useLearningStore((s) => s.getTopMistakes);
   const completeDrill = useLearningStore((s) => s.completeDrill);
   const lastStoryboardCode = useLearningStore((s) => s.lastStoryboardCode);
+  const errorEvents = useLearningStore((s) => s.errorEvents);
   const error = useErrorAssistantStore((s) => s.error);
   const { getActiveContent, updateFile, activeFile } = useEditorStore();
 
@@ -81,11 +89,16 @@ export function LearnPanel() {
   const code = getActiveContent();
   const notebookCells = hasNotebookMarkers(code) ? splitNotebookCells(code) : [];
 
+  const transitions = buildTransitions(errorEvents);
+  const timeline = timelineSummary(errorEvents);
+
   const sections: { id: LearnSection; label: string; icon: typeof Target }[] = [
     { id: "path", label: "Path", icon: GraduationCap },
     { id: "mistakes", label: "Mistakes", icon: Flame },
     { id: "drills", label: "Drills", icon: Target },
     { id: "trace", label: "Trace", icon: ListOrdered },
+    { id: "genealogy", label: "History", icon: GitBranch },
+    { id: "mlsim", label: "ML Sim", icon: LineChart },
   ];
 
   return (
@@ -163,6 +176,33 @@ export function LearnPanel() {
                 ))}
               </div>
             )}
+
+            <div className="pt-2 border-t border-border">
+              <h3 className="text-xs font-semibold uppercase text-muted mb-2">Classroom session</h3>
+              {sessionCode ? (
+                <p className="text-xs text-accent">
+                  Joined <span className="font-mono">{sessionCode}</span> — errors report to teacher pulse.
+                </p>
+              ) : (
+                <div className="flex gap-1">
+                  <input
+                    value={sessionInput}
+                    onChange={(e) => setSessionInput(e.target.value.toUpperCase())}
+                    placeholder="ABC123"
+                    className="flex-1 text-xs font-mono bg-background border border-border rounded px-2 py-1"
+                    maxLength={8}
+                  />
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="h-7 text-xs"
+                    onClick={() => sessionInput.trim() && joinSession(sessionInput.trim())}
+                  >
+                    Join
+                  </Button>
+                </div>
+              )}
+            </div>
           </>
         )}
 
@@ -292,6 +332,45 @@ export function LearnPanel() {
             </div>
           </>
         )}
+
+        {section === "genealogy" && (
+          <>
+            <p className="text-xs text-muted">
+              Error genealogy — how one mistake leads to the next as you iterate.
+            </p>
+            {timeline.length > 0 && (
+              <div>
+                <h3 className="text-xs font-semibold uppercase text-muted mb-2">Timeline</h3>
+                <ul className="space-y-1 font-mono text-[11px]">
+                  {timeline.map((line, i) => (
+                    <li key={i} className="text-muted">
+                      {line}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+            {transitions.length > 0 ? (
+              <div>
+                <h3 className="text-xs font-semibold uppercase text-muted mb-2">Common transitions</h3>
+                <ul className="space-y-2">
+                  {transitions.slice(0, 5).map((t) => (
+                    <li key={`${t.from}-${t.to}`} className="p-2 rounded border border-border text-xs">
+                      <span className="text-red-400">{t.from}</span>
+                      <span className="text-muted mx-1">→</span>
+                      <span className="text-amber-400">{t.to}</span>
+                      <span className="text-muted ml-2">({t.count}×)</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ) : (
+              <p className="text-muted text-xs">Fix a few errors to see patterns emerge.</p>
+            )}
+          </>
+        )}
+
+        {section === "mlsim" && <MLSimPanel />}
       </div>
     </div>
   );

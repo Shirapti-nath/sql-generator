@@ -1,11 +1,14 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useMemo } from "react";
 import type { editor } from "monaco-editor";
 import { useThemeStore } from "@/stores/themeStore";
 import { useErrorAssistantStore } from "@/stores/errorAssistantStore";
 import { ensurePythonCompletions } from "@/lib/monaco/setup-completions";
+import { analyzeSyntaxGhost } from "@/lib/learning/syntax-ghost";
+import { analyzeIntentAlignment } from "@/lib/learning/intent-lens";
+import { useSettingsStore } from "@/stores/settingsStore";
 
 const MonacoEditor = dynamic(() => import("@monaco-editor/react"), { ssr: false });
 
@@ -19,57 +22,81 @@ interface CodeEditorProps {
 export function CodeEditor({ value, onChange, height = "100%", readOnly = false }: CodeEditorProps) {
   const theme = useThemeStore((s) => s.theme);
   const highlightLine = useErrorAssistantStore((s) => s.highlightLine);
+  const goal = useSettingsStore((s) => s.learningGoal);
   const editorRef = useRef<editor.IStandaloneCodeEditor | null>(null);
   const decorationsRef = useRef<string[]>([]);
+
+  const ghostMarks = useMemo(() => analyzeSyntaxGhost(value), [value]);
+  const intentLines = useMemo(() => {
+    if (!goal.trim()) return new Set<number>();
+    return new Set(analyzeIntentAlignment(goal, value).filter((a) => !a.aligned).map((a) => a.line));
+  }, [goal, value]);
 
   useEffect(() => {
     const ed = editorRef.current;
     if (!ed) return;
 
+    const decos: editor.IModelDeltaDecoration[] = [];
+
     if (highlightLine && highlightLine > 0) {
       const maxLine = ed.getModel()?.getLineCount() ?? 1;
       const line = Math.min(highlightLine, maxLine);
-      decorationsRef.current = ed.deltaDecorations(decorationsRef.current, [
-        {
-          range: {
-            startLineNumber: line,
-            startColumn: 1,
-            endLineNumber: line,
-            endColumn: ed.getModel()?.getLineMaxColumn(line) ?? 1,
-          },
-          options: {
-            isWholeLine: true,
-            className: "error-line-highlight",
-            glyphMarginClassName: "error-glyph-margin",
-          },
+      decos.push({
+        range: {
+          startLineNumber: line,
+          startColumn: 1,
+          endLineNumber: line,
+          endColumn: ed.getModel()?.getLineMaxColumn(line) ?? 1,
         },
-      ]);
-      ed.revealLineInCenter(line);
-    } else {
-      decorationsRef.current = ed.deltaDecorations(decorationsRef.current, []);
+        options: {
+          isWholeLine: true,
+          className: "error-line-highlight",
+          glyphMarginClassName: "error-glyph-margin",
+        },
+      });
     }
-  }, [highlightLine, value]);
+
+    for (const g of ghostMarks) {
+      decos.push({
+        range: {
+          startLineNumber: g.line,
+          startColumn: g.startColumn,
+          endLineNumber: g.line,
+          endColumn: g.endColumn,
+        },
+        options: {
+          inlineClassName: "syntax-ghost-identifier",
+          hoverMessage: { value: g.label },
+        },
+      });
+    }
+
+    for (const line of intentLines) {
+      decos.push({
+        range: {
+          startLineNumber: line,
+          startColumn: 1,
+          endLineNumber: line,
+          endColumn: ed.getModel()?.getLineMaxColumn(line) ?? 1,
+        },
+        options: {
+          isWholeLine: true,
+          className: "intent-orphan-line",
+        },
+      });
+    }
+
+    decorationsRef.current = ed.deltaDecorations(decorationsRef.current, decos);
+    if (highlightLine) ed.revealLineInCenter(Math.min(highlightLine, ed.getModel()?.getLineCount() ?? 1));
+  }, [highlightLine, value, ghostMarks, intentLines]);
 
   const handleMount = (ed: editor.IStandaloneCodeEditor) => {
     editorRef.current = ed;
     void ensurePythonCompletions();
-
     ed.updateOptions({
       tabCompletion: "on",
-      acceptSuggestionOnCommitCharacter: true,
-      acceptSuggestionOnEnter: "on",
+      glyphMargin: true,
       quickSuggestions: { other: true, comments: false, strings: true },
-      suggestOnTriggerCharacters: true,
-      wordBasedSuggestions: "matchingDocuments",
-      snippetSuggestions: "top",
-      suggest: {
-        preview: true,
-        showKeywords: true,
-        showSnippets: true,
-        showFunctions: true,
-        showClasses: true,
-        showModules: true,
-      },
     });
   };
 
@@ -94,11 +121,6 @@ export function CodeEditor({ value, onChange, height = "100%", readOnly = false 
         readOnly,
         padding: { top: 12 },
         renderLineHighlight: "all",
-        cursorBlinking: "smooth",
-        bracketPairColorization: { enabled: true },
-        smoothScrolling: true,
-        tabCompletion: "on",
-        quickSuggestions: { other: true, strings: true },
         wordWrap: "on",
       }}
     />

@@ -10,6 +10,7 @@ import { cn } from "@/lib/utils";
 
 const links = [
   { href: "/playground", label: "Playground", icon: Terminal },
+  { href: "/exercises", label: "Challenges", icon: Code2 },
   { href: "/dashboard", label: "Dashboard", icon: User },
 ];
 

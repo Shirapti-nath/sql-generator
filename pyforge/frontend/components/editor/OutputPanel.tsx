@@ -5,13 +5,15 @@ import { useExecutionStore } from "@/stores/executionStore";
 import { useEditorStore } from "@/stores/editorStore";
 import { TabsRoot, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { cn } from "@/lib/utils";
-import { Loader2, CheckCircle2, XCircle, Clock, BarChart3 } from "lucide-react";
+import { Loader2, CheckCircle2, XCircle, Clock, BarChart3, FlaskConical } from "lucide-react";
 import { diagnosePlotCode } from "@/lib/learning/plot-diagnostics";
 import { friendlyError } from "@/lib/error-parser";
+import { useEliteFeaturesStore } from "@/stores/eliteFeaturesStore";
 
 export function OutputPanel() {
   const { output, isRunning } = useExecutionStore();
   const code = useEditorStore((s) => s.getActiveContent());
+  const counterfactual = useEliteFeaturesStore((s) => s.counterfactual);
 
   const plotTips = useMemo(
     () => diagnosePlotCode(code, output.plots.length),
@@ -29,6 +31,7 @@ export function OutputPanel() {
         <TabsList>
           <TabsTrigger value="output">Output</TabsTrigger>
           <TabsTrigger value="terminal">Terminal</TabsTrigger>
+          {counterfactual && <TabsTrigger value="counterfactual">What-if</TabsTrigger>}
           {output.plots.length > 0 && <TabsTrigger value="plots">Plots</TabsTrigger>}
         </TabsList>
 
@@ -76,6 +79,32 @@ export function OutputPanel() {
           <pre className="font-mono text-sm whitespace-pre-wrap">
             {output.stdout || output.stderr || "No terminal output yet."}
           </pre>
+        </TabsContent>
+
+        <TabsContent value="counterfactual" className="h-[calc(100%-40px)] overflow-auto p-4">
+          {counterfactual && (
+            <div className="space-y-3 text-xs">
+              <p className="flex items-center gap-1 text-accent">
+                <FlaskConical className="h-3.5 w-3.5" /> {counterfactual.description}
+              </p>
+              <div className="grid sm:grid-cols-2 gap-3">
+                <div>
+                  <p className="text-muted mb-1">Your code (failed)</p>
+                  <pre className="font-mono text-red-400/90 bg-background p-2 rounded border whitespace-pre-wrap">
+                    {counterfactual.originalStdout || "(no output)"}
+                  </pre>
+                </div>
+                <div>
+                  <p className="text-muted mb-1">
+                    Shadow fix {counterfactual.patchedSucceeded ? "✓" : "…"}
+                  </p>
+                  <pre className="font-mono text-emerald-400/90 bg-background p-2 rounded border whitespace-pre-wrap">
+                    {counterfactual.patchedStdout || "(no output)"}
+                  </pre>
+                </div>
+              </div>
+            </div>
+          )}
         </TabsContent>
 
         <TabsContent value="plots" className="h-[calc(100%-40px)] overflow-auto p-4">

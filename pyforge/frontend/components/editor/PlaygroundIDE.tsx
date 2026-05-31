@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { Play, Plus, FileCode, Code2, Trash2, GraduationCap, AlertCircle } from "lucide-react";
+import { Play, Plus, FileCode, Code2, Trash2, GraduationCap, AlertCircle, FolderOpen } from "lucide-react";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { CodeEditor } from "@/components/editor/CodeEditor";
@@ -10,10 +10,15 @@ import { RightSidebar } from "@/components/editor/RightSidebar";
 import { PreRunBanner } from "@/components/editor/PreRunBanner";
 import { LearnPanel } from "@/components/editor/LearnPanel";
 import { ErrorAssistant } from "@/components/editor/ErrorAssistant";
+import { CognitiveLoadBar } from "@/components/editor/CognitiveLoadBar";
+import { MobileFilesSheet } from "@/components/editor/MobileFilesSheet";
+import { EthicsGateModal } from "@/components/editor/EthicsGateModal";
 import { useErrorAssistantStore } from "@/stores/errorAssistantStore";
 import { useEditorStore } from "@/stores/editorStore";
 import { useExecution } from "@/components/execution/useExecution";
 import { useExecutionStore } from "@/stores/executionStore";
+import { useSettingsStore } from "@/stores/settingsStore";
+import { analyzeBeforeRun } from "@/lib/learning/pre-run-analyzer";
 import { cn } from "@/lib/utils";
 
 type MobilePanel = "learn" | "guide" | null;
@@ -24,17 +29,35 @@ export function PlaygroundIDE() {
   const { run } = useExecution();
   const { isRunning } = useExecutionStore();
   const hasError = useErrorAssistantStore((s) => !!s.error);
+  const ethicsAcknowledged = useSettingsStore((s) => s.ethicsAcknowledged);
+  const setEthicsAcknowledged = useSettingsStore((s) => s.setEthicsAcknowledged);
   const [mobilePanel, setMobilePanel] = useState<MobilePanel>(null);
+  const [filesOpen, setFilesOpen] = useState(false);
+  const [ethicsOpen, setEthicsOpen] = useState(false);
+  const [pendingRun, setPendingRun] = useState(false);
 
   const code = getActiveContent();
 
-  const handleRun = useCallback(async () => {
+  const executeRun = useCallback(async () => {
     try {
       await run(code);
     } catch {
-      /* errors handled inside useExecution */
+      /* handled in useExecution */
     }
   }, [run, code]);
+
+  const handleRun = useCallback(() => {
+    const warnings = analyzeBeforeRun(code);
+    const needsEthics = warnings.some(
+      (w) => w.id.startsWith("ethics") && !ethicsAcknowledged
+    );
+    if (needsEthics) {
+      setEthicsOpen(true);
+      setPendingRun(true);
+      return;
+    }
+    void executeRun();
+  }, [code, ethicsAcknowledged, executeRun]);
 
   const handleDelete = (name: string, e: React.MouseEvent) => {
     e.stopPropagation();
@@ -58,7 +81,7 @@ export function PlaygroundIDE() {
     const handler = (e: KeyboardEvent) => {
       if ((e.metaKey || e.ctrlKey) && e.key === "Enter") {
         e.preventDefault();
-        void handleRun();
+        handleRun();
       }
     };
     window.addEventListener("keydown", handler);
@@ -67,11 +90,28 @@ export function PlaygroundIDE() {
 
   return (
     <div className="flex flex-col h-[calc(100vh-3.5rem)] bg-background">
+      <EthicsGateModal
+        open={ethicsOpen}
+        onConfirm={() => {
+          setEthicsAcknowledged(true);
+          setEthicsOpen(false);
+          if (pendingRun) {
+            setPendingRun(false);
+            void executeRun();
+          }
+        }}
+        onCancel={() => {
+          setEthicsOpen(false);
+          setPendingRun(false);
+        }}
+      />
+      <MobileFilesSheet open={filesOpen} onClose={() => setFilesOpen(false)} />
+
       <div className="flex items-center gap-3 px-4 py-2.5 border-b border-border bg-card/80">
         <Button
           variant="accent"
           size="sm"
-          onClick={() => void handleRun()}
+          onClick={handleRun}
           disabled={isRunning}
           className={cn(!isRunning && "run-pulse")}
         >
@@ -79,16 +119,23 @@ export function PlaygroundIDE() {
           {isRunning ? "Running..." : "Run"}
         </Button>
 
+        <button
+          type="button"
+          onClick={() => setFilesOpen(true)}
+          className="md:hidden flex items-center gap-1 text-xs text-muted px-2 py-1 rounded border border-border"
+        >
+          <FolderOpen className="h-3.5 w-3.5" /> Files
+        </button>
+
         <span className="ml-auto text-xs text-muted hidden sm:flex items-center gap-1">
           <kbd className="px-1.5 py-0.5 rounded bg-background border border-border font-mono">⌘</kbd>
           <span>+</span>
           <kbd className="px-1.5 py-0.5 rounded bg-background border border-border font-mono">↵</kbd>
-          <span className="ml-1">to run</span>
         </span>
       </div>
 
       <div className="flex flex-1 min-h-0">
-        <aside className="w-44 sm:w-52 border-r border-border bg-card/30 flex flex-col shrink-0 max-w-[40vw]">
+        <aside className="w-44 sm:w-52 border-r border-border bg-card/30 hidden md:flex flex-col shrink-0">
           <div className="p-3 flex items-center gap-2 text-xs font-semibold text-muted uppercase tracking-wider">
             <FileCode className="h-3.5 w-3.5" /> Files
           </div>
@@ -137,6 +184,7 @@ export function PlaygroundIDE() {
 
         <div className="flex-1 flex flex-col min-w-0">
           <PreRunBanner code={code} />
+          <CognitiveLoadBar code={code} />
           <motion.div className="flex-1 min-h-0" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
             <CodeEditor value={code} onChange={(v) => updateFile(activeFile, v)} />
           </motion.div>
@@ -148,7 +196,6 @@ export function PlaygroundIDE() {
         <RightSidebar />
       </div>
 
-      {/* Mobile learning panels */}
       <div className="lg:hidden border-t border-border bg-card/80 flex">
         <button
           type="button"

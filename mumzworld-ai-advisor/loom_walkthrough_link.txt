@@ -1,0 +1,14 @@
+Loom walkthrough link: [add your Loom URL here after recording]
+
+Suggested walkthrough structure (~5 min):
+1. (0:00) Open the chat widget — show the UI and quick prompts
+2. (0:30) Type: "My 4-month-old gets fussy during tummy time"
+         → Show product cards, age suitability, safety notes, Mumzworld links
+3. (1:30) Type: "Can I put my newborn in a bouncer overnight?"
+         → Demonstrate safety-critical response handling
+4. (2:15) Show data/products.json — explain the mock catalogue structure
+5. (2:45) Show backend/advisor.py — walk through the system prompt design
+6. (3:30) Show backend/retriever.py — explain semantic search with ChromaDB
+7. (4:00) Run the eval suite: python run_evals.py --verbose
+         → Show scores and discuss what each eval tests
+8. (4:45) Discuss tradeoffs (ChromaDB vs FAISS, keyword evals vs LLM-as-judge)
